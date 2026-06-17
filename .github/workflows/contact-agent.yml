@@ -1,0 +1,25 @@
+name: VW Contact Finder
+
+on:
+  schedule:
+    - cron: "0 8,14,19 * * 1-6"   # 8am, 2pm, 7pm UTC, Mon-Sat (~1h after the job watcher)
+  workflow_dispatch: {}
+
+jobs:
+  enrich:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - run: pip install -r vw-contact-agent/requirements.txt
+      - name: Run contact-finder agent
+        env:
+          # Agent id is not sensitive — it's the seeded contact-finder row.
+          AGENT_ID:             b7e6d5c4-3a2b-4c1d-9e8f-0a1b2c3d4e5f
+          APOLLO_API_KEY:       ${{ secrets.APOLLO_API_KEY }}
+          SUPABASE_URL:         ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        working-directory: vw-contact-agent
+        run: python main.py

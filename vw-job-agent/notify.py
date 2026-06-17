@@ -70,7 +70,7 @@ def _html(jobs: list[dict]) -> str:
 
 
 def send_email(jobs: list[dict]) -> None:
-    if not (config.SEND_EMAIL and config.SMTP_USER and config.SMTP_PASS and config.ALERT_TO):
+    if not (config.SMTP_USER and config.SMTP_PASS and config.ALERT_TO):
         return
     msg = MIMEMultipart("alternative")
     msg["Subject"] = f"[VW Job Watch] {len(jobs)} new lead(s)"
