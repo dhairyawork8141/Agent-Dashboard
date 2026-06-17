@@ -31,6 +31,10 @@ AGENT_ID = os.getenv("AGENT_ID", "")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 ENRICH_MODEL = os.getenv("ENRICH_MODEL", "gemini-2.0-flash")
 
+# --- Groq "brain": free LLM that judges each candidate lead for KBB/interior-design fit ---
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
+GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+
 # --- Email credentials (the on/off toggle lives in settings) ---
 SMTP_HOST = os.getenv("SMTP_HOST", "smtp.office365.com")
 SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
@@ -58,15 +62,41 @@ DEFAULT_SETTINGS = {
     "max_days_old": int(os.getenv("MAX_DAYS_OLD", "3")),
     "enrich_with_claude": _flag("ENRICH_WITH_CLAUDE"),
     "send_email": _flag("SEND_EMAIL"),
+    # --- AI brain (Groq): final human-like judge of KBB/interior-design fit. Runs only on
+    #     candidates that clear the keyword pre-filter, capped per run to respect free quota. ---
+    "use_brain": _flag("USE_BRAIN", "true"),
+    "brain_max_per_run": int(os.getenv("BRAIN_MAX_PER_RUN", "30")),
+    # --- Quality gate: only leads scoring >= min_score are saved/emailed. Postings
+    #     containing any exclude_term are disqualified outright. Tune from the dashboard.
+    #     ~70 = HOT/WARM only, ~50 = + strong WATCH (balanced), ~30 = keep most CAD/KBB.
+    "min_score": int(os.getenv("MIN_SCORE", "50")),
+    "exclude_terms": [t.strip() for t in os.getenv("EXCLUDE_TERMS",
+        "graphic designer,web designer,ux designer,ui designer,ux/ui,ui/ux,"
+        "fashion,jewellery,jewelry,game designer,vfx artist,motion graphic,"
+        "hairdresser,nail technician,florist").split(",") if t.strip()],
+    # The advert TITLE must contain one of these, or it's not a designer vacancy
+    # (drops Account/Sales/Project Managers, developers, support, admin, etc.).
+    "role_terms": [t.strip() for t in os.getenv("ROLE_TERMS",
+        "designer,design consultant,cad,draught,draft,kbb,kitchen design,"
+        "bathroom design,3d visual,cgi,render").split(",") if t.strip()],
+    # If the EMPLOYER is one of these, it's the software vendor hiring internally,
+    # not a showroom -> drop (adverts that merely mention the software still pass).
+    "exclude_companies": [t.strip() for t in os.getenv("EXCLUDE_COMPANIES",
+        "cyncly,compusoft,winner design,2020,fusion software,virtual worlds software").split(",") if t.strip()],
     "searches": [
         {"label": "Virtual Worlds (exact)", "phrase": "virtual worlds"},
         {"label": "Cyncly",                 "phrase": "cyncly"},
         {"label": "Winner Design",          "phrase": "winner design"},
         {"label": "Compusoft",              "phrase": "compusoft"},
-        {"label": "Bathroom CAD designer",  "phrase": "bathroom designer", "extra": "CAD"},
-        {"label": "Kitchen CAD designer",   "phrase": "kitchen designer",  "extra": "CAD"},
+        {"label": "Bathroom designer",      "phrase": "bathroom designer"},
+        {"label": "Kitchen designer",       "phrase": "kitchen designer"},
+        {"label": "Bedroom designer",       "phrase": "bedroom designer"},
+        {"label": "KBB designer",           "phrase": "kbb designer"},
+        {"label": "Showroom designer",      "phrase": "showroom designer"},
+        {"label": "Interior design (CAD)",  "phrase": "interior designer", "extra": "CAD"},
     ],
     "hot_terms":  ["virtual worlds", "virtual world", "vw 4d", "4d theatre", "4d theater"],
     "warm_terms": ["winner design", "winner cad", "winner flex", "cyncly", "compusoft"],
-    "watch_terms": ["cad", "kbb", "bathroom design", "kitchen design", "autocad", "sketchup"],
+    "watch_terms": ["cad", "kbb", "bathroom design", "kitchen design", "bedroom design",
+                    "fitted furniture", "showroom", "interior design", "autocad", "sketchup"],
 }

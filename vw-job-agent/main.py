@@ -11,6 +11,7 @@ import config
 import sources
 import store
 import scorer
+import brain
 import enrich
 import notify
 import supabase_io
@@ -36,6 +37,34 @@ def run() -> None:
         return
 
     new = [scorer.score_job(j, settings) for j in new]
+
+    # Stage 1 - cheap keyword pre-filter: drop disqualified + below-threshold noise.
+    min_score = settings.get("min_score", config.DEFAULT_SETTINGS["min_score"])
+    scored = new
+    candidates = [j for j in scored if not j.get("disqualified") and j.get("score", 0) >= min_score]
+    log.info("Keyword pre-filter: %d of %d postings are candidates (min_score=%d)",
+             len(candidates), len(scored), min_score)
+
+    # Stage 2 - AI brain judges each candidate for genuine KBB/interior-design fit.
+    if candidates and settings.get("use_brain") and brain.available():
+        cap = settings.get("brain_max_per_run", config.DEFAULT_SETTINGS["brain_max_per_run"])
+        judged = [brain.judge(j, settings) for j in candidates[:cap]]
+        kept = [j for j in judged if j is not None]
+        rejected = len(candidates[:cap]) - len(kept)
+        leftover = candidates[cap:]     # beyond the per-run cap: keep keyword verdict
+        new = kept + leftover
+        log.info("AI brain: kept %d, rejected %d (of %d judged; %d beyond cap kept on keyword score)",
+                 len(kept), rejected, len(candidates[:cap]), len(leftover))
+    else:
+        new = candidates
+
+    if not new:
+        log.info("No leads cleared the filters this run.")
+        if supabase_io.configured():
+            supabase_io.finish_run(config.AGENT_ID, "ok", 0)
+        store.commit(scored)            # still remember them so they aren't re-checked
+        return
+
     if settings.get("enrich_with_claude"):
         new = [enrich.enrich(j) for j in new]
     new.sort(key=lambda j: -j.get("score", 0))

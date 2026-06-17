@@ -15,8 +15,38 @@ def score_job(job: dict, settings: dict | None = None) -> dict:
     hot = s.get("hot_terms") or config.DEFAULT_SETTINGS["hot_terms"]
     warm = s.get("warm_terms") or config.DEFAULT_SETTINGS["warm_terms"]
     watch = s.get("watch_terms") or config.DEFAULT_SETTINGS["watch_terms"]
+    exclude = s.get("exclude_terms") or config.DEFAULT_SETTINGS.get("exclude_terms", [])
+    role_terms = s.get("role_terms") or config.DEFAULT_SETTINGS.get("role_terms", [])
+    excl_companies = s.get("exclude_companies") or config.DEFAULT_SETTINGS.get("exclude_companies", [])
 
-    text = f"{job.get('title','')} {job.get('company','')} {job.get('description','')}".lower()
+    title = (job.get("title") or "").lower()
+    company = (job.get("company") or "").lower()
+    text = f"{title} {company} {job.get('description','')}".lower()
+
+    def _disqualify(reason: str) -> dict:
+        job["tier"] = TIER_WATCH
+        job["score"] = 0
+        job["is_recruiter"] = False
+        job["disqualified"] = True
+        job["score_reasons"] = [reason]
+        return job
+
+    # 1. Off-target roles (graphic/web/fashion/etc.) anywhere in the advert.
+    hit = next((t for t in exclude if t in text), None)
+    if hit:
+        return _disqualify(f"excluded: off-target term '{hit}'")
+
+    # 2. Employer IS the software vendor (Cyncly/Compusoft/...) hiring internally,
+    #    not a showroom. Adverts that only mention the software still pass.
+    vhit = next((c for c in excl_companies if c and c in company), None)
+    if vhit:
+        return _disqualify(f"excluded: employer is the software vendor '{vhit}', not a showroom")
+
+    # 3. Must be a designer vacancy: a role term has to appear in the title
+    #    (drops Account/Sales/Project Managers, developers, support, admin...).
+    role_field = title or text
+    if role_terms and not any(t in role_field for t in role_terms):
+        return _disqualify("excluded: title is not a designer/CAD role")
 
     if any(t in text for t in hot):
         tier, base = TIER_HOT, 100
@@ -25,7 +55,8 @@ def score_job(job: dict, settings: dict | None = None) -> dict:
     elif any(t in text for t in watch):
         tier, base = TIER_WATCH, 40
     else:
-        tier, base = TIER_WATCH, 20
+        # Matched a search phrase but none of our relevance keywords -> noise.
+        tier, base = TIER_WATCH, 0
 
     reasons = []
     if job.get("salary"):
