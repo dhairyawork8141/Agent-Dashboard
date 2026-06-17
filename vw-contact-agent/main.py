@@ -13,6 +13,7 @@ from datetime import datetime, timezone
 
 import config
 import apollo
+import draft
 import supabase_io
 
 logging.basicConfig(level=logging.INFO,
@@ -101,10 +102,23 @@ def run() -> None:
             "enriched_at": datetime.now(timezone.utc).isoformat(),
             "status": "Contact found" if email else "Contact (no email)",
         }
+
+        # Draft an outreach email for review (only if we have an address to send to).
+        if email and settings.get("draft_emails") and draft.available():
+            d = draft.draft_email(lead, contact, settings)
+            if d:
+                contact.update({
+                    "draft_subject": d["subject"],
+                    "draft_body": d["body"],
+                    "draft_status": "pending",       # awaits your approval in the dashboard
+                    "drafted_at": datetime.now(timezone.utc).isoformat(),
+                })
+
         if supabase_io.update_lead(lead["id"], contact):
             done += 1
-            log.info("Enriched '%s' -> %s, %s <%s>", name, contact["contact_name"],
-                     contact["contact_title"] or "", email or "no email")
+            log.info("Enriched '%s' -> %s, %s <%s>%s", name, contact["contact_name"],
+                     contact["contact_title"] or "", email or "no email",
+                     " +draft" if contact.get("draft_status") == "pending" else "")
 
     supabase_io.finish_run("ok", done)
     log.info("Done - %d contact(s) written to the dashboard.", done)

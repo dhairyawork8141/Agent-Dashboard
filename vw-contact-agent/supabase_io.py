@@ -68,6 +68,22 @@ def leads_needing_contact(limit: int) -> list[dict]:
         return []
 
 
+def leads_to_send(limit: int = 25) -> list[dict]:
+    """Leads you've approved in the dashboard that haven't been sent yet."""
+    try:
+        r = requests.get(f"{_base()}/leads", headers=_headers(), params={
+            "select": "id,contact_name,contact_email,draft_subject,draft_body,draft_status",
+            "draft_status": "eq.approved",
+            "contact_email": "not.is.null",
+            "limit": str(limit),
+        }, timeout=TIMEOUT)
+        r.raise_for_status()
+        return r.json()
+    except Exception as e:
+        log.warning("leads_to_send failed: %s", e)
+        return []
+
+
 def update_lead(lead_id: str, fields: dict) -> bool:
     try:
         r = requests.patch(f"{_base()}/leads",

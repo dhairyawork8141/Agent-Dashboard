@@ -24,6 +24,23 @@ SUPABASE_URL = os.getenv("SUPABASE_URL", "")
 SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_KEY", "")   # service_role key (server only)
 AGENT_ID = os.getenv("AGENT_ID", "")                          # the contact-finder agent row id
 
+# --- Groq "brain": free LLM that drafts the personalised outreach email ---
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
+GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+
+# --- Sending: Microsoft 365 OAuth2 (app-only) SMTP. Same app/secrets as the job agent.
+#     The sender mails APPROVED drafts; it stays inert until these are set. ---
+SMTP_HOST = os.getenv("SMTP_HOST", "smtp.office365.com")
+SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
+SMTP_USER = os.getenv("SMTP_USER", "")                        # the sending mailbox
+ALERT_FROM = os.getenv("ALERT_FROM", SMTP_USER)
+OAUTH_TENANT_ID = os.getenv("OAUTH_TENANT_ID", "")
+OAUTH_CLIENT_ID = os.getenv("OAUTH_CLIENT_ID", "")
+OAUTH_CLIENT_SECRET = os.getenv("OAUTH_CLIENT_SECRET", "")
+# Studio details the brain weaves into the draft.
+STUDIO_NAME = os.getenv("STUDIO_NAME", "CAD Illustrators")
+SENDER_NAME = os.getenv("SENDER_NAME", "Dhairya")
+
 # --- Fallback settings, used when the dashboard row carries none. The dashboard edits a
 #     copy of this shape stored in the agents table. ---
 DEFAULT_SETTINGS = {
@@ -31,6 +48,9 @@ DEFAULT_SETTINGS = {
     "tiers": _list("TIERS", "HOT - Virtual Worlds,WARM - Winner/Cyncly"),
     "skip_recruiters": _flag("SKIP_RECRUITERS", "true"),
     "reveal_phone": _flag("REVEAL_PHONE", "false"),
+    # When true, after finding a contact the agent drafts an outreach email (Groq)
+    # and parks it as 'pending' for you to approve in the dashboard.
+    "draft_emails": _flag("DRAFT_EMAILS", "true"),
     "locations": _list("LOCATIONS", "United Kingdom"),
     "titles": [
         "Owner", "Founder", "Co-Founder", "Managing Director", "Director",
