@@ -1,4 +1,4 @@
-"""Optional: Claude reads each posting, names the hiring showroom and drafts an opener.
+"""Optional: Gemini reads each posting, names the hiring showroom and drafts an opener.
 The on/off decision is made by the caller (from settings); this just needs the API key."""
 import json
 import logging
@@ -27,23 +27,21 @@ Description: {description}"""
 
 
 def enrich(job: dict) -> dict:
-    if not config.ANTHROPIC_API_KEY:
+    if not config.GEMINI_API_KEY:
         return job
     try:
-        from anthropic import Anthropic
-        client = Anthropic(api_key=config.ANTHROPIC_API_KEY)
-        msg = client.messages.create(
-            model=config.ENRICH_MODEL,
-            max_tokens=400,
-            messages=[{"role": "user", "content": PROMPT.format(
+        from google import genai
+        client = genai.Client(api_key=config.GEMINI_API_KEY)
+        response = client.models.generate_content(
+            model="gemini-2.0-flash",
+            contents=PROMPT.format(
                 title=job.get("title", ""),
                 company=job.get("company", ""),
                 location=job.get("location", ""),
                 description=(job.get("description", "") or "")[:2000],
-            )}],
+            ),
         )
-        text = "".join(b.text for b in msg.content if getattr(b, "type", "") == "text")
-        text = text.replace("```json", "").replace("```", "").strip()
+        text = response.text.replace("```json", "").replace("```", "").strip()
         data = json.loads(text)
         job["showroom_name"] = data.get("showroom_name", "")
         job["decision_maker_hint"] = data.get("decision_maker_hint", "")

@@ -23,9 +23,9 @@ SUPABASE_URL = os.getenv("SUPABASE_URL", "")
 SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_KEY", "")   # service_role key (server only)
 AGENT_ID = os.getenv("AGENT_ID", "")
 
-# --- Claude enrichment credentials (the on/off toggle lives in settings) ---
-ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
-ENRICH_MODEL = os.getenv("ENRICH_MODEL", "claude-haiku-4-5-20251001")
+# --- Gemini enrichment credentials (the on/off toggle lives in settings) ---
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+ENRICH_MODEL = os.getenv("ENRICH_MODEL", "gemini-2.0-flash")
 
 # --- Email credentials (the on/off toggle lives in settings) ---
 SMTP_HOST = os.getenv("SMTP_HOST", "smtp.office365.com")
