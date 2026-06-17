@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Agent Control Desk — CAD Illustrators</title>
+
+<!-- ============================================================
+     CONFIG — leave blank to preview in DEMO MODE (sample data, no login).
+     Fill both in and redeploy to go LIVE (Supabase login + real data).
+     Find these in Supabase → Project Settings → API.
+     ============================================================ -->
+<script>
+  const CONFIG = {
+    url:  "https://qwblxytpznslidwjoxvt.supabase.co",
+    anon: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF3Ymx4eXRwem5zbGlkd2pveHZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2NjE0ODksImV4cCI6MjA5NzIzNzQ4OX0.e0_rcgEY8xY8_AEX3xaKeR1Zxu7TbV2RmXODkl9Wxtc",
+  };
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          bone:  "#F6F3EE",
+          paper: "#FAF8F3",
+          ink:   "#1C1A17",
+          brass: "#A87A3C",
+          line:  "#E7E0D4",
+          muted: "#8A8378",
+          hot:   "#A87A3C",
+          warm:  "#9A7B2E",
+          watch: "#8A8378",
+        },
+        fontFamily: {
+          serif: ['Fraunces', 'Georgia', 'serif'],
+          sans:  ['"Hanken Grotesk"', 'system-ui', 'sans-serif'],
+        },
+      },
+    },
+  };
+</script>
+<style>
+  html, body { background: #F6F3EE; }
+  * { -webkit-font-smoothing: antialiased; }
+  .eyebrow { letter-spacing: 0.14em; }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: #E0D8C9; border-radius: 8px; }
+  select { -webkit-appearance: none; appearance: none; }
+  input:focus, select:focus, textarea:focus, button:focus-visible {
+    outline: 2px solid #A87A3C; outline-offset: 2px;
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useMemo } = React;
+
+/* ----------------------------- Supabase (lazy, live mode only) ---------------- */
+const isLive = !!(CONFIG.url && CONFIG.anon);
+let _sb = null;
+async function getSB() {
+  if (!isLive) return null;
+  if (_sb) return _sb;
+  if (!window.supabase) {
+    await new Promise((res, rej) => {
+      const s = document.createElement("script");
+      s.src = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
+      s.onload = res; s.onerror = rej;
+      document.head.appendChild(s);
+    });
+  }
+  _sb = window.supabase.createClient(CONFIG.url, CONFIG.anon);
+  return _sb;
+}
+
+/* ----------------------------- Demo data -------------------------------------- */
+const DEMO_AGENTS = [{
+  id: "demo-vw",
+  name: "Virtual Worlds Job Watch",
+  type: "job_watcher",
+  enabled: true,
+  schedule_cron: "0 7,13,18 * * 1-6",
+  last_run_at: new Date(Date.now() - 1000 * 60 * 52).toISOString(),
+  last_run_status: "ok",
+  settings: {
+    countries: ["gb", "ie"],
+    max_days_old: 3,
+    enrich_with_claude: true,
+    send_email: false,
+    searches: [
+      { label: "Virtual Worlds (exact)", phrase: "virtual worlds" },
+      { label: "Cyncly", phrase: "cyncly" },
+      { label: "Winner Design", phrase: "winner design" },
+      { label: "Compusoft", phrase: "compusoft" },
+      { label: "Bathroom CAD designer", phrase: "bathroom designer", extra: "CAD" },
+      { label: "Kitchen CAD designer", phrase: "kitchen designer", extra: "CAD" },
+    ],
+    hot_terms: ["virtual worlds", "virtual world", "vw 4d", "4d theatre"],
+    warm_terms: ["winner design", "winner flex", "cyncly", "compusoft"],
+    watch_terms: ["cad", "kbb", "bathroom design", "kitchen design", "autocad", "sketchup"],
+  },
+}];
+
+const DEMO_LEADS = [
+  { id:"l1", agent_id:"demo-vw", tier:"HOT - Virtual Worlds", score:120, title:"Bathroom Designer", company:"Coastal Bathrooms", showroom_name:"Coastal Bathrooms", location:"New Milton, Hampshire", salary:"£28,000 - £34,000", is_recruiter:false, decision_maker_hint:"Paul Etheridge (Director)", opening_line:"Saw you're hiring a Virtual Worlds designer at Coastal — before you spend two months recruiting, here's a faster option.", url:"#", source:"Adzuna (GB)", status:"New", found_at:new Date(Date.now()-1000*60*60*3).toISOString() },
+  { id:"l2", agent_id:"demo-vw", tier:"HOT - Virtual Worlds", score:110, title:"Bathroom Sales Designer", company:"via Ernest Gordon Recruitment", showroom_name:"unknown (recruiter-listed)", location:"Northwich, Cheshire", salary:"£50,000 - £65,000 OTE", is_recruiter:true, decision_maker_hint:"", opening_line:"Noticed a Virtual Worlds designer role in Northwich — that £65k OTE is roughly what our whole service costs in a year.", url:"#", source:"Reed", status:"New", found_at:new Date(Date.now()-1000*60*60*6).toISOString() },
+  { id:"l3", agent_id:"demo-vw", tier:"HOT - Virtual Worlds", score:100, title:"Showroom Designer", company:"PHS Bathrooms", showroom_name:"PHS Bathrooms", location:"Milton Keynes", salary:null, is_recruiter:false, decision_maker_hint:"Chris Leighton (Director)", opening_line:"You already run the 4D theatre at PHS — so this 30-second idea about overflow design will make immediate sense.", url:"#", source:"Adzuna (GB)", status:"Contacted", found_at:new Date(Date.now()-1000*60*60*26).toISOString() },
+  { id:"l4", agent_id:"demo-vw", tier:"WARM - Winner/Cyncly", score:90, title:"Kitchen & Bathroom Designer", company:"DTS Plumbing & Heating", showroom_name:"DTS Plumbing & Heating", location:"Rotherham", salary:"£26,000 - £30,000", is_recruiter:false, decision_maker_hint:"Shannon Carnall (Director)", opening_line:"Saw your designer ad — we hand kitchen & bathroom showrooms finished plans and renders in 48 hours, first one free.", url:"#", source:"Adzuna (GB)", status:"Replied", found_at:new Date(Date.now()-1000*60*60*30).toISOString() },
+  { id:"l5", agent_id:"demo-vw", tier:"WARM - Winner/Cyncly", score:80, title:"Bathroom Designer", company:"Aylesbury Bathroom Centre", showroom_name:"Aylesbury Bathroom Centre", location:"Aylesbury, Bucks", salary:"£30,000", is_recruiter:false, decision_maker_hint:"Michele Fierro (Director)", opening_line:"You're advertising for a designer in Aylesbury — here's how to clear the brief backlog without another salary on the books.", url:"#", source:"Reed", status:"New", found_at:new Date(Date.now()-1000*60*60*40).toISOString() },
+  { id:"l6", agent_id:"demo-vw", tier:"HOT - Virtual Worlds", score:100, title:"Senior Bathroom Designer", company:"Walton Bathrooms", showroom_name:"Walton Bathrooms", location:"Walton-on-Thames, Surrey", salary:"£35,000 - £42,000", is_recruiter:false, decision_maker_hint:"Matthew Kallum (MD)", opening_line:"Saw Walton's designer role — one relationship could cover both Walton and Kallums, with renders back in 48 hours.", url:"#", source:"Adzuna (GB)", status:"New", found_at:new Date(Date.now()-1000*60*60*48).toISOString() },
+  { id:"l7", agent_id:"demo-vw", tier:"WATCH - generic CAD", score:50, title:"CAD Designer (KBB)", company:"Stanford Design Ltd", showroom_name:"Stanford Design Ltd", location:"Upminster, Essex", salary:null, is_recruiter:false, decision_maker_hint:"", opening_line:"Spotted your CAD designer ad — quick question on whether outsourced design might beat hiring for your next few projects.", url:"#", source:"Reed", status:"New", found_at:new Date(Date.now()-1000*60*60*54).toISOString() },
+];
+
+/* ----------------------------- Helpers ---------------------------------------- */
+const STATUSES = ["New", "Contacted", "Replied", "Call booked", "Free project", "Subscribed", "Not interested"];
+
+function tierKey(t) {
+  if (!t) return "watch";
+  if (t.startsWith("HOT")) return "hot";
+  if (t.startsWith("WARM")) return "warm";
+  return "watch";
+}
+function tierLabel(t) { return tierKey(t).toUpperCase(); }
+
+function timeAgo(iso) {
+  if (!iso) return "never";
+  const s = Math.floor((Date.now() - new Date(iso)) / 1000);
+  if (s < 60) return "just now";
+  const m = Math.floor(s / 60); if (m < 60) return m + "m ago";
+  const h = Math.floor(m / 60); if (h < 24) return h + "h ago";
+  const d = Math.floor(h / 24); return d + "d ago";
+}
+
+/* ----------------------------- Small UI atoms --------------------------------- */
+function Eyebrow({ children, className = "" }) {
+  return <div className={"eyebrow text-[11px] uppercase font-semibold text-muted " + className}>{children}</div>;
+}
+
+function TierBadge({ tier }) {
+  const k = tierKey(tier);
+  const styles = {
+    hot:   "bg-[#F1E5D2] text-brass",
+    warm:  "bg-[#EFEBDD] text-warm",
+    watch: "bg-[#ECE8DF] text-muted",
+  }[k];
+  return <span className={"inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-semibold " + styles}>
+    <span className="w-1.5 h-1.5 rounded-full" style={{ background: "currentColor" }} />
+    {tierLabel(tier)}
+  </span>;
+}
+
+function Toggle({ on, onClick }) {
+  return (
+    <button onClick={onClick} aria-pressed={on}
+      className={"relative w-11 h-6 rounded-full transition-colors " + (on ? "bg-brass" : "bg-[#DAD2C4]")}>
+      <span className={"absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-paper shadow-sm transition-transform " + (on ? "translate-x-5" : "")} />
+    </button>
+  );
+}
+
+function Btn({ children, onClick, variant = "primary", type = "button", className = "" }) {
+  const base = "inline-flex items-center justify-center gap-2 rounded-full text-sm font-semibold px-5 py-2.5 transition-colors disabled:opacity-50";
+  const v = {
+    primary:  "bg-ink text-bone hover:bg-[#2c2722]",
+    ghost:    "border border-line text-ink hover:bg-[#efeadf]",
+    brass:    "bg-brass text-paper hover:bg-[#946a32]",
+  }[variant];
+  return <button type={type} onClick={onClick} className={base + " " + v + " " + className}>{children}</button>;
+}
+
+/* The signature element: a hairline tier-distribution bar for an agent. */
+function TierBar({ counts }) {
+  const total = counts.hot + counts.warm + counts.watch || 1;
+  const seg = (n, color) => <div style={{ width: (n / total * 100) + "%", background: color }} />;
+  return (
+    <div>
+      <div className="flex h-1.5 w-full overflow-hidden rounded-full bg-[#ECE7DD]">
+        {seg(counts.hot, "#A87A3C")}
+        {seg(counts.warm, "#C8AE78")}
+        {seg(counts.watch, "#D8D0C1")}
+      </div>
+      <div className="mt-2 flex gap-4 text-[11px] text-muted">
+        <span><b className="text-brass">{counts.hot}</b> hot</span>
+        <span><b className="text-warm">{counts.warm}</b> warm</span>
+        <span><b className="text-muted">{counts.watch}</b> watch</span>
+      </div>
+    </div>
+  );
+}
+
+/* ----------------------------- Login (live only) ------------------------------ */
+function Login({ onIn }) {
+  const [email, setEmail] = useState("");
+  const [pw, setPw] = useState("");
+  const [err, setErr] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  async function submit() {
+    setBusy(true); setErr("");
+    try {
+      const sb = await getSB();
+      const { data, error } = await sb.auth.signInWithPassword({ email, password: pw });
+      if (error) throw error;
+      onIn(data.session);
+    } catch (e) { setErr(e.message || "Could not sign in."); }
+    setBusy(false);
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center px-6">
+      <div className="w-full max-w-sm">
+        <div className="flex items-center gap-2.5 mb-8">
+          <span className="w-2.5 h-2.5 rounded-full bg-brass" />
+          <span className="font-serif text-lg text-ink">Agent Control Desk</span>
+        </div>
+        <Eyebrow className="mb-2">Sign in</Eyebrow>
+        <h1 className="font-serif text-3xl text-ink mb-6" style={{ letterSpacing: "-0.01em" }}>Welcome back</h1>
+        <div className="space-y-3">
+          <input value={email} onChange={e => setEmail(e.target.value)} placeholder="Email"
+            className="w-full rounded-xl border border-line bg-paper px-4 py-3 text-sm" />
+          <input value={pw} onChange={e => setPw(e.target.value)} type="password" placeholder="Password"
+            onKeyDown={e => e.key === "Enter" && submit()}
+            className="w-full rounded-xl border border-line bg-paper px-4 py-3 text-sm" />
+          {err && <div className="text-xs text-[#9a3b2e]">{err}</div>}
+          <Btn onClick={submit} className="w-full" >{busy ? "Signing in…" : "Sign in"}</Btn>
+        </div>
+        <p className="mt-6 text-xs text-muted">Create your login in Supabase → Authentication → Users.</p>
+      </div>
+    </div>
+  );
+}
+
+/* ----------------------------- Top bar ---------------------------------------- */
+function TopBar({ view, setView, email, onSignOut }) {
+  const item = (key, label) => (
+    <button onClick={() => setView({ name: key })}
+      className={"relative text-sm font-medium pb-1 transition-colors " +
+        (view.name === key ? "text-ink" : "text-muted hover:text-ink")}>
+      {label}
+      {view.name === key && <span className="absolute -bottom-px left-0 right-0 h-0.5 bg-brass rounded-full" />}
+    </button>
+  );
+  return (
+    <header className="border-b border-line bg-bone/80 backdrop-blur sticky top-0 z-20">
+      <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
+        <div className="flex items-center gap-8">
+          <button onClick={() => setView({ name: "overview" })} className="flex items-center gap-2.5">
+            <span className="w-2.5 h-2.5 rounded-full bg-brass" />
+            <span className="font-serif text-[17px] text-ink">Control Desk</span>
+          </button>
+          <nav className="hidden sm:flex items-center gap-6">
+            {item("overview", "Overview")}
+            {item("leads", "Leads")}
+            {item("account", "Account")}
+          </nav>
+        </div>
+        <div className="flex items-center gap-3">
+          {!isLive && <span className="hidden sm:inline text-[11px] font-semibold text-brass bg-[#F1E5D2] rounded-full px-2.5 py-1">Demo mode</span>}
+          {isLive && email && <span className="hidden sm:inline text-xs text-muted">{email}</span>}
+          {isLive && <button onClick={onSignOut} className="text-xs text-muted hover:text-ink">Sign out</button>}
+        </div>
+      </div>
+      <nav className="sm:hidden flex items-center gap-6 px-6 pb-3">
+        {item("overview", "Overview")}
+        {item("leads", "Leads")}
+        {item("account", "Account")}
+      </nav>
+    </header>
+  );
+}
+
+/* ----------------------------- Overview --------------------------------------- */
+function StatTile({ label, value, accent }) {
+  return (
+    <div className="rounded-2xl border border-line bg-paper px-5 py-4">
+      <Eyebrow>{label}</Eyebrow>
+      <div className={"font-serif text-3xl mt-1 " + (accent ? "text-brass" : "text-ink")} style={{ letterSpacing: "-0.02em" }}>{value}</div>
+    </div>
+  );
+}
+
+function AgentCard({ agent, leads, onOpen, onToggle }) {
+  const counts = useMemo(() => {
+    const c = { hot: 0, warm: 0, watch: 0 };
+    leads.forEach(l => c[tierKey(l.tier)]++);
+    return c;
+  }, [leads]);
+  return (
+    <div className="rounded-2xl border border-line bg-paper p-5 hover:border-[#d8cdb8] transition-colors">
+      <div className="flex items-start justify-between gap-4">
+        <button onClick={onOpen} className="text-left">
+          <Eyebrow className="mb-1.5">{agent.type.replace("_", " ")}</Eyebrow>
+          <h3 className="font-serif text-xl text-ink leading-tight" style={{ letterSpacing: "-0.01em" }}>{agent.name}</h3>
+        </button>
+        <Toggle on={agent.enabled} onClick={onToggle} />
+      </div>
+
+      <div className="mt-4"><TierBar counts={counts} /></div>
+
+      <div className="mt-5 flex items-center justify-between text-xs text-muted">
+        <span className="flex items-center gap-1.5">
+          <span className={"w-1.5 h-1.5 rounded-full " + (agent.enabled ? "bg-brass" : "bg-[#cfc6b6]")} />
+          {agent.enabled ? "Active" : "Paused"} · ran {timeAgo(agent.last_run_at)}
+        </span>
+        <button onClick={onOpen} className="font-semibold text-ink hover:text-brass">Open →</button>
+      </div>
+    </div>
+  );
+}
+
+function Overview({ agents, leadsByAgent, setView, onToggle, onAdd }) {
+  const all = Object.values(leadsByAgent).flat();
+  const hot = all.filter(l => tierKey(l.tier) === "hot").length;
+  const fresh = all.filter(l => l.status === "New").length;
+  return (
+    <div className="max-w-5xl mx-auto px-6 py-10">
+      <Eyebrow>Studio operations</Eyebrow>
+      <h1 className="font-serif text-4xl text-ink mt-1 mb-8" style={{ letterSpacing: "-0.02em" }}>Your agents</h1>
+
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-10">
+        <StatTile label="Agents" value={agents.length} />
+        <StatTile label="Leads found" value={all.length} />
+        <StatTile label="Hot leads" value={hot} accent />
+        <StatTile label="Awaiting outreach" value={fresh} />
+      </div>
+
+      <div className="grid sm:grid-cols-2 gap-4">
+        {agents.map(a => (
+          <AgentCard key={a.id} agent={a} leads={leadsByAgent[a.id] || []}
+            onOpen={() => setView({ name: "agent", id: a.id })}
+            onToggle={() => onToggle(a)} />
+        ))}
+        <button onClick={onAdd}
+          className="rounded-2xl border border-dashed border-line bg-transparent p-5 text-left hover:border-brass hover:bg-paper transition-colors min-h-[170px] flex flex-col justify-center">
+          <span className="font-serif text-xl text-ink">+ Add an agent</span>
+          <span className="text-xs text-muted mt-1">A new watcher, researcher, or outreach worker.</span>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* ----------------------------- Leads table ------------------------------------ */
+function LeadsTable({ leads, onStatus, showAgentHint }) {
+  const [filter, setFilter] = useState("all");
+  const shown = leads
+    .filter(l => filter === "all" || tierKey(l.tier) === filter)
+    .sort((a, b) => (b.score || 0) - (a.score || 0));
+
+  const pill = (key, label) => (
+    <button onClick={() => setFilter(key)}
+      className={"rounded-full px-3 py-1 text-xs font-semibold transition-colors " +
+        (filter === key ? "bg-ink text-bone" : "border border-line text-muted hover:text-ink")}>
+      {label}
+    </button>
+  );
+
+  if (!leads.length)
+    return <div className="rounded-2xl border border-dashed border-line p-10 text-center">
+      <p className="font-serif text-xl text-ink">No leads yet</p>
+      <p className="text-sm text-muted mt-1">When the agent next runs, finds land here.</p>
+    </div>;
+
+  return (
+    <div>
+      <div className="flex flex-wrap gap-2 mb-4">
+        {pill("all", "All")}{pill("hot", "Hot")}{pill("warm", "Warm")}{pill("watch", "Watch")}
+      </div>
+      <div className="space-y-2.5">
+        {shown.map(l => (
+          <div key={l.id} className="rounded-xl border border-line bg-paper p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <TierBadge tier={l.tier} />
+                  <span className="text-[11px] text-muted">{l.source} · {timeAgo(l.found_at)}</span>
+                </div>
+                <div className="mt-1.5 font-serif text-lg text-ink leading-snug" style={{ letterSpacing: "-0.01em" }}>
+                  {l.title} <span className="text-muted font-sans text-sm">— {l.showroom_name && !l.showroom_name.includes("unknown") ? l.showroom_name : (l.company || "company in advert")}</span>
+                </div>
+                <div className="mt-0.5 text-xs text-muted">
+                  {l.location || "UK"}{l.salary ? " · " + l.salary : ""}{l.decision_maker_hint ? " · " + l.decision_maker_hint : ""}
+                  {l.is_recruiter ? " · via recruiter" : ""}
+                </div>
+                {l.opening_line && (
+                  <div className="mt-2 text-sm text-ink/80 border-l-2 border-brass pl-3">
+                    <span className="text-muted italic">Opener: </span>{l.opening_line}
+                  </div>
+                )}
+              </div>
+              <div className="shrink-0 text-right">
+                <select value={l.status} onChange={e => onStatus(l, e.target.value)}
+                  className="rounded-lg border border-line bg-bone text-xs px-2.5 py-1.5 text-ink">
+                  {STATUSES.map(s => <option key={s}>{s}</option>)}
+                </select>
+                {l.url && l.url !== "#" && (
+                  <a href={l.url} target="_blank" rel="noreferrer"
+                    className="block mt-2 text-xs font-semibold text-brass hover:underline">View advert →</a>
+                )}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function AllLeads({ leadsByAgent, agents, onStatus }) {
+  const all = Object.values(leadsByAgent).flat();
+  return (
+    <div className="max-w-5xl mx-auto px-6 py-10">
+      <Eyebrow>Pipeline</Eyebrow>
+      <h1 className="font-serif text-4xl text-ink mt-1 mb-8" style={{ letterSpacing: "-0.02em" }}>All leads</h1>
+      <LeadsTable leads={all} onStatus={onStatus} />
+    </div>
+  );
+}
+
+/* ----------------------------- Agent detail ----------------------------------- */
+function SettingsForm({ agent, onSave }) {
+  const [s, setS] = useState(JSON.parse(JSON.stringify(agent.settings || {})));
+  const [cron, setCron] = useState(agent.schedule_cron || "");
+  const [dirty, setDirty] = useState(false);
+  const set = (patch) => { setS(prev => ({ ...prev, ...patch })); setDirty(true); };
+
+  const updateSearch = (i, key, val) => {
+    const arr = [...(s.searches || [])]; arr[i] = { ...arr[i], [key]: val };
+    set({ searches: arr });
+  };
+  const addSearch = () => set({ searches: [...(s.searches || []), { label: "New search", phrase: "" }] });
+  const rmSearch = (i) => set({ searches: (s.searches || []).filter((_, j) => j !== i) });
+
+  const termField = (key, label) => (
+    <div>
+      <Eyebrow className="mb-1.5">{label}</Eyebrow>
+      <textarea
+        value={(s[key] || []).join(", ")}
+        onChange={e => set({ [key]: e.target.value.split(",").map(t => t.trim()).filter(Boolean) })}
+        rows={2}
+        className="w-full rounded-xl border border-line bg-paper px-3 py-2 text-sm text-ink" />
+    </div>
+  );
+
+  return (
+    <div className="space-y-8">
+      {/* Searches */}
+      <section>
+        <div className="flex items-center justify-between mb-3">
+          <Eyebrow>What it searches for</Eyebrow>
+          <button onClick={addSearch} className="text-xs font-semibold text-brass hover:underline">+ Add search</button>
+        </div>
+        <div className="space-y-2">
+          {(s.searches || []).map((q, i) => (
+            <div key={i} className="flex items-center gap-2">
+              <input value={q.phrase} onChange={e => updateSearch(i, "phrase", e.target.value)}
+                placeholder="exact phrase"
+                className="flex-1 rounded-lg border border-line bg-paper px-3 py-2 text-sm" />
+              <input value={q.extra || ""} onChange={e => updateSearch(i, "extra", e.target.value)}
+                placeholder="+ keyword (optional)"
+                className="w-40 rounded-lg border border-line bg-paper px-3 py-2 text-sm" />
+              <button onClick={() => rmSearch(i)} className="text-muted hover:text-[#9a3b2e] px-2 text-lg leading-none">×</button>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Scoring keywords */}
+      <section className="grid sm:grid-cols-3 gap-4">
+        {termField("hot_terms", "Hot terms")}
+        {termField("warm_terms", "Warm terms")}
+        {termField("watch_terms", "Watch terms")}
+      </section>
+
+      {/* Scope + toggles */}
+      <section className="grid sm:grid-cols-2 gap-4">
+        <div>
+          <Eyebrow className="mb-1.5">Countries</Eyebrow>
+          <input value={(s.countries || []).join(", ")}
+            onChange={e => set({ countries: e.target.value.split(",").map(t => t.trim()).filter(Boolean) })}
+            className="w-full rounded-xl border border-line bg-paper px-3 py-2 text-sm" />
+        </div>
+        <div>
+          <Eyebrow className="mb-1.5">Only jobs newer than (days)</Eyebrow>
+          <input type="number" value={s.max_days_old ?? 3}
+            onChange={e => set({ max_days_old: parseInt(e.target.value || "0", 10) })}
+            className="w-full rounded-xl border border-line bg-paper px-3 py-2 text-sm" />
+        </div>
+      </section>
+
+      <section className="space-y-3">
+        <div className="flex items-center justify-between rounded-xl border border-line bg-paper px-4 py-3">
+          <div>
+            <div className="text-sm font-semibold text-ink">Draft openers with Claude</div>
+            <div className="text-xs text-muted">Identify the showroom & write a personalised first line.</div>
+          </div>
+          <Toggle on={!!s.enrich_with_claude} onClick={() => set({ enrich_with_claude: !s.enrich_with_claude })} />
+        </div>
+        <div className="flex items-center justify-between rounded-xl border border-line bg-paper px-4 py-3">
+          <div>
+            <div className="text-sm font-semibold text-ink">Email me a digest</div>
+            <div className="text-xs text-muted">Send new finds to your inbox each run.</div>
+          </div>
+          <Toggle on={!!s.send_email} onClick={() => set({ send_email: !s.send_email })} />
+        </div>
+        <div>
+          <Eyebrow className="mb-1.5">Schedule (cron)</Eyebrow>
+          <input value={cron} onChange={e => { setCron(e.target.value); setDirty(true); }}
+            className="w-full rounded-xl border border-line bg-paper px-3 py-2 text-sm font-mono" />
+          <div className="text-xs text-muted mt-1">Default runs 7am, 1pm, 6pm UTC, Mon–Sat.</div>
+        </div>
+      </section>
+
+      <div className="flex items-center gap-3 pt-2">
+        <Btn onClick={() => { onSave({ settings: s, schedule_cron: cron }); setDirty(false); }}
+          variant={dirty ? "primary" : "ghost"}>
+          {dirty ? "Save changes" : "Saved"}
+        </Btn>
+        {dirty && <span className="text-xs text-muted">Next run uses these settings.</span>}
+      </div>
+    </div>
+  );
+}
+
+function AgentDetail({ agent, leads, setView, onSave, onToggle, onStatus }) {
+  const [tab, setTab] = useState("settings");
+  const tabBtn = (key, label) => (
+    <button onClick={() => setTab(key)}
+      className={"text-sm font-medium pb-2 transition-colors relative " +
+        (tab === key ? "text-ink" : "text-muted hover:text-ink")}>
+      {label}
+      {tab === key && <span className="absolute -bottom-px left-0 right-0 h-0.5 bg-brass rounded-full" />}
+    </button>
+  );
+
+  return (
+    <div className="max-w-3xl mx-auto px-6 py-10">
+      <button onClick={() => setView({ name: "overview" })} className="text-xs text-muted hover:text-ink mb-6">← All agents</button>
+
+      <div className="flex items-start justify-between gap-4 mb-1">
+        <div>
+          <Eyebrow className="mb-1.5">{agent.type.replace("_", " ")}</Eyebrow>
+          <h1 className="font-serif text-3xl text-ink" style={{ letterSpacing: "-0.02em" }}>{agent.name}</h1>
+        </div>
+        <div className="flex items-center gap-2.5 pt-1">
+          <span className="text-xs text-muted">{agent.enabled ? "Active" : "Paused"}</span>
+          <Toggle on={agent.enabled} onClick={() => onToggle(agent)} />
+        </div>
+      </div>
+      <div className="text-xs text-muted mb-7">Last ran {timeAgo(agent.last_run_at)} · {leads.length} leads collected</div>
+
+      <div className="flex items-center gap-6 border-b border-line mb-7">
+        {tabBtn("settings", "Settings")}
+        {tabBtn("leads", "Leads (" + leads.length + ")")}
+      </div>
+
+      {tab === "settings"
+        ? <SettingsForm agent={agent} onSave={(patch) => onSave(agent.id, patch)} />
+        : <LeadsTable leads={leads} onStatus={onStatus} />}
+    </div>
+  );
+}
+
+/* ----------------------------- Add agent modal -------------------------------- */
+function AddAgent({ onClose, onCreate }) {
+  const [name, setName] = useState("");
+  const [type, setType] = useState("job_watcher");
+  const TYPES = [
+    { v: "job_watcher", label: "Job board watcher", hint: "Find showrooms hiring for specific software." },
+    { v: "showroom_watcher", label: "New showroom watcher", hint: "Catch newly opened showrooms." },
+    { v: "competitor_watcher", label: "Competitor watcher", hint: "Track named competitors’ activity." },
+  ];
+  return (
+    <div className="fixed inset-0 z-30 bg-ink/30 flex items-center justify-center px-6" onClick={onClose}>
+      <div className="w-full max-w-md rounded-2xl border border-line bg-bone p-6" onClick={e => e.stopPropagation()}>
+        <Eyebrow className="mb-1">New agent</Eyebrow>
+        <h2 className="font-serif text-2xl text-ink mb-5" style={{ letterSpacing: "-0.01em" }}>Add an agent</h2>
+        <div className="space-y-4">
+          <div>
+            <Eyebrow className="mb-1.5">Name</Eyebrow>
+            <input value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Schmidt showroom openings"
+              className="w-full rounded-xl border border-line bg-paper px-3 py-2.5 text-sm" />
+          </div>
+          <div className="space-y-2">
+            <Eyebrow className="mb-1.5">Type</Eyebrow>
+            {TYPES.map(t => (
+              <button key={t.v} onClick={() => setType(t.v)}
+                className={"w-full text-left rounded-xl border px-4 py-3 transition-colors " +
+                  (type === t.v ? "border-brass bg-paper" : "border-line hover:bg-paper")}>
+                <div className="text-sm font-semibold text-ink">{t.label}</div>
+                <div className="text-xs text-muted">{t.hint}</div>
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="flex gap-3 mt-6">
+          <Btn variant="ghost" onClick={onClose} className="flex-1">Cancel</Btn>
+          <Btn onClick={() => name.trim() && onCreate({ name: name.trim(), type })} className="flex-1">Create agent</Btn>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ----------------------------- Account ---------------------------------------- */
+function Account({ email }) {
+  return (
+    <div className="max-w-3xl mx-auto px-6 py-10">
+      <Eyebrow>Account</Eyebrow>
+      <h1 className="font-serif text-4xl text-ink mt-1 mb-8" style={{ letterSpacing: "-0.02em" }}>Settings</h1>
+      <div className="rounded-2xl border border-line bg-paper p-5 space-y-3">
+        <div className="flex justify-between text-sm">
+          <span className="text-muted">Signed in as</span>
+          <span className="text-ink font-medium">{email || "demo@cadillustrator.com"}</span>
+        </div>
+        <div className="flex justify-between text-sm">
+          <span className="text-muted">Database</span>
+          <span className={isLive ? "text-brass font-medium" : "text-muted"}>{isLive ? "Supabase · connected" : "Demo mode (no database)"}</span>
+        </div>
+      </div>
+      {!isLive && (
+        <div className="mt-5 rounded-2xl border border-line bg-[#F1E5D2]/50 p-5 text-sm text-ink/80">
+          <div className="font-semibold text-ink mb-1">To go live</div>
+          Add your Supabase URL and anon key to the CONFIG block at the top of this file, run the schema SQL,
+          create a user in Supabase Auth, then redeploy. This screen will switch to real data automatically.
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ----------------------------- App -------------------------------------------- */
+function App() {
+  const [session, setSession] = useState(null);
+  const [ready, setReady] = useState(!isLive);   // demo is ready immediately
+  const [agents, setAgents] = useState(isLive ? [] : DEMO_AGENTS);
+  const [leads, setLeads] = useState(isLive ? [] : DEMO_LEADS);
+  const [view, setView] = useState({ name: "overview" });
+  const [adding, setAdding] = useState(false);
+
+  // live: restore session + load data
+  useEffect(() => {
+    if (!isLive) return;
+    (async () => {
+      const sb = await getSB();
+      const { data } = await sb.auth.getSession();
+      setSession(data.session);
+      setReady(true);
+    })();
+  }, []);
+
+  async function loadData() {
+    const sb = await getSB();
+    const [{ data: a }, { data: l }] = await Promise.all([
+      sb.from("agents").select("*").order("created_at"),
+      sb.from("leads").select("*").order("found_at", { ascending: false }),
+    ]);
+    setAgents(a || []); setLeads(l || []);
+  }
+  useEffect(() => { if (isLive && session) loadData(); }, [session]);
+
+  const leadsByAgent = useMemo(() => {
+    const m = {}; agents.forEach(a => m[a.id] = []);
+    leads.forEach(l => { (m[l.agent_id] = m[l.agent_id] || []).push(l); });
+    return m;
+  }, [agents, leads]);
+
+  /* mutations (write-through in live mode) */
+  async function toggleAgent(a) {
+    const next = !a.enabled;
+    setAgents(prev => prev.map(x => x.id === a.id ? { ...x, enabled: next } : x));
+    if (isLive) { const sb = await getSB(); await sb.from("agents").update({ enabled: next }).eq("id", a.id); }
+  }
+  async function saveAgent(id, patch) {
+    setAgents(prev => prev.map(x => x.id === id ? { ...x, ...patch } : x));
+    if (isLive) { const sb = await getSB(); await sb.from("agents").update(patch).eq("id", id); }
+  }
+  async function addAgent({ name, type }) {
+    const row = { name, type, enabled: true, schedule_cron: "0 7,13,18 * * 1-6", settings: { searches: [], countries: ["gb"], max_days_old: 3 } };
+    if (isLive) {
+      const sb = await getSB();
+      const { data } = await sb.from("agents").insert(row).select().single();
+      if (data) setAgents(prev => [...prev, data]);
+    } else {
+      setAgents(prev => [...prev, { ...row, id: "a" + Date.now(), last_run_at: null }]);
+    }
+    setAdding(false);
+  }
+  async function setStatus(lead, status) {
+    setLeads(prev => prev.map(l => l.id === lead.id ? { ...l, status } : l));
+    if (isLive) { const sb = await getSB(); await sb.from("leads").update({ status }).eq("id", lead.id); }
+  }
+  async function signOut() { const sb = await getSB(); await sb.auth.signOut(); setSession(null); }
+
+  if (!ready) return <div className="min-h-screen flex items-center justify-center text-muted text-sm">Loading…</div>;
+  if (isLive && !session) return <Login onIn={setSession} />;
+
+  const email = session?.user?.email;
+  const current = view.name === "agent" ? agents.find(a => a.id === view.id) : null;
+
+  return (
+    <div className="min-h-screen font-sans text-ink">
+      <TopBar view={view} setView={setView} email={email} onSignOut={signOut} />
+
+      {view.name === "overview" &&
+        <Overview agents={agents} leadsByAgent={leadsByAgent} setView={setView}
+          onToggle={toggleAgent} onAdd={() => setAdding(true)} />}
+
+      {view.name === "leads" &&
+        <AllLeads leadsByAgent={leadsByAgent} agents={agents} onStatus={setStatus} />}
+
+      {view.name === "account" && <Account email={email} />}
+
+      {view.name === "agent" && current &&
+        <AgentDetail agent={current} leads={leadsByAgent[current.id] || []} setView={setView}
+          onSave={saveAgent} onToggle={toggleAgent} onStatus={setStatus} />}
+
+      {adding && <AddAgent onClose={() => setAdding(false)} onCreate={addAgent} />}
+
+      <footer className="max-w-5xl mx-auto px-6 py-10 text-[11px] text-muted border-t border-line mt-10">
+        CAD Illustrators · Agent Control Desk
+      </footer>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>

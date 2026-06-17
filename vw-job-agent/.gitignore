@@ -1,0 +1,6 @@
+.env
+__pycache__/
+*.pyc
+.DS_Store
+# Keep the state/ folder but ignore local-only artifacts if you prefer:
+# state/new_jobs.csv

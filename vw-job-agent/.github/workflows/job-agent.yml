@@ -1,0 +1,40 @@
+name: VW Job Watch
+
+on:
+  schedule:
+    - cron: "0 7,13,18 * * 1-6"   # 7am, 1pm, 6pm UTC, Mon-Sat
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - name: Run job-watch agent
+        env:
+          ADZUNA_APP_ID:        ${{ secrets.ADZUNA_APP_ID }}
+          ADZUNA_APP_KEY:       ${{ secrets.ADZUNA_APP_KEY }}
+          REED_API_KEY:         ${{ secrets.REED_API_KEY }}
+          SUPABASE_URL:         ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          AGENT_ID:             ${{ secrets.AGENT_ID }}
+          ANTHROPIC_API_KEY:    ${{ secrets.ANTHROPIC_API_KEY }}
+          SMTP_USER:            ${{ secrets.SMTP_USER }}
+          SMTP_PASS:            ${{ secrets.SMTP_PASS }}
+          ALERT_FROM:           ${{ secrets.SMTP_USER }}
+          ALERT_TO:             ${{ secrets.ALERT_TO }}
+        run: python main.py
+      - name: Commit updated state
+        run: |
+          git config user.name  "job-watch-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add state/
+          git diff --quiet --staged || git commit -m "Update job-watch state [skip ci]"
+          git push

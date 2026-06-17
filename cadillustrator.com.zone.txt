@@ -1,0 +1,21 @@
+$ORIGIN cadillustrator.com.
+$TTL 3600
+
+; Microsoft 365 mail routing
+@	3600	IN	MX	0 cadillustrator-com.mail.protection.outlook.com.
+
+; SPF - authorises Microsoft 365 to send for this domain
+@	3600	IN	TXT	"v=spf1 include:spf.protection.outlook.com -all"
+
+; DKIM - Microsoft 365 signing keys
+selector1._domainkey	3600	IN	CNAME	selector1-cadillustrator-com._domainkey.CadIllustrators.e-v1.dkim.mail.microsoft.
+selector2._domainkey	3600	IN	CNAME	selector2-cadillustrator-com._domainkey.CadIllustrators.e-v1.dkim.mail.microsoft.
+
+; DMARC - monitor mode
+_dmarc	3600	IN	TXT	"v=DMARC1; p=none; rua=mailto:dhairya@cadillustrator.com"
+
+; Autodiscover - lets Outlook and Apollo find the mailbox
+autodiscover	3600	IN	CNAME	autodiscover.outlook.com.
+
+; Root placeholder so a redirect rule to cadillustrators.co.uk can be attached
+@	3600	IN	A	192.0.2.1
