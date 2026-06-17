@@ -1,0 +1,10 @@
+# Pasted working copies (kept locally, never committed)
+cad-illustrators-growth-system - Copy/
+*- Copy/
+
+# Cleanup backups
+vw-job-agent/deleted_leads_backup_*.json
+
+# Python
+__pycache__/
+*.pyc
