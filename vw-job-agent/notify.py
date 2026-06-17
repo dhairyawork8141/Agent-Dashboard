@@ -1,7 +1,24 @@
 """Delivers new finds two ways:
 1. Always appends them to state/new_jobs.csv (your running lead log - import into the tracker).
 2. Optionally emails you an HTML digest, grouped by tier (SEND_EMAIL=true).
+
+Email auth: prefers Microsoft 365 OAuth2 (app-only / client-credentials, XOAUTH2) when
+OAUTH_TENANT_ID/CLIENT_ID/CLIENT_SECRET are set - this works with Security Defaults / MFA
+left ON. Falls back to basic SMTP password auth (SMTP_PASS) otherwise.
+
+One-time Microsoft setup for the OAuth path:
+  1. Entra admin -> App registrations -> New registration. Note Application (client) ID
+     + Directory (tenant) ID.
+  2. Certificates & secrets -> New client secret. Copy the secret VALUE.
+  3. API permissions -> Add -> APIs my organization uses -> "Office 365 Exchange Online"
+     -> Application permissions -> SMTP.SendAsApp -> add, then "Grant admin consent".
+  4. In Exchange Online PowerShell, register the app's service principal and let it send
+     as the mailbox:
+       New-ServicePrincipal -AppId <client-id> -ServiceId <enterprise-app-object-id>
+       Add-MailboxPermission -Identity "dhairya@cadillustrator.com" `
+         -User <enterprise-app-object-id> -AccessRights FullAccess
 """
+import base64
 import csv
 import logging
 import os
@@ -9,6 +26,7 @@ import smtplib
 from datetime import date
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+import requests
 import config
 
 log = logging.getLogger("notify")
@@ -69,8 +87,36 @@ def _html(jobs: list[dict]) -> str:
     </div>"""
 
 
+def _oauth_enabled() -> bool:
+    return bool(config.OAUTH_TENANT_ID and config.OAUTH_CLIENT_ID and config.OAUTH_CLIENT_SECRET)
+
+
+def _fetch_oauth_token() -> str:
+    """App-only (client-credentials) token for Office 365 SMTP."""
+    url = f"https://login.microsoftonline.com/{config.OAUTH_TENANT_ID}/oauth2/v2.0/token"
+    resp = requests.post(url, data={
+        "client_id": config.OAUTH_CLIENT_ID,
+        "client_secret": config.OAUTH_CLIENT_SECRET,
+        "scope": "https://outlook.office365.com/.default",
+        "grant_type": "client_credentials",
+    }, timeout=30)
+    resp.raise_for_status()
+    return resp.json()["access_token"]
+
+
+def _smtp_oauth_login(s: smtplib.SMTP, mailbox: str, token: str) -> None:
+    """Authenticate an open SMTP session with XOAUTH2."""
+    auth = base64.b64encode(
+        f"user={mailbox}\x01auth=Bearer {token}\x01\x01".encode()
+    ).decode()
+    code, msg = s.docmd("AUTH", "XOAUTH2 " + auth)
+    if code != 235:
+        raise smtplib.SMTPAuthenticationError(code, msg)
+
+
 def send_email(jobs: list[dict]) -> None:
-    if not (config.SMTP_USER and config.SMTP_PASS and config.ALERT_TO):
+    use_oauth = _oauth_enabled()
+    if not (config.SMTP_USER and config.ALERT_TO and (use_oauth or config.SMTP_PASS)):
         return
     msg = MIMEMultipart("alternative")
     msg["Subject"] = f"[VW Job Watch] {len(jobs)} new lead(s)"
@@ -80,11 +126,17 @@ def send_email(jobs: list[dict]) -> None:
     try:
         with smtplib.SMTP(config.SMTP_HOST, config.SMTP_PORT) as s:
             s.starttls()
-            s.login(config.SMTP_USER, config.SMTP_PASS)
+            s.ehlo()
+            if use_oauth:
+                _smtp_oauth_login(s, config.SMTP_USER, _fetch_oauth_token())
+            else:
+                s.login(config.SMTP_USER, config.SMTP_PASS)
             s.send_message(msg)
-        log.info("Digest emailed to %s", config.ALERT_TO)
+        log.info("Digest emailed to %s (%s auth)", config.ALERT_TO,
+                 "OAuth2" if use_oauth else "password")
     except Exception as e:
-        log.warning("Email send failed (check SMTP AUTH is enabled on the mailbox): %s", e)
+        log.warning("Email send failed (auth=%s): %s",
+                    "OAuth2" if use_oauth else "password", e)
 
 
 def notify(jobs: list[dict], do_email: bool = False) -> None:

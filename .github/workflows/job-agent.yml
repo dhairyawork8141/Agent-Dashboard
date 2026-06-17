@@ -33,6 +33,9 @@ jobs:
           SMTP_PASS:            ${{ secrets.SMTP_PASS }}
           ALERT_FROM:           ${{ secrets.SMTP_USER }}
           ALERT_TO:             ${{ secrets.ALERT_TO }}
+          OAUTH_TENANT_ID:      ${{ secrets.OAUTH_TENANT_ID }}
+          OAUTH_CLIENT_ID:      ${{ secrets.OAUTH_CLIENT_ID }}
+          OAUTH_CLIENT_SECRET:  ${{ secrets.OAUTH_CLIENT_SECRET }}
         working-directory: vw-job-agent
         run: python main.py
       - name: Commit updated state

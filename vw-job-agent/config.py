@@ -34,10 +34,19 @@ ENRICH_MODEL = os.getenv("ENRICH_MODEL", "gemini-2.0-flash")
 # --- Email credentials (the on/off toggle lives in settings) ---
 SMTP_HOST = os.getenv("SMTP_HOST", "smtp.office365.com")
 SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
-SMTP_USER = os.getenv("SMTP_USER", "")
-SMTP_PASS = os.getenv("SMTP_PASS", "")
+SMTP_USER = os.getenv("SMTP_USER", "")        # the sending mailbox (e.g. dhairya@cadillustrator.com)
+SMTP_PASS = os.getenv("SMTP_PASS", "")        # only used for basic-password auth (fallback)
 ALERT_FROM = os.getenv("ALERT_FROM", SMTP_USER)
 ALERT_TO = os.getenv("ALERT_TO", "")
+
+# --- Microsoft 365 OAuth2 (app-only / client-credentials) SMTP ---
+# When these three are set, notify.py authenticates to Office 365 SMTP with an OAuth
+# token (XOAUTH2) instead of a password. This works with Security Defaults / MFA left ON.
+# Register an app in Entra, grant it the SMTP.SendAsApp application permission, and
+# register its service principal in Exchange Online (see notify.py header for steps).
+OAUTH_TENANT_ID = os.getenv("OAUTH_TENANT_ID", "")
+OAUTH_CLIENT_ID = os.getenv("OAUTH_CLIENT_ID", "")
+OAUTH_CLIENT_SECRET = os.getenv("OAUTH_CLIENT_SECRET", "")
 
 # --- Fallback settings, used when Supabase isn't connected. The dashboard edits a copy
 #     of this shape stored in the agents table. ---
