@@ -115,6 +115,7 @@
     "jooble:3494890494321772979",
     "jooble:3653374963663771999",
     "jooble:3732653131313683527",
+    "jooble:3774666403823618846",
     "jooble:3834055719757550055",
     "jooble:384666455836584901",
     "jooble:4209793719431844284",
@@ -134,6 +135,7 @@
     "jooble:5725822706782960632",
     "jooble:5730559700076769412",
     "jooble:5805565337064373098",
+    "jooble:6137768448713515923",
     "jooble:6369170397606990946",
     "jooble:6895828826041620734",
     "jooble:7006756854300576357",
@@ -1675,6 +1677,22 @@
       "company": "World Savvy",
       "tier": "WATCH - generic CAD",
       "url": "https://www.linkedin.com/jobs/view/professional-learning-facilitator-full-time-temp-at-world-savvy-4428065970"
+    },
+    {
+      "found_at": "2026-06-17T17:53:37.546675+00:00",
+      "key": "jooble:6137768448713515923",
+      "title": "Kitchen And Bath Sales Designer",
+      "company": "Kitchen Design Partners, Inc.",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://jooble.org/jdp/6137768448713515923"
+    },
+    {
+      "found_at": "2026-06-17T17:53:37.546675+00:00",
+      "key": "jooble:3774666403823618846",
+      "title": "Kitchen Designer-European Products Specialist",
+      "company": "Nobilia North America Inc.",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://jooble.org/jdp/3774666403823618846"
     }
   ]
 }
