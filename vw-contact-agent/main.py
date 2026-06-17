@@ -3,6 +3,7 @@
 Each run:
   load settings  ->  pull HOT/WARM leads with no contact yet
   ->  Apollo: company -> senior decision-maker -> reveal email/phone
+  ->  if Apollo fails, fall back to web search (DuckDuckGo Lite)
   ->  write the contact back onto the lead in the dashboard
 
 Credit-safe by design: at most `max_per_run` reveals, recruiters skipped, never
@@ -15,6 +16,7 @@ import config
 import apollo
 import draft
 import supabase_io
+import web_search_enrich
 
 logging.basicConfig(level=logging.INFO,
                     format="%(asctime)s  %(name)-9s %(levelname)s  %(message)s")
@@ -44,9 +46,9 @@ def _company_name(lead: dict) -> str | None:
 
 
 def run() -> None:
-    if not config.APOLLO_API_KEY:
-        log.error("APOLLO_API_KEY is not set - nothing to do.")
-        return
+    has_apollo = bool(config.APOLLO_API_KEY)
+    if not has_apollo:
+        log.warning("APOLLO_API_KEY is not set - will use web search fallback only.")
     if not supabase_io.configured():
         log.error("Supabase is not configured - nothing to do.")
         return
@@ -80,28 +82,67 @@ def run() -> None:
             log.info("Lead %s has no company name - skipping.", lead.get("id"))
             continue
 
-        org_id, domain = apollo.find_org(name)
-        if not org_id:
-            log.info("No Apollo company match for '%s'.", name)
-            continue
+        # --- Stage 1: try Apollo (if configured) ---
+        contact = None
+        source_label = None
 
-        person = apollo.find_person(org_id, domain, settings["titles"], settings["locations"])
-        if not person:
-            log.info("No decision-maker found at '%s'.", name)
-            continue
+        if has_apollo:
+            org_id, domain = apollo.find_org(name)
+            person = None
+            if org_id:
+                person = apollo.find_person(org_id, domain,
+                                            settings["titles"],
+                                            settings["locations"])
+            if person:
+                enriched = apollo.reveal(person, domain,
+                                         bool(settings.get("reveal_phone"))) or person
+                email = apollo.best_email(enriched)
+                contact = {
+                    "contact_name": " ".join(filter(None, [
+                        enriched.get("first_name"),
+                        enriched.get("last_name")])) or None,
+                    "contact_title": enriched.get("title"),
+                    "contact_email": email,
+                    "contact_phone": (apollo.best_phone(enriched)
+                                      if settings.get("reveal_phone") else None),
+                    "contact_linkedin": enriched.get("linkedin_url"),
+                }
+                source_label = "Apollo"
+            else:
+                log.info("Apollo could not resolve a contact for '%s' "
+                         "- trying web search fallback.", name)
 
-        enriched = apollo.reveal(person, domain, bool(settings.get("reveal_phone"))) or person
-        email = apollo.best_email(enriched)
-        contact = {
-            "contact_name": " ".join(filter(None, [enriched.get("first_name"),
-                                                    enriched.get("last_name")])) or None,
-            "contact_title": enriched.get("title"),
-            "contact_email": email,
-            "contact_phone": apollo.best_phone(enriched) if settings.get("reveal_phone") else None,
-            "contact_linkedin": enriched.get("linkedin_url"),
-            "enriched_at": datetime.now(timezone.utc).isoformat(),
-            "status": "Contact found" if email else "Contact (no email)",
-        }
+        # --- Stage 2: web search fallback + social/website enrichment ---
+        # Always try web enrichment for website + social media, even if
+        # Apollo found a contact (Apollo doesn't provide these).
+        location = lead.get("location")
+        web_result = web_search_enrich.enrich_from_web(name, location)
+
+        if contact is None or not contact.get("contact_email"):
+            # Apollo failed — use web result as primary contact source.
+            if web_result and (web_result.get("contact_email")
+                               or web_result.get("website")):
+                if contact is None:
+                    contact = web_result
+                else:
+                    contact.update({k: v for k, v in web_result.items()
+                                    if v and not contact.get(k)})
+                source_label = source_label or "Web search"
+            elif contact is None:
+                log.info("No contact found for '%s' via Apollo or web search.",
+                         name)
+                continue
+        elif web_result:
+            # Apollo succeeded — merge in website + socials from the web.
+            for key, val in web_result.items():
+                if val and not contact.get(key):
+                    contact[key] = val
+
+        # --- Finalise contact record ---
+        email = contact.get("contact_email")
+        contact["enriched_at"] = datetime.now(timezone.utc).isoformat()
+        contact["status"] = ("Contact found" if email
+                             else "Contact (no email)")
 
         # Draft an outreach email for review (only if we have an address to send to).
         if email and settings.get("draft_emails") and draft.available():
@@ -110,15 +151,18 @@ def run() -> None:
                 contact.update({
                     "draft_subject": d["subject"],
                     "draft_body": d["body"],
-                    "draft_status": "pending",       # awaits your approval in the dashboard
+                    "draft_status": "pending",
                     "drafted_at": datetime.now(timezone.utc).isoformat(),
                 })
 
         if supabase_io.update_lead(lead["id"], contact):
             done += 1
-            log.info("Enriched '%s' -> %s, %s <%s>%s", name, contact["contact_name"],
-                     contact["contact_title"] or "", email or "no email",
-                     " +draft" if contact.get("draft_status") == "pending" else "")
+            log.info("Enriched '%s' via %s -> %s, %s <%s>%s", name,
+                     source_label, contact.get("contact_name"),
+                     contact.get("contact_title") or "",
+                     email or "no email",
+                     " +draft" if contact.get("draft_status") == "pending"
+                     else "")
 
     supabase_io.finish_run("ok", done)
     log.info("Done - %d contact(s) written to the dashboard.", done)

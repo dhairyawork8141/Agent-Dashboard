@@ -422,12 +422,38 @@ function DraftPanel({ lead, onDraft }) {
 /* ----------------------------- Leads table ------------------------------------ */
 function LeadsTable({ leads, onStatus, onDraft, showAgentHint }) {
   const [filter, setFilter] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
+
   const shown = leads
     .filter(l => filter === "all" ? true
       : filter === "enriched" ? !!l.contact_email
       : filter === "approval" ? l.draft_status === "pending"
       : tierKey(l.tier) === filter)
+    .filter(l => {
+      if (!searchQuery) return true;
+      const q = searchQuery.toLowerCase();
+      return (
+        (l.company || "").toLowerCase().includes(q) ||
+        (l.showroom_name || "").toLowerCase().includes(q) ||
+        (l.title || "").toLowerCase().includes(q) ||
+        (l.contact_name || "").toLowerCase().includes(q) ||
+        (l.contact_email || "").toLowerCase().includes(q)
+      );
+    })
     .sort((a, b) => (b.score || 0) - (a.score || 0));
+
+  const stats = {
+    total: leads.length,
+    website: leads.filter(l => l.website).length,
+    facebook: leads.filter(l => l.social_facebook).length,
+    instagram: leads.filter(l => l.social_instagram).length,
+    linkedin: leads.filter(l => l.social_linkedin).length,
+    twitter: leads.filter(l => l.social_twitter).length,
+    youtube: leads.filter(l => l.social_youtube).length,
+    tiktok: leads.filter(l => l.social_tiktok).length,
+    pinterest: leads.filter(l => l.social_pinterest).length,
+    houzz: leads.filter(l => l.social_houzz).length,
+  };
 
   const pill = (key, label) => (
     <button onClick={() => setFilter(key)}
@@ -445,9 +471,32 @@ function LeadsTable({ leads, onStatus, onDraft, showAgentHint }) {
 
   return (
     <div>
-      <div className="flex flex-wrap gap-2 mb-4">
-        {pill("all", "All")}{pill("hot", "Hot")}{pill("warm", "Warm")}{pill("watch", "Watch")}{pill("enriched", "Enriched")}
-        {pill("approval", "Needs approval" + (() => { const n = leads.filter(l => l.draft_status === "pending").length; return n ? " (" + n + ")" : ""; })())}
+      <div className="mb-4 space-y-3">
+        <div className="flex flex-wrap gap-x-5 gap-y-2 text-[10px] uppercase tracking-wider font-semibold text-muted bg-paper px-4 py-3 rounded-xl border border-line overflow-x-auto">
+          <div><span className="text-ink text-sm block">{stats.total}</span> Total</div>
+          <div><span className="text-ink text-sm block">{stats.website}</span> Website</div>
+          {stats.facebook > 0 && <div><span className="text-ink text-sm block">{stats.facebook}</span> FB</div>}
+          {stats.instagram > 0 && <div><span className="text-ink text-sm block">{stats.instagram}</span> IG</div>}
+          {stats.linkedin > 0 && <div><span className="text-ink text-sm block">{stats.linkedin}</span> IN</div>}
+          {stats.twitter > 0 && <div><span className="text-ink text-sm block">{stats.twitter}</span> X</div>}
+          {stats.youtube > 0 && <div><span className="text-ink text-sm block">{stats.youtube}</span> YT</div>}
+          {stats.tiktok > 0 && <div><span className="text-ink text-sm block">{stats.tiktok}</span> TT</div>}
+          {stats.pinterest > 0 && <div><span className="text-ink text-sm block">{stats.pinterest}</span> PIN</div>}
+          {stats.houzz > 0 && <div><span className="text-ink text-sm block">{stats.houzz}</span> HZ</div>}
+        </div>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap gap-2">
+            {pill("all", "All")}{pill("hot", "Hot")}{pill("warm", "Warm")}{pill("watch", "Watch")}{pill("enriched", "Enriched")}
+            {pill("approval", "Needs approval" + (() => { const n = leads.filter(l => l.draft_status === "pending").length; return n ? " (" + n + ")" : ""; })())}
+          </div>
+          <input 
+            type="text" 
+            placeholder="Search leads..." 
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            className="rounded-full border border-line bg-bone px-3 py-1.5 text-xs w-full sm:max-w-xs focus:outline-none focus:border-brass text-ink transition-colors"
+          />
+        </div>
       </div>
       <div className="space-y-2.5">
         {shown.map(l => (
@@ -483,6 +532,19 @@ function LeadsTable({ leads, onStatus, onDraft, showAgentHint }) {
                       {l.contact_phone && <span className="text-ink/70">{l.contact_phone}</span>}
                       {l.contact_linkedin && <a href={l.contact_linkedin} target="_blank" rel="noreferrer" className="text-brass hover:underline">LinkedIn ↗</a>}
                     </div>
+                  </div>
+                )}
+                {(l.website || l.social_facebook || l.social_instagram || l.social_linkedin || l.social_twitter || l.social_youtube || l.social_tiktok || l.social_pinterest || l.social_houzz) && (
+                  <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+                    {l.website && <a href={l.website} target="_blank" rel="noreferrer" className="flex items-center gap-1 font-medium text-brass hover:underline">🌐 Website</a>}
+                    {l.social_facebook && <a href={l.social_facebook} target="_blank" rel="noreferrer" className="text-ink/60 hover:text-brass">Facebook</a>}
+                    {l.social_instagram && <a href={l.social_instagram} target="_blank" rel="noreferrer" className="text-ink/60 hover:text-brass">Instagram</a>}
+                    {l.social_linkedin && <a href={l.social_linkedin} target="_blank" rel="noreferrer" className="text-ink/60 hover:text-brass">LinkedIn</a>}
+                    {l.social_twitter && <a href={l.social_twitter} target="_blank" rel="noreferrer" className="text-ink/60 hover:text-brass">Twitter/X</a>}
+                    {l.social_youtube && <a href={l.social_youtube} target="_blank" rel="noreferrer" className="text-ink/60 hover:text-brass">YouTube</a>}
+                    {l.social_tiktok && <a href={l.social_tiktok} target="_blank" rel="noreferrer" className="text-ink/60 hover:text-brass">TikTok</a>}
+                    {l.social_pinterest && <a href={l.social_pinterest} target="_blank" rel="noreferrer" className="text-ink/60 hover:text-brass">Pinterest</a>}
+                    {l.social_houzz && <a href={l.social_houzz} target="_blank" rel="noreferrer" className="text-ink/60 hover:text-brass">Houzz</a>}
                   </div>
                 )}
                 {l.draft_status && l.draft_status !== "none" && onDraft && (
