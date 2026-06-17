@@ -22,6 +22,9 @@ jobs:
           ADZUNA_APP_ID:        ${{ secrets.ADZUNA_APP_ID }}
           ADZUNA_APP_KEY:       ${{ secrets.ADZUNA_APP_KEY }}
           REED_API_KEY:         ${{ secrets.REED_API_KEY }}
+          JOOBLE_API_KEY:       ${{ secrets.JOOBLE_API_KEY }}
+          CAREERJET_AFFID:      ${{ secrets.CAREERJET_AFFID }}
+          JSEARCH_API_KEY:      ${{ secrets.JSEARCH_API_KEY }}
           SUPABASE_URL:         ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
           AGENT_ID:             ${{ secrets.AGENT_ID }}

@@ -356,7 +356,9 @@ function Overview({ agents, leadsByAgent, setView, onToggle, onAdd }) {
 function LeadsTable({ leads, onStatus, showAgentHint }) {
   const [filter, setFilter] = useState("all");
   const shown = leads
-    .filter(l => filter === "all" || tierKey(l.tier) === filter)
+    .filter(l => filter === "all" ? true
+      : filter === "enriched" ? !!l.contact_email
+      : tierKey(l.tier) === filter)
     .sort((a, b) => (b.score || 0) - (a.score || 0));
 
   const pill = (key, label) => (
@@ -376,7 +378,7 @@ function LeadsTable({ leads, onStatus, showAgentHint }) {
   return (
     <div>
       <div className="flex flex-wrap gap-2 mb-4">
-        {pill("all", "All")}{pill("hot", "Hot")}{pill("warm", "Warm")}{pill("watch", "Watch")}
+        {pill("all", "All")}{pill("hot", "Hot")}{pill("warm", "Warm")}{pill("watch", "Watch")}{pill("enriched", "Enriched")}
       </div>
       <div className="space-y-2.5">
         {shown.map(l => (
@@ -385,6 +387,7 @@ function LeadsTable({ leads, onStatus, showAgentHint }) {
               <div className="min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                   <TierBadge tier={l.tier} />
+                  {l.contact_email && <span className="rounded-full bg-ink text-bone text-[10px] font-semibold px-2 py-0.5">✓ Contact</span>}
                   <span className="text-[11px] text-muted">{l.source} · {timeAgo(l.found_at)}</span>
                 </div>
                 <div className="mt-1.5 font-serif text-lg text-ink leading-snug" style={{ letterSpacing: "-0.01em" }}>
@@ -397,6 +400,20 @@ function LeadsTable({ leads, onStatus, showAgentHint }) {
                 {l.opening_line && (
                   <div className="mt-2 text-sm text-ink/80 border-l-2 border-brass pl-3">
                     <span className="text-muted italic">Opener: </span>{l.opening_line}
+                  </div>
+                )}
+                {(l.contact_name || l.contact_email) && (
+                  <div className="mt-2 rounded-lg border border-line bg-bone px-3 py-2">
+                    <div className="text-[10px] uppercase tracking-wide text-muted mb-0.5">Decision-maker</div>
+                    <div className="text-sm text-ink font-medium">
+                      {l.contact_name || "—"}
+                      {l.contact_title && <span className="text-muted font-normal"> · {l.contact_title}</span>}
+                    </div>
+                    <div className="mt-0.5 flex flex-wrap gap-x-3 gap-y-0.5 text-xs">
+                      {l.contact_email && <a href={"mailto:" + l.contact_email} className="text-brass hover:underline">{l.contact_email}</a>}
+                      {l.contact_phone && <span className="text-ink/70">{l.contact_phone}</span>}
+                      {l.contact_linkedin && <a href={l.contact_linkedin} target="_blank" rel="noreferrer" className="text-brass hover:underline">LinkedIn ↗</a>}
+                    </div>
                   </div>
                 )}
               </div>

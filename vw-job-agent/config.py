@@ -16,6 +16,10 @@ def _flag(name: str, default: str = "false") -> bool:
 ADZUNA_APP_ID = os.getenv("ADZUNA_APP_ID", "")
 ADZUNA_APP_KEY = os.getenv("ADZUNA_APP_KEY", "")
 REED_API_KEY = os.getenv("REED_API_KEY", "")
+JOOBLE_API_KEY = os.getenv("JOOBLE_API_KEY", "")        # free key: https://jooble.org/api/about
+CAREERJET_AFFID = os.getenv("CAREERJET_AFFID", "")      # free affid: careerjet.com/partners
+# Paid (RapidAPI). Unlocks Google-for-Jobs: LinkedIn, Indeed, Glassdoor, ZipRecruiter, Monster.
+JSEARCH_API_KEY = os.getenv("JSEARCH_API_KEY", "")      # https://rapidapi.com/letscrape-6bRBa3QguO5/api/jsearch
 
 # --- Supabase (optional - the dashboard's database). With these set, the agent reads
 #     its settings from the dashboard and writes finds back so they appear there. ---
@@ -38,7 +42,10 @@ ALERT_TO = os.getenv("ALERT_TO", "")
 # --- Fallback settings, used when Supabase isn't connected. The dashboard edits a copy
 #     of this shape stored in the agents table. ---
 DEFAULT_SETTINGS = {
-    "countries": [c.strip() for c in os.getenv("COUNTRIES", "gb,ie").split(",") if c.strip()],
+    "countries": [c.strip() for c in os.getenv("COUNTRIES", "gb,us,ca,au,nz,de,fr,nl").split(",") if c.strip()],
+    "careerjet_locales": [c.strip() for c in os.getenv("CAREERJET_LOCALES", "en_GB,en_US").split(",") if c.strip()],
+    "jsearch_countries": [c.strip() for c in os.getenv("JSEARCH_COUNTRIES", "gb,us").split(",") if c.strip()],
+    "jsearch_max_per_run": int(os.getenv("JSEARCH_MAX_PER_RUN", "2")),  # free BASIC safe: 2/run x3/day ~= 180/mo
     "max_days_old": int(os.getenv("MAX_DAYS_OLD", "3")),
     "enrich_with_claude": _flag("ENRICH_WITH_CLAUDE"),
     "send_email": _flag("SEND_EMAIL"),
