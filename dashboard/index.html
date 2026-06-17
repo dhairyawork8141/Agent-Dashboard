@@ -136,6 +136,16 @@ const DEMO_AGENTS = [{
     warm_terms: ["winner design", "winner flex", "cyncly", "compusoft"],
     watch_terms: ["cad", "kbb", "bathroom design", "kitchen design", "autocad", "sketchup"],
   },
+}, {
+  id: "demo-cf", name: "VW Contact Finder", type: "contact_finder", enabled: true,
+  schedule_cron: "0 8,14,19 * * 1-6",
+  last_run_at: new Date(Date.now() - 1000 * 60 * 90).toISOString(), last_run_status: "ok",
+  settings: { max_per_run: 10, tiers: ["HOT - Virtual Worlds", "WARM - Winner/Cyncly"], skip_recruiters: true },
+}, {
+  id: "demo-sr", name: "VW New-Showroom Finder", type: "showroom_watcher", enabled: true,
+  schedule_cron: "0 6 * * 1-6",
+  last_run_at: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(), last_run_status: "ok",
+  settings: { name_keywords: ["kitchen", "bathroom", "bedroom"], incorporated_within_days: 45, max_per_run: 25 },
 }];
 
 const DEMO_LEADS = [
@@ -146,6 +156,10 @@ const DEMO_LEADS = [
   { id:"l5", agent_id:"demo-vw", tier:"WARM - Winner/Cyncly", score:80, title:"Bathroom Designer", company:"Aylesbury Bathroom Centre", showroom_name:"Aylesbury Bathroom Centre", location:"Aylesbury, Bucks", salary:"£30,000", is_recruiter:false, decision_maker_hint:"Michele Fierro (Director)", opening_line:"You're advertising for a designer in Aylesbury — here's how to clear the brief backlog without another salary on the books.", url:"#", source:"Reed", status:"New", found_at:new Date(Date.now()-1000*60*60*40).toISOString() },
   { id:"l6", agent_id:"demo-vw", tier:"HOT - Virtual Worlds", score:100, title:"Senior Bathroom Designer", company:"Walton Bathrooms", showroom_name:"Walton Bathrooms", location:"Walton-on-Thames, Surrey", salary:"£35,000 - £42,000", is_recruiter:false, decision_maker_hint:"Matthew Kallum (MD)", opening_line:"Saw Walton's designer role — one relationship could cover both Walton and Kallums, with renders back in 48 hours.", url:"#", source:"Adzuna (GB)", status:"New", found_at:new Date(Date.now()-1000*60*60*48).toISOString() },
   { id:"l7", agent_id:"demo-vw", tier:"WATCH - generic CAD", score:50, title:"CAD Designer (KBB)", company:"Stanford Design Ltd", showroom_name:"Stanford Design Ltd", location:"Upminster, Essex", salary:null, is_recruiter:false, decision_maker_hint:"", opening_line:"Spotted your CAD designer ad — quick question on whether outsourced design might beat hiring for your next few projects.", url:"#", source:"Reed", status:"New", found_at:new Date(Date.now()-1000*60*60*54).toISOString() },
+  // --- Showroom-list leads (Companies House source) ---
+  { id:"s1", agent_id:"demo-sr", tier:"HOT - New showroom", score:90, title:"Newly registered KBB business", company:"Riverside Kitchens Ltd", showroom_name:"Riverside Kitchens Ltd", location:"Guildford, Surrey", is_recruiter:false, opening_line:"Clearly a kitchen showroom — recently incorporated, likely setting up their design process.", url:"https://find-and-update.company-information.service.gov.uk/company/15012345", source:"Companies House", status:"New", found_at:new Date(Date.now()-1000*60*60*8).toISOString(), website:"https://www.riversidekitchens.co.uk", social_facebook:"https://facebook.com/riversidekitchens", social_instagram:"https://instagram.com/riversidekitchens", contact_email:"hello@riversidekitchens.co.uk", contact_name:"Riverside Kitchens" },
+  { id:"s2", agent_id:"demo-sr", tier:"WARM - New showroom", score:70, title:"Newly registered KBB business", company:"Aqua Bathrooms & Interiors Ltd", showroom_name:"Aqua Bathrooms & Interiors Ltd", location:"Leeds, West Yorkshire", is_recruiter:false, opening_line:"Bathroom & interiors retailer — good fit for outsourced CGI.", url:"https://find-and-update.company-information.service.gov.uk/company/15067890", source:"Companies House", status:"New", found_at:new Date(Date.now()-1000*60*60*10).toISOString(), website:"https://www.aquabathrooms.co.uk", social_instagram:"https://instagram.com/aquabathrooms", social_houzz:"https://houzz.co.uk/pro/aquabathrooms" },
+  { id:"s3", agent_id:"demo-sr", tier:"WARM - New showroom", score:65, title:"Newly registered KBB business", company:"The Bedroom Studio Ltd", showroom_name:"The Bedroom Studio Ltd", location:"Bristol", is_recruiter:false, opening_line:"Fitted-bedroom studio — likely needs design visuals.", url:"https://find-and-update.company-information.service.gov.uk/company/15099111", source:"Companies House", status:"Contacted", found_at:new Date(Date.now()-1000*60*60*20).toISOString(), website:"https://www.thebedroomstudio.co.uk", social_facebook:"https://facebook.com/thebedroomstudio" },
 ];
 
 /* ----------------------------- Helpers ---------------------------------------- */
@@ -267,47 +281,82 @@ function Login({ onIn }) {
   );
 }
 
-/* ----------------------------- Top bar ---------------------------------------- */
-function TopBar({ view, setView, email, onSignOut, isDark, setIsDark }) {
-  const item = (key, label) => (
-    <button onClick={() => setView({ name: key })}
-      className={"relative text-sm font-medium pb-1 transition-colors " +
-        (view.name === key ? "text-ink" : "text-muted hover:text-ink")}>
-      {label}
-      {view.name === key && <span className="absolute -bottom-px left-0 right-0 h-0.5 bg-brass rounded-full" />}
+/* ----------------------------- Sidebar nav ------------------------------------ */
+// Sections shown in the left rail. Add more here as new agent categories arrive.
+const NAV = [
+  { key: "overview", label: "Overview",       icon: "fa-gauge-high" },
+  { key: "job",      label: "Job Leads",      icon: "fa-briefcase" },
+  { key: "showroom", label: "Showroom Lists", icon: "fa-store" },
+];
+
+function Sidebar({ view, setView, email, onSignOut, isDark, setIsDark }) {
+  const active = (key) => view.name === key ||
+    (view.name === "agent" && view.section === key);
+
+  const navBtn = (n) => (
+    <button key={n.key} onClick={() => setView({ name: n.key })}
+      className={"flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors w-full " +
+        (active(n.key) ? "bg-brass/15 text-ink" : "text-muted hover:text-ink hover:bg-paper")}>
+      <i className={"fa-solid " + n.icon + " w-4 text-center " + (active(n.key) ? "text-brass" : "")}></i>
+      <span>{n.label}</span>
     </button>
   );
+
+  const themeBtn = (
+    <button onClick={() => setIsDark(!isDark)} className="text-muted hover:text-ink transition-colors" aria-label="Toggle dark mode">
+      {isDark ? <i className="fa-solid fa-sun"></i> : <i className="fa-solid fa-moon"></i>}
+    </button>
+  );
+
   return (
-    <header className="border-b border-line bg-bone/80 backdrop-blur sticky top-0 z-20">
-      <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
-        <div className="flex items-center gap-8">
-          <button onClick={() => setView({ name: "overview" })} className="flex items-center gap-2.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-brass" />
-            <span className="font-serif text-[17px] text-ink">Control Desk</span>
+    <React.Fragment>
+      {/* Desktop rail */}
+      <aside className="hidden md:flex md:flex-col md:w-60 md:shrink-0 md:sticky md:top-0 md:h-screen border-r border-line bg-bone px-4 py-5">
+        <button onClick={() => setView({ name: "overview" })} className="flex items-center gap-2.5 px-2 mb-7">
+          <span className="w-2.5 h-2.5 rounded-full bg-brass" />
+          <span className="font-serif text-[17px] text-ink">Control Desk</span>
+        </button>
+        <nav className="space-y-1">{NAV.map(navBtn)}</nav>
+        <div className="mt-3 px-3 text-[10px] uppercase tracking-wider text-muted/70">More sections coming</div>
+
+        <div className="mt-auto pt-4 border-t border-line space-y-3">
+          <div className="flex items-center justify-between px-2">
+            {!isLive && <span className="text-[11px] font-semibold text-brass bg-brass/10 rounded-full px-2.5 py-1">Demo mode</span>}
+            {isLive && email && <span className="text-xs text-muted truncate">{email}</span>}
+            {themeBtn}
+          </div>
+          <button onClick={() => setView({ name: "account" })}
+            className={"flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors w-full " +
+              (active("account") ? "bg-brass/15 text-ink" : "text-muted hover:text-ink hover:bg-paper")}>
+            <i className="fa-solid fa-gear w-4 text-center"></i><span>Account</span>
           </button>
-          <nav className="hidden sm:flex items-center gap-6">
-            {item("overview", "Overview")}
-            {item("leads", "Leads")}
-            {item("account", "Account")}
-          </nav>
+          {isLive && <button onClick={onSignOut} className="px-3 text-xs text-muted hover:text-ink">Sign out</button>}
         </div>
-        <div className="flex items-center gap-4">
-          <button onClick={() => setIsDark(!isDark)} className="text-muted hover:text-ink transition-colors text-lg" aria-label="Toggle dark mode">
-            {isDark ? <i className="fa-solid fa-sun"></i> : <i className="fa-solid fa-moon"></i>}
+      </aside>
+
+      {/* Mobile top bar */}
+      <div className="md:hidden sticky top-0 z-20 border-b border-line bg-bone/90 backdrop-blur">
+        <div className="flex items-center justify-between px-4 h-14">
+          <button onClick={() => setView({ name: "overview" })} className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-brass" />
+            <span className="font-serif text-base text-ink">Control Desk</span>
           </button>
-          <div className="flex items-center gap-3 border-l border-line pl-4">
-            {!isLive && <span className="hidden sm:inline text-[11px] font-semibold text-brass bg-brass/10 rounded-full px-2.5 py-1">Demo mode</span>}
-            {isLive && email && <span className="hidden sm:inline text-xs text-muted">{email}</span>}
+          <div className="flex items-center gap-3">
+            {themeBtn}
             {isLive && <button onClick={onSignOut} className="text-xs text-muted hover:text-ink">Sign out</button>}
           </div>
         </div>
+        <nav className="flex items-center gap-1 px-3 pb-2 overflow-x-auto">
+          {NAV.concat([{ key: "account", label: "Account", icon: "fa-gear" }]).map(n => (
+            <button key={n.key} onClick={() => setView({ name: n.key })}
+              className={"whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-semibold transition-colors " +
+                (active(n.key) ? "bg-ink text-bone" : "border border-line text-muted")}>
+              <i className={"fa-solid " + n.icon + " mr-1.5"}></i>{n.label}
+            </button>
+          ))}
+        </nav>
       </div>
-      <nav className="sm:hidden flex items-center gap-6 px-6 pb-3">
-        {item("overview", "Overview")}
-        {item("leads", "Leads")}
-        {item("account", "Account")}
-      </nav>
-    </header>
+    </React.Fragment>
   );
 }
 
@@ -350,36 +399,80 @@ function AgentCard({ agent, leads, onOpen, onToggle }) {
   );
 }
 
-function Overview({ agents, leadsByAgent, setView, onToggle, onAdd }) {
-  const all = Object.values(leadsByAgent).flat();
-  const hot = all.filter(l => tierKey(l.tier) === "hot").length;
-  const fresh = all.filter(l => l.status === "New").length;
-  return (
-    <div className="max-w-5xl mx-auto px-6 py-10">
-      <Eyebrow>Studio operations</Eyebrow>
-      <h1 className="font-serif text-4xl text-ink mt-1 mb-8" style={{ letterSpacing: "-0.02em" }}>Your agents</h1>
+const CONTACTED_STATUSES = ["Contacted", "Replied", "Call booked", "Free project", "Subscribed"];
+const hasSocial = (l) => !!(l.social_facebook || l.social_instagram || l.social_linkedin ||
+  l.social_twitter || l.social_youtube || l.social_tiktok || l.social_pinterest || l.social_houzz);
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-10">
-        <StatTile label="Agents" value={agents.length} />
-        <StatTile label="Leads found" value={all.length} />
-        <StatTile label="Hot leads" value={hot} accent />
-        <StatTile label="Awaiting outreach" value={fresh} />
+function Overview({ agents, allLeads, jobLeads, showroomLeads, setView, onToggle }) {
+  const k = useMemo(() => ({
+    leads:     allLeads.length,
+    hot:       allLeads.filter(l => tierKey(l.tier) === "hot").length,
+    socials:   allLeads.filter(hasSocial).length,
+    contacts:  allLeads.filter(l => l.contact_email || l.contact_phone).length,
+    connected: allLeads.filter(l => CONTACTED_STATUSES.includes(l.status)).length,
+    pending:   allLeads.filter(l => l.draft_status === "pending").length,
+    sent:      allLeads.filter(l => l.draft_status === "sent").length,
+  }), [allLeads]);
+
+  return (
+    <div className="max-w-5xl mx-auto px-6 py-9">
+      <Eyebrow>Studio operations</Eyebrow>
+      <h1 className="font-serif text-4xl text-ink mt-1 mb-7" style={{ letterSpacing: "-0.02em" }}>Overview</h1>
+
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <StatTile label="Total leads" value={k.leads} />
+        <StatTile label="Hot leads" value={k.hot} accent />
+        <StatTile label="Contacts found" value={k.contacts} />
+        <StatTile label="Social profiles" value={k.socials} />
+        <StatTile label="Connected" value={k.connected} />
+        <StatTile label="Awaiting approval" value={k.pending} accent />
+        <StatTile label="Emails sent" value={k.sent} />
+        <StatTile label="Active agents" value={agents.filter(a => a.enabled).length} />
       </div>
 
-      <div className="grid sm:grid-cols-2 gap-4">
-        {agents.map(a => (
-          <AgentCard key={a.id} agent={a} leads={leadsByAgent[a.id] || []}
-            onOpen={() => setView({ name: "agent", id: a.id })}
-            onToggle={() => onToggle(a)} />
-        ))}
-        <button onClick={onAdd}
-          className="rounded-2xl border border-dashed border-line bg-transparent p-5 text-left hover:border-brass hover:bg-paper transition-colors min-h-[170px] flex flex-col justify-center">
-          <span className="font-serif text-xl text-ink">+ Add an agent</span>
-          <span className="text-xs text-muted mt-1">A new watcher, researcher, or outreach worker.</span>
+      {/* Stream breakdown */}
+      <div className="grid sm:grid-cols-2 gap-4 mt-8">
+        <button onClick={() => setView({ name: "job" })}
+          className="text-left rounded-2xl border border-line bg-paper p-5 hover:border-[#d8cdb8] transition-colors">
+          <div className="flex items-center gap-2.5 mb-2"><i className="fa-solid fa-briefcase text-brass"></i>
+            <span className="font-serif text-xl text-ink">Job Leads</span></div>
+          <div className="font-serif text-3xl text-ink" style={{ letterSpacing: "-0.02em" }}>{jobLeads.length}</div>
+          <div className="text-xs text-muted mt-1">Showrooms found hiring designers · open →</div>
         </button>
+        <button onClick={() => setView({ name: "showroom" })}
+          className="text-left rounded-2xl border border-line bg-paper p-5 hover:border-[#d8cdb8] transition-colors">
+          <div className="flex items-center gap-2.5 mb-2"><i className="fa-solid fa-store text-brass"></i>
+            <span className="font-serif text-xl text-ink">Showroom Lists</span></div>
+          <div className="font-serif text-3xl text-ink" style={{ letterSpacing: "-0.02em" }}>{showroomLeads.length}</div>
+          <div className="text-xs text-muted mt-1">KBB showrooms from all sources · open →</div>
+        </button>
+      </div>
+
+      {/* Agent health */}
+      <div className="mt-9">
+        <Eyebrow className="mb-3">Agents</Eyebrow>
+        <div className="space-y-2">
+          {agents.map(a => (
+            <div key={a.id} className="flex items-center justify-between rounded-xl border border-line bg-paper px-4 py-3">
+              <button onClick={() => setView({ name: "agent", id: a.id, section: sectionForType(a.type) })} className="text-left">
+                <div className="text-sm font-semibold text-ink">{a.name}</div>
+                <div className="text-[11px] text-muted">
+                  <span className={"inline-block w-1.5 h-1.5 rounded-full mr-1.5 " + (a.enabled ? "bg-brass" : "bg-[#cfc6b6]")}></span>
+                  {a.enabled ? "Active" : "Paused"} · {a.type.replace("_", " ")} · ran {timeAgo(a.last_run_at)}
+                </div>
+              </button>
+              <Toggle on={a.enabled} onClick={() => onToggle(a)} />
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
+}
+
+// Which sidebar section an agent type belongs to.
+function sectionForType(type) {
+  return type === "showroom_watcher" ? "showroom" : "job";
 }
 
 /* ----------------------------- Draft approval --------------------------------- */
@@ -602,13 +695,88 @@ function LeadsTable({ leads, onStatus, onDraft, showAgentHint }) {
   );
 }
 
-function AllLeads({ leadsByAgent, agents, onStatus, onDraft }) {
-  const all = Object.values(leadsByAgent).flat();
+/* A section's agents, shown compactly with a toggle + a link into settings. */
+function AgentStrip({ agents, section, setView, onToggle, onAdd, addType, addLabel }) {
   return (
-    <div className="max-w-5xl mx-auto px-6 py-10">
-      <Eyebrow>Pipeline</Eyebrow>
-      <h1 className="font-serif text-4xl text-ink mt-1 mb-8" style={{ letterSpacing: "-0.02em" }}>All leads</h1>
-      <LeadsTable leads={all} onStatus={onStatus} onDraft={onDraft} />
+    <div className="grid sm:grid-cols-2 gap-3 mb-7">
+      {agents.map(a => (
+        <div key={a.id} className="flex items-center justify-between rounded-xl border border-line bg-paper px-4 py-3">
+          <button onClick={() => setView({ name: "agent", id: a.id, section })} className="text-left min-w-0">
+            <div className="text-sm font-semibold text-ink truncate">{a.name}</div>
+            <div className="text-[11px] text-muted">
+              <span className={"inline-block w-1.5 h-1.5 rounded-full mr-1.5 " + (a.enabled ? "bg-brass" : "bg-[#cfc6b6]")}></span>
+              {a.type.replace("_", " ")} · ran {timeAgo(a.last_run_at)} · settings →
+            </div>
+          </button>
+          <Toggle on={a.enabled} onClick={() => onToggle(a)} />
+        </div>
+      ))}
+      {onAdd && (
+        <button onClick={() => onAdd(addType)}
+          className="rounded-xl border border-dashed border-line px-4 py-3 text-left text-sm text-muted hover:border-brass hover:text-ink transition-colors">
+          + {addLabel || "Add an agent"}
+        </button>
+      )}
+    </div>
+  );
+}
+
+function SectionHeader({ icon, eyebrow, title, count }) {
+  return (
+    <div className="mb-6">
+      <Eyebrow>{eyebrow}</Eyebrow>
+      <h1 className="font-serif text-4xl text-ink mt-1 flex items-center gap-3" style={{ letterSpacing: "-0.02em" }}>
+        <i className={"fa-solid " + icon + " text-2xl text-brass"}></i>{title}
+        <span className="text-lg text-muted font-sans font-normal">{count}</span>
+      </h1>
+    </div>
+  );
+}
+
+function JobLeadsView({ agents, leads, setView, onToggle, onStatus, onDraft, onAdd }) {
+  return (
+    <div className="max-w-5xl mx-auto px-6 py-9">
+      <SectionHeader icon="fa-briefcase" eyebrow="Showrooms hiring designers" title="Job Leads" count={leads.length} />
+      <AgentStrip agents={agents} section="job" setView={setView} onToggle={onToggle}
+        onAdd={onAdd} addType="job_watcher" addLabel="Add a job-source agent" />
+      <LeadsTable leads={leads} onStatus={onStatus} onDraft={onDraft} />
+    </div>
+  );
+}
+
+function ShowroomListsView({ agents, leads, setView, onToggle, onStatus, onDraft, onAdd }) {
+  const [source, setSource] = useState("all");
+  // Source filter buttons are derived from the data, so new sources appear automatically.
+  const sources = useMemo(() => {
+    const set = new Set(leads.map(l => l.source).filter(Boolean));
+    return Array.from(set).sort();
+  }, [leads]);
+  const shown = source === "all" ? leads : leads.filter(l => l.source === source);
+
+  const srcBtn = (key, label) => (
+    <button key={key} onClick={() => setSource(key)}
+      className={"rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors " +
+        (source === key ? "bg-brass text-paper" : "border border-line text-muted hover:text-ink")}>
+      {label}{key !== "all" ? " (" + leads.filter(l => l.source === key).length + ")" : ""}
+    </button>
+  );
+
+  return (
+    <div className="max-w-5xl mx-auto px-6 py-9">
+      <SectionHeader icon="fa-store" eyebrow="KBB showrooms — all sources" title="Showroom Lists" count={leads.length} />
+      <AgentStrip agents={agents} section="showroom" setView={setView} onToggle={onToggle}
+        onAdd={onAdd} addType="showroom_watcher" addLabel="Add a showroom source" />
+
+      {/* Source filter buttons (extensible: gov.uk now, more sources later) */}
+      <div className="mb-4">
+        <Eyebrow className="mb-2">Filter by source</Eyebrow>
+        <div className="flex flex-wrap gap-2">
+          {srcBtn("all", "All sources (" + leads.length + ")")}
+          {sources.map(s => srcBtn(s, s))}
+        </div>
+      </div>
+
+      <LeadsTable leads={shown} onStatus={onStatus} onDraft={onDraft} />
     </div>
   );
 }
@@ -731,7 +899,7 @@ function AgentDetail({ agent, leads, setView, onSave, onToggle, onStatus, onDraf
 
   return (
     <div className="max-w-3xl mx-auto px-6 py-10">
-      <button onClick={() => setView({ name: "overview" })} className="text-xs text-muted hover:text-ink mb-6">← All agents</button>
+      <button onClick={() => setView({ name: sectionForType(agent.type) })} className="text-xs text-muted hover:text-ink mb-6">← Back</button>
 
       <div className="flex items-start justify-between gap-4 mb-1">
         <div>
@@ -758,13 +926,13 @@ function AgentDetail({ agent, leads, setView, onSave, onToggle, onStatus, onDraf
 }
 
 /* ----------------------------- Add agent modal -------------------------------- */
-function AddAgent({ onClose, onCreate }) {
+function AddAgent({ onClose, onCreate, initialType }) {
   const [name, setName] = useState("");
-  const [type, setType] = useState("job_watcher");
+  const [type, setType] = useState(initialType || "job_watcher");
   const TYPES = [
-    { v: "job_watcher", label: "Job board watcher", hint: "Find showrooms hiring for specific software." },
-    { v: "showroom_watcher", label: "New showroom watcher", hint: "Catch newly opened showrooms." },
-    { v: "competitor_watcher", label: "Competitor watcher", hint: "Track named competitors’ activity." },
+    { v: "job_watcher", label: "Job board watcher", hint: "Find showrooms hiring for designers." },
+    { v: "contact_finder", label: "Contact finder", hint: "Enrich leads with decision-maker contacts." },
+    { v: "showroom_watcher", label: "Showroom source", hint: "List KBB showrooms from a data source." },
   ];
   return (
     <div className="fixed inset-0 z-30 bg-ink/30 flex items-center justify-center px-6" onClick={onClose}>
@@ -871,6 +1039,21 @@ function App() {
     return m;
   }, [agents, leads]);
 
+  // Categorise into the sidebar's streams. A lead is a "showroom" lead if it came from a
+  // showroom-watcher agent or a showroom source (Companies House, future directories);
+  // everything else is a job-ad lead.
+  const jobAgents = useMemo(() => agents.filter(a => a.type === "job_watcher" || a.type === "contact_finder"), [agents]);
+  const showroomAgents = useMemo(() => agents.filter(a => a.type === "showroom_watcher"), [agents]);
+  const showroomLeads = useMemo(() => {
+    const ids = new Set(showroomAgents.map(a => a.id));
+    return leads.filter(l => ids.has(l.agent_id) || (l.source || "").includes("Companies House"));
+  }, [leads, showroomAgents]);
+  const jobLeads = useMemo(() => {
+    const sh = new Set(showroomLeads);
+    return leads.filter(l => !sh.has(l));
+  }, [leads, showroomLeads]);
+  const openAdd = (t) => setAdding(t || true);
+
   /* mutations (write-through in live mode) */
   async function toggleAgent(a) {
     const next = !a.enabled;
@@ -910,27 +1093,35 @@ function App() {
   const current = view.name === "agent" ? agents.find(a => a.id === view.id) : null;
 
   return (
-    <div className="min-h-screen font-sans text-ink bg-bone">
-      <TopBar view={view} setView={setView} email={email} onSignOut={signOut} isDark={isDark} setIsDark={setIsDark} />
+    <div className="min-h-screen font-sans text-ink bg-bone flex flex-col md:flex-row">
+      <Sidebar view={view} setView={setView} email={email} onSignOut={signOut} isDark={isDark} setIsDark={setIsDark} />
 
-      {view.name === "overview" &&
-        <Overview agents={agents} leadsByAgent={leadsByAgent} setView={setView}
-          onToggle={toggleAgent} onAdd={() => setAdding(true)} />}
+      <main className="flex-1 min-w-0">
+        {view.name === "overview" &&
+          <Overview agents={agents} allLeads={leads} jobLeads={jobLeads} showroomLeads={showroomLeads}
+            setView={setView} onToggle={toggleAgent} />}
 
-      {view.name === "leads" &&
-        <AllLeads leadsByAgent={leadsByAgent} agents={agents} onStatus={setStatus} onDraft={updateDraft} />}
+        {view.name === "job" &&
+          <JobLeadsView agents={jobAgents} leads={jobLeads} setView={setView}
+            onToggle={toggleAgent} onStatus={setStatus} onDraft={updateDraft} onAdd={openAdd} />}
 
-      {view.name === "account" && <Account email={email} />}
+        {view.name === "showroom" &&
+          <ShowroomListsView agents={showroomAgents} leads={showroomLeads} setView={setView}
+            onToggle={toggleAgent} onStatus={setStatus} onDraft={updateDraft} onAdd={openAdd} />}
 
-      {view.name === "agent" && current &&
-        <AgentDetail agent={current} leads={leadsByAgent[current.id] || []} setView={setView}
-          onSave={saveAgent} onToggle={toggleAgent} onStatus={setStatus} onDraft={updateDraft} />}
+        {view.name === "account" && <Account email={email} />}
 
-      {adding && <AddAgent onClose={() => setAdding(false)} onCreate={addAgent} />}
+        {view.name === "agent" && current &&
+          <AgentDetail agent={current} leads={leadsByAgent[current.id] || []} setView={setView}
+            onSave={saveAgent} onToggle={toggleAgent} onStatus={setStatus} onDraft={updateDraft} />}
 
-      <footer className="max-w-5xl mx-auto px-6 py-10 text-[11px] text-muted border-t border-line mt-10">
-        CAD Illustrators · Agent Control Desk
-      </footer>
+        <footer className="px-6 py-10 text-[11px] text-muted border-t border-line mt-10">
+          CAD Illustrators · Agent Control Desk
+        </footer>
+      </main>
+
+      {adding && <AddAgent initialType={typeof adding === "string" ? adding : "job_watcher"}
+        onClose={() => setAdding(false)} onCreate={addAgent} />}
     </div>
   );
 }
