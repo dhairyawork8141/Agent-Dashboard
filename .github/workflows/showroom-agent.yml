@@ -1,0 +1,36 @@
+name: VW New-Showroom Finder
+
+on:
+  schedule:
+    - cron: "0 6 * * 1-6"   # 6am UTC, Mon-Sat (new incorporations appear daily)
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  find:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - run: pip install -r vw-showroom-agent/requirements.txt
+      - name: Run new-showroom finder
+        env:
+          # Agent id is not sensitive — it's the seeded showroom-finder row.
+          AGENT_ID:                c8f7e6d5-4b3a-2c1d-0e9f-1a2b3c4d5e6f
+          COMPANIES_HOUSE_API_KEY: ${{ secrets.COMPANIES_HOUSE_API_KEY }}
+          SUPABASE_URL:            ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY:    ${{ secrets.SUPABASE_SERVICE_KEY }}
+          GROQ_API_KEY:            ${{ secrets.GROQ_API_KEY }}
+        working-directory: vw-showroom-agent
+        run: python main.py
+      - name: Commit updated state
+        run: |
+          git config user.name  "showroom-finder-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add vw-showroom-agent/state/
+          git diff --quiet --staged || git commit -m "Update showroom-finder state [skip ci]"
+          git push
