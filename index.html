@@ -20,6 +20,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
@@ -472,17 +473,17 @@ function LeadsTable({ leads, onStatus, onDraft, showAgentHint }) {
   return (
     <div>
       <div className="mb-4 space-y-3">
-        <div className="flex flex-wrap gap-x-5 gap-y-2 text-[10px] uppercase tracking-wider font-semibold text-muted bg-paper px-4 py-3 rounded-xl border border-line overflow-x-auto">
+        <div className="flex flex-wrap gap-x-5 gap-y-2 text-[10px] uppercase tracking-wider font-semibold text-muted bg-paper px-4 py-3 rounded-xl border border-line overflow-x-auto items-center">
           <div><span className="text-ink text-sm block">{stats.total}</span> Total</div>
-          <div><span className="text-ink text-sm block">{stats.website}</span> Website</div>
-          {stats.facebook > 0 && <div><span className="text-ink text-sm block">{stats.facebook}</span> FB</div>}
-          {stats.instagram > 0 && <div><span className="text-ink text-sm block">{stats.instagram}</span> IG</div>}
-          {stats.linkedin > 0 && <div><span className="text-ink text-sm block">{stats.linkedin}</span> IN</div>}
-          {stats.twitter > 0 && <div><span className="text-ink text-sm block">{stats.twitter}</span> X</div>}
-          {stats.youtube > 0 && <div><span className="text-ink text-sm block">{stats.youtube}</span> YT</div>}
-          {stats.tiktok > 0 && <div><span className="text-ink text-sm block">{stats.tiktok}</span> TT</div>}
-          {stats.pinterest > 0 && <div><span className="text-ink text-sm block">{stats.pinterest}</span> PIN</div>}
-          {stats.houzz > 0 && <div><span className="text-ink text-sm block">{stats.houzz}</span> HZ</div>}
+          <div><span className="text-ink text-sm block">{stats.website}</span> <i className="fa-solid fa-globe text-brass text-sm"></i></div>
+          {stats.facebook > 0 && <div className="text-center"><span className="text-ink text-sm block">{stats.facebook}</span> <i className="fa-brands fa-facebook text-[#1877F2] text-sm"></i></div>}
+          {stats.instagram > 0 && <div className="text-center"><span className="text-ink text-sm block">{stats.instagram}</span> <i className="fa-brands fa-instagram text-[#E4405F] text-sm"></i></div>}
+          {stats.linkedin > 0 && <div className="text-center"><span className="text-ink text-sm block">{stats.linkedin}</span> <i className="fa-brands fa-linkedin text-[#0A66C2] text-sm"></i></div>}
+          {stats.twitter > 0 && <div className="text-center"><span className="text-ink text-sm block">{stats.twitter}</span> <i className="fa-brands fa-x-twitter text-ink text-sm"></i></div>}
+          {stats.youtube > 0 && <div className="text-center"><span className="text-ink text-sm block">{stats.youtube}</span> <i className="fa-brands fa-youtube text-[#FF0000] text-sm"></i></div>}
+          {stats.tiktok > 0 && <div className="text-center"><span className="text-ink text-sm block">{stats.tiktok}</span> <i className="fa-brands fa-tiktok text-ink text-sm"></i></div>}
+          {stats.pinterest > 0 && <div className="text-center"><span className="text-ink text-sm block">{stats.pinterest}</span> <i className="fa-brands fa-pinterest text-[#E60023] text-sm"></i></div>}
+          {stats.houzz > 0 && <div className="text-center"><span className="text-ink text-sm block">{stats.houzz}</span> <i className="fa-brands fa-houzz text-[#4DBC15] text-sm"></i></div>}
         </div>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap gap-2">
@@ -535,16 +536,19 @@ function LeadsTable({ leads, onStatus, onDraft, showAgentHint }) {
                   </div>
                 )}
                 {(l.website || l.social_facebook || l.social_instagram || l.social_linkedin || l.social_twitter || l.social_youtube || l.social_tiktok || l.social_pinterest || l.social_houzz) && (
-                  <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
-                    {l.website && <a href={l.website} target="_blank" rel="noreferrer" className="flex items-center gap-1 font-medium text-brass hover:underline">🌐 Website</a>}
-                    {l.social_facebook && <a href={l.social_facebook} target="_blank" rel="noreferrer" className="text-ink/60 hover:text-brass">Facebook</a>}
-                    {l.social_instagram && <a href={l.social_instagram} target="_blank" rel="noreferrer" className="text-ink/60 hover:text-brass">Instagram</a>}
-                    {l.social_linkedin && <a href={l.social_linkedin} target="_blank" rel="noreferrer" className="text-ink/60 hover:text-brass">LinkedIn</a>}
-                    {l.social_twitter && <a href={l.social_twitter} target="_blank" rel="noreferrer" className="text-ink/60 hover:text-brass">Twitter/X</a>}
-                    {l.social_youtube && <a href={l.social_youtube} target="_blank" rel="noreferrer" className="text-ink/60 hover:text-brass">YouTube</a>}
-                    {l.social_tiktok && <a href={l.social_tiktok} target="_blank" rel="noreferrer" className="text-ink/60 hover:text-brass">TikTok</a>}
-                    {l.social_pinterest && <a href={l.social_pinterest} target="_blank" rel="noreferrer" className="text-ink/60 hover:text-brass">Pinterest</a>}
-                    {l.social_houzz && <a href={l.social_houzz} target="_blank" rel="noreferrer" className="text-ink/60 hover:text-brass">Houzz</a>}
+                  <div className="mt-2.5 pt-2 border-t border-line/40 flex flex-wrap items-center gap-x-4 gap-y-2">
+                    {l.website && <a href={l.website} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-[11px] uppercase tracking-wide font-semibold text-brass hover:text-ink transition-colors"><i className="fa-solid fa-globe text-sm"></i> Website</a>}
+                    
+                    <div className="flex items-center gap-3 ml-auto text-base">
+                      {l.social_facebook && <a href={l.social_facebook} target="_blank" rel="noreferrer" className="text-muted hover:text-[#1877F2] transition-colors"><i className="fa-brands fa-facebook"></i></a>}
+                      {l.social_instagram && <a href={l.social_instagram} target="_blank" rel="noreferrer" className="text-muted hover:text-[#E4405F] transition-colors"><i className="fa-brands fa-instagram"></i></a>}
+                      {l.social_linkedin && <a href={l.social_linkedin} target="_blank" rel="noreferrer" className="text-muted hover:text-[#0A66C2] transition-colors"><i className="fa-brands fa-linkedin"></i></a>}
+                      {l.social_twitter && <a href={l.social_twitter} target="_blank" rel="noreferrer" className="text-muted hover:text-ink transition-colors"><i className="fa-brands fa-x-twitter"></i></a>}
+                      {l.social_youtube && <a href={l.social_youtube} target="_blank" rel="noreferrer" className="text-muted hover:text-[#FF0000] transition-colors"><i className="fa-brands fa-youtube"></i></a>}
+                      {l.social_tiktok && <a href={l.social_tiktok} target="_blank" rel="noreferrer" className="text-muted hover:text-ink transition-colors"><i className="fa-brands fa-tiktok"></i></a>}
+                      {l.social_pinterest && <a href={l.social_pinterest} target="_blank" rel="noreferrer" className="text-muted hover:text-[#E60023] transition-colors"><i className="fa-brands fa-pinterest"></i></a>}
+                      {l.social_houzz && <a href={l.social_houzz} target="_blank" rel="noreferrer" className="text-muted hover:text-[#4DBC15] transition-colors"><i className="fa-brands fa-houzz"></i></a>}
+                    </div>
                   </div>
                 )}
                 {l.draft_status && l.draft_status !== "none" && onDraft && (
