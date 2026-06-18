@@ -28,6 +28,8 @@
     "adzuna:5766757580",
     "adzuna:5766758325",
     "adzuna:5766985457",
+    "adzuna:5767960633",
+    "adzuna:5768004846",
     "jooble:-1121910287175556837",
     "jooble:-1387132607859037453",
     "jooble:-1621556170975363917",
@@ -79,6 +81,7 @@
     "jooble:-6756991697590469832",
     "jooble:-67767415826605306",
     "jooble:-6804782782499210804",
+    "jooble:-6858202802408723724",
     "jooble:-7009407021464890856",
     "jooble:-7026819158784554409",
     "jooble:-7180323274640418937",
@@ -136,6 +139,7 @@
     "jooble:5725822706782960632",
     "jooble:5730559700076769412",
     "jooble:5805565337064373098",
+    "jooble:5874817656489935490",
     "jooble:6137768448713515923",
     "jooble:6369170397606990946",
     "jooble:6895828826041620734",
@@ -1702,6 +1706,38 @@
       "company": "SEEK APPLIANCES LIMITED",
       "tier": "WARM - Winner/Cyncly",
       "url": "https://www.adzuna.co.uk/jobs/land/ad/5766985457?se=iIffcYxq8RGNlJLvgglOgg&utm_medium=api&utm_source=119695ba&v=8FB139B3F71E8129083922646C12D74E73AF864D"
+    },
+    {
+      "found_at": "2026-06-18T18:13:23.366131+00:00",
+      "key": "jooble:5874817656489935490",
+      "title": "Kitchen & Bath Showroom Designer",
+      "company": "Famous Supply",
+      "tier": "HOT - Virtual Worlds",
+      "url": "https://jooble.org/jdp/5874817656489935490"
+    },
+    {
+      "found_at": "2026-06-18T18:13:23.366131+00:00",
+      "key": "jooble:-6858202802408723724",
+      "title": "Kitchen and Bath Designer",
+      "company": "West Haven Lumber",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://jooble.org/jdp/-6858202802408723724"
+    },
+    {
+      "found_at": "2026-06-18T18:13:23.366131+00:00",
+      "key": "adzuna:5768004846",
+      "title": "Kitchen Designer",
+      "company": "DESIGNER RECRUITMENT LTD",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://www.adzuna.co.uk/jobs/land/ad/5768004846?se=4p2WXUFr8RG7Hqid53lPPQ&utm_medium=api&utm_source=119695ba&v=169230BDA26896344CA8DC44B7963BE29C27DB5F"
+    },
+    {
+      "found_at": "2026-06-18T18:13:23.366131+00:00",
+      "key": "adzuna:5767960633",
+      "title": "Kitchen designer",
+      "company": "Galleria Design inc",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://www.adzuna.ca/details/5767960633?utm_medium=api&utm_source=119695ba"
     }
   ]
 }
