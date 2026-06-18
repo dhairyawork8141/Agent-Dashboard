@@ -652,7 +652,7 @@ function LeadsTable({ leads, onStatus, onDraft, showAgentHint }) {
                     </div>
                   </div>
                 )}
-                {l.draft_status && l.draft_status !== "none" && onDraft && (
+                {filter === "approval" && l.draft_status && l.draft_status !== "none" && onDraft && (
                   <DraftPanel key={l.id + l.draft_status} lead={l} onDraft={onDraft} />
                 )}
               </div>
