@@ -82,6 +82,21 @@ _JUNK_EMAIL_DOMAINS = frozenset([
     "bootstrapcdn.com", "fontawesome.com", "gstatic.com",
 ])
 
+# Government / institutional domains are never a real showroom contact - reject outright
+# (these slip in from licensing/regulator pages, e.g. onlinehelp@dcwp.nyc.gov).
+_JUNK_DOMAIN_SUFFIXES = (".gov", ".gov.uk", ".gov.au", ".gov.ie", ".gc.ca",
+                         ".nhs.uk", ".police.uk", ".mil", ".ac.uk", ".edu", ".sch.uk")
+_JUNK_DOMAIN_SUBSTR = ("council", "nhs", "police", "hmrc", "parliament", ".gov.")
+
+
+def _is_junk_domain(domain: str) -> bool:
+    d = (domain or "").lower()
+    if d in _JUNK_EMAIL_DOMAINS:
+        return True
+    if any(d.endswith(s) for s in _JUNK_DOMAIN_SUFFIXES):
+        return True
+    return any(s in d for s in _JUNK_DOMAIN_SUBSTR)
+
 
 # ---------------------------------------------------------------------------
 #  Company name cleaning
@@ -195,7 +210,7 @@ def _extract_emails_from_text(text: str, own_domain: str | None) -> list[str]:
     for addr in raw:
         addr = addr.lower()
         email_domain = addr.split("@")[1] if "@" in addr else ""
-        if email_domain in _JUNK_EMAIL_DOMAINS:
+        if _is_junk_domain(email_domain):
             continue
         if addr not in seen:
             seen.add(addr)
@@ -333,24 +348,24 @@ def _enrich_from_serper(company_name: str, location: str | None,
 #  Name guessing helpers
 # ---------------------------------------------------------------------------
 def _guess_name_from_linkedin(url: str) -> str | None:
+    """Only accept a real-looking 'First Last' from a /in/first-last slug.
+    Single-token handles (e.g. 'thekitchenguynyc') are rejected -> no fake name."""
     slug = url.rstrip("/").rsplit("/", 1)[-1]
-    parts = slug.split("-")
-    name_parts = []
-    for p in parts:
-        if p.isalpha() and len(p) > 1:
-            name_parts.append(p.capitalize())
-        else:
-            break
-    return " ".join(name_parts) if name_parts else None
+    parts = [p for p in slug.split("-") if p.isalpha() and len(p) > 1]
+    if len(parts) >= 2:                       # need at least first + last
+        return " ".join(p.capitalize() for p in parts[:3])
+    return None
 
 
 def _guess_name_from_email(addr: str) -> str | None:
+    """Only accept a 'first.last@' style local part as a name; never a handle/word."""
     local = addr.split("@")[0]
     if local in _GENERIC_EMAIL_PREFIXES:
         return None
     if "." in local:
-        parts = local.split(".")
-        return " ".join(p.capitalize() for p in parts if p.isalpha())
+        parts = [p for p in local.split(".") if p.isalpha() and len(p) > 1]
+        if len(parts) >= 2:
+            return " ".join(p.capitalize() for p in parts)
     return None
 
 
