@@ -124,8 +124,11 @@ def run() -> None:
         contact["status"] = ("Contact found" if email
                              else "Contact (no email)")
 
-        # Draft an outreach email for review (only if we have an address to send to).
-        if email and settings.get("draft_emails") and draft.available():
+        # Draft an outreach email for review — only for high-value tiers (draft_tiers,
+        # default HOT) and only if we have an address to send to.
+        draft_tiers = set(settings.get("draft_tiers") or [])
+        if (email and settings.get("draft_emails") and draft.available()
+                and (not draft_tiers or lead.get("tier") in draft_tiers)):
             d = draft.draft_email(lead, contact, settings)
             if d:
                 contact.update({

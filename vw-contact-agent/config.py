@@ -50,9 +50,11 @@ DEFAULT_SETTINGS = {
     "reveal_phone": _flag("REVEAL_PHONE", "false"),
     # Only these (high-value) tiers spend Apollo credits; everything else is web-scrape only.
     "apollo_tiers": _list("APOLLO_TIERS", "HOT - Virtual Worlds,HOT - New showroom"),
-    # When true, after finding a contact the agent drafts an outreach email (Groq)
-    # and parks it as 'pending' for you to approve in the dashboard.
+    # When true, after finding a contact the agent drafts an outreach email (from the
+    # per-sector templates) and parks it as 'pending' for you to approve in the dashboard.
     "draft_emails": _flag("DRAFT_EMAILS", "true"),
+    # Only these tiers get a draft (default HOT only) — keeps drafting focused on hot leads.
+    "draft_tiers": _list("DRAFT_TIERS", "HOT - Virtual Worlds,HOT - New showroom"),
     "locations": _list("LOCATIONS", "United Kingdom"),
     "titles": [
         "Owner", "Founder", "Co-Founder", "Managing Director", "Director",
