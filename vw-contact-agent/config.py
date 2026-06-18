@@ -48,6 +48,8 @@ DEFAULT_SETTINGS = {
     "tiers": _list("TIERS", "HOT - Virtual Worlds,WARM - Winner/Cyncly"),
     "skip_recruiters": _flag("SKIP_RECRUITERS", "true"),
     "reveal_phone": _flag("REVEAL_PHONE", "false"),
+    # Only these (high-value) tiers spend Apollo credits; everything else is web-scrape only.
+    "apollo_tiers": _list("APOLLO_TIERS", "HOT - Virtual Worlds,HOT - New showroom"),
     # When true, after finding a contact the agent drafts an outreach email (Groq)
     # and parks it as 'pending' for you to approve in the dashboard.
     "draft_emails": _flag("DRAFT_EMAILS", "true"),

@@ -82,61 +82,41 @@ def run() -> None:
             log.info("Lead %s has no company name - skipping.", lead.get("id"))
             continue
 
-        # --- Stage 1: try Apollo (if configured) ---
-        contact = None
-        source_label = None
+        # --- Stage 1: FREE web-scrape enrichment first (website, socials, maybe email) ---
+        # Every lead gets this — it costs nothing.
+        contact = web_search_enrich.enrich_from_web(name, lead.get("location")) or {}
+        source_label = "Web search" if contact.get("contact_email") else None
 
-        if has_apollo:
+        # --- Stage 2: Apollo ONLY for high-value leads (conserves paid credits) ---
+        # Apollo runs just for tiers listed in `apollo_tiers` (default: HOT only); its
+        # verified decision-maker takes priority over any generic web-scraped email.
+        apollo_tiers = set(settings.get("apollo_tiers") or [])
+        if has_apollo and lead.get("tier") in apollo_tiers:
             org_id, domain = apollo.find_org(name)
-            person = None
-            if org_id:
-                person = apollo.find_person(org_id, domain,
-                                            settings["titles"],
-                                            settings["locations"])
+            person = apollo.find_person(org_id, domain, settings["titles"],
+                                        settings["locations"]) if org_id else None
             if person:
                 enriched = apollo.reveal(person, domain,
                                          bool(settings.get("reveal_phone"))) or person
-                email = apollo.best_email(enriched)
-                contact = {
-                    "contact_name": " ".join(filter(None, [
-                        enriched.get("first_name"),
-                        enriched.get("last_name")])) or None,
+                a_contact = {
+                    "contact_name": " ".join(filter(None, [enriched.get("first_name"),
+                                                           enriched.get("last_name")])) or None,
                     "contact_title": enriched.get("title"),
-                    "contact_email": email,
+                    "contact_email": apollo.best_email(enriched),
                     "contact_phone": (apollo.best_phone(enriched)
                                       if settings.get("reveal_phone") else None),
                     "contact_linkedin": enriched.get("linkedin_url"),
                 }
+                for key, val in a_contact.items():     # Apollo wins where it has a value
+                    if val:
+                        contact[key] = val
                 source_label = "Apollo"
             else:
-                log.info("Apollo could not resolve a contact for '%s' "
-                         "- trying web search fallback.", name)
+                log.info("Apollo found no decision-maker for '%s'.", name)
 
-        # --- Stage 2: web search fallback + social/website enrichment ---
-        # Always try web enrichment for website + social media, even if
-        # Apollo found a contact (Apollo doesn't provide these).
-        location = lead.get("location")
-        web_result = web_search_enrich.enrich_from_web(name, location)
-
-        if contact is None or not contact.get("contact_email"):
-            # Apollo failed — use web result as primary contact source.
-            if web_result and (web_result.get("contact_email")
-                               or web_result.get("website")):
-                if contact is None:
-                    contact = web_result
-                else:
-                    contact.update({k: v for k, v in web_result.items()
-                                    if v and not contact.get(k)})
-                source_label = source_label or "Web search"
-            elif contact is None:
-                log.info("No contact found for '%s' via Apollo or web search.",
-                         name)
-                continue
-        elif web_result:
-            # Apollo succeeded — merge in website + socials from the web.
-            for key, val in web_result.items():
-                if val and not contact.get(key):
-                    contact[key] = val
+        if not contact.get("contact_email") and not contact.get("website"):
+            log.info("No contact or website found for '%s'.", name)
+            continue
 
         # --- Finalise contact record ---
         email = contact.get("contact_email")
