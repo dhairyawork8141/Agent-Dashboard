@@ -141,6 +141,24 @@ function timeAgo(iso) {
   const d = Math.floor(h / 24); return d + "d ago";
 }
 
+// Count records per day over the last `days` days, bucketed by a timestamp field.
+function dailySeries(records, field, days) {
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const buckets = {};
+  const order = [];
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date(today); d.setDate(d.getDate() - i);
+    const key = d.toISOString().slice(0, 10);
+    buckets[key] = 0; order.push(key);
+  }
+  records.forEach(r => {
+    const v = r[field]; if (!v) return;
+    const key = new Date(v).toISOString().slice(0, 10);
+    if (key in buckets) buckets[key]++;
+  });
+  return order.map(date => ({ date, count: buckets[date] }));
+}
+
 /* ----------------------------- Small UI atoms --------------------------------- */
 function Eyebrow({ children, className = "" }) {
   return <div className={"eyebrow text-[11px] uppercase font-semibold text-muted " + className}>{children}</div>;
@@ -246,6 +264,7 @@ const NAV = [
   { key: "overview", label: "Overview",       icon: "fa-gauge-high" },
   { key: "job",      label: "Job Leads",      icon: "fa-briefcase" },
   { key: "showroom", label: "Showroom Lists", icon: "fa-store" },
+  { key: "reports",  label: "Reports",        icon: "fa-chart-line" },
 ];
 
 function Sidebar({ view, setView, email, onSignOut, isDark, setIsDark }) {
@@ -982,6 +1001,72 @@ function Account({ email }) {
   );
 }
 
+/* ----------------------------- Reports ---------------------------------------- */
+function DailyBars({ series, color }) {
+  const max = Math.max(1, ...series.map(s => s.count));
+  return (
+    <div>
+      <div className="flex items-end gap-[2px] h-28">
+        {series.map((s, i) => (
+          <div key={i} className="flex-1 flex flex-col justify-end" title={s.date + ": " + s.count}>
+            <div style={{ height: (s.count / max * 100) + "%", background: color,
+                          minHeight: s.count ? "3px" : "0px" }}
+                 className="rounded-t-sm hover:opacity-80 transition-opacity" />
+          </div>
+        ))}
+      </div>
+      <div className="flex justify-between text-[10px] text-muted mt-1.5">
+        <span>{series[0]?.date.slice(5)}</span>
+        <span>{series[Math.floor(series.length / 2)]?.date.slice(5)}</span>
+        <span>today</span>
+      </div>
+    </div>
+  );
+}
+
+function ReportCard({ title, icon, series, color }) {
+  const total = series.reduce((a, s) => a + s.count, 0);
+  const last7 = series.slice(-7).reduce((a, s) => a + s.count, 0);
+  const today = series[series.length - 1]?.count || 0;
+  return (
+    <div className="rounded-2xl border border-line bg-paper p-5">
+      <div className="flex items-start justify-between mb-3">
+        <div className="flex items-center gap-2.5">
+          <span className="w-9 h-9 rounded-xl bg-brass/10 flex items-center justify-center" style={{ color }}>
+            <i className={"fa-solid " + icon}></i>
+          </span>
+          <div>
+            <div className="text-sm font-semibold text-ink">{title}</div>
+            <div className="text-[11px] text-muted">today {today} · 7d {last7} · 30d {total}</div>
+          </div>
+        </div>
+        <div className="font-serif text-2xl text-ink" style={{ letterSpacing: "-0.02em" }}>{total}</div>
+      </div>
+      <DailyBars series={series} color={color} />
+    </div>
+  );
+}
+
+function ReportsView({ leads }) {
+  const DAYS = 30;
+  const added    = useMemo(() => dailySeries(leads, "found_at", DAYS), [leads]);
+  const enriched = useMemo(() => dailySeries(leads, "enriched_at", DAYS), [leads]);
+  const drafted  = useMemo(() => dailySeries(leads, "drafted_at", DAYS), [leads]);
+  const sent     = useMemo(() => dailySeries(leads, "sent_at", DAYS), [leads]);
+  return (
+    <div className="max-w-5xl mx-auto px-6 py-9">
+      <SectionHeader icon="fa-chart-line" eyebrow="Daily activity — last 30 days" title="Reports" count={leads.length} />
+      <div className="grid sm:grid-cols-2 gap-4">
+        <ReportCard title="Leads added"        icon="fa-plus"         series={added}    color="var(--color-brass)" />
+        <ReportCard title="Contacts enriched"  icon="fa-address-card" series={enriched} color="#4f7d3a" />
+        <ReportCard title="Emails drafted"     icon="fa-pen-nib"      series={drafted}  color="#9A7B2E" />
+        <ReportCard title="Emails sent"        icon="fa-paper-plane"  series={sent}     color="var(--color-ink)" />
+      </div>
+      <p className="text-xs text-muted mt-5">Bars show daily counts. "Enriched" = a contact/website was found; "sent" = an approved email went out.</p>
+    </div>
+  );
+}
+
 /* ----------------------------- App -------------------------------------------- */
 function App() {
   const [session, setSession] = useState(null);
@@ -1097,6 +1182,8 @@ function App() {
         {view.name === "showroom" &&
           <ShowroomListsView agents={showroomAgents} leads={showroomLeads} setView={setView}
             onToggle={toggleAgent} onStatus={setStatus} onDraft={updateDraft} onAdd={openAdd} />}
+
+        {view.name === "reports" && <ReportsView leads={leads} />}
 
         {view.name === "account" && <Account email={email} />}
 
