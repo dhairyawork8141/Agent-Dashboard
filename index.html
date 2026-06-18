@@ -111,56 +111,9 @@ async function getSB() {
 }
 
 /* ----------------------------- Demo data -------------------------------------- */
-const DEMO_AGENTS = [{
-  id: "demo-vw",
-  name: "Virtual Worlds Job Watch",
-  type: "job_watcher",
-  enabled: true,
-  schedule_cron: "0 7,13,18 * * 1-6",
-  last_run_at: new Date(Date.now() - 1000 * 60 * 52).toISOString(),
-  last_run_status: "ok",
-  settings: {
-    countries: ["gb", "ie"],
-    max_days_old: 3,
-    enrich_with_claude: true,
-    send_email: false,
-    searches: [
-      { label: "Virtual Worlds (exact)", phrase: "virtual worlds" },
-      { label: "Cyncly", phrase: "cyncly" },
-      { label: "Winner Design", phrase: "winner design" },
-      { label: "Compusoft", phrase: "compusoft" },
-      { label: "Bathroom CAD designer", phrase: "bathroom designer", extra: "CAD" },
-      { label: "Kitchen CAD designer", phrase: "kitchen designer", extra: "CAD" },
-    ],
-    hot_terms: ["virtual worlds", "virtual world", "vw 4d", "4d theatre"],
-    warm_terms: ["winner design", "winner flex", "cyncly", "compusoft"],
-    watch_terms: ["cad", "kbb", "bathroom design", "kitchen design", "autocad", "sketchup"],
-  },
-}, {
-  id: "demo-cf", name: "VW Contact Finder", type: "contact_finder", enabled: true,
-  schedule_cron: "0 8,14,19 * * 1-6",
-  last_run_at: new Date(Date.now() - 1000 * 60 * 90).toISOString(), last_run_status: "ok",
-  settings: { max_per_run: 10, tiers: ["HOT - Virtual Worlds", "WARM - Winner/Cyncly"], skip_recruiters: true },
-}, {
-  id: "demo-sr", name: "VW New-Showroom Finder", type: "showroom_watcher", enabled: true,
-  schedule_cron: "0 6 * * 1-6",
-  last_run_at: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(), last_run_status: "ok",
-  settings: { name_keywords: ["kitchen", "bathroom", "bedroom"], incorporated_within_days: 45, max_per_run: 25 },
-}];
+const DEMO_AGENTS = [];
 
-const DEMO_LEADS = [
-  { id:"l1", agent_id:"demo-vw", tier:"HOT - Virtual Worlds", score:120, title:"Bathroom Designer", company:"Coastal Bathrooms", showroom_name:"Coastal Bathrooms", location:"New Milton, Hampshire", salary:"£28,000 - £34,000", is_recruiter:false, decision_maker_hint:"Paul Etheridge (Director)", opening_line:"Saw you're hiring a Virtual Worlds designer at Coastal — before you spend two months recruiting, here's a faster option.", url:"#", source:"Adzuna (GB)", status:"New", found_at:new Date(Date.now()-1000*60*60*3).toISOString(), contact_name:"Paul Etheridge", contact_title:"Director", contact_email:"paul@coastalbathrooms.co.uk", draft_status:"pending", draft_subject:"Your bathroom designer role at Coastal — a faster option", draft_body:"Hi Paul,\n\nI noticed Coastal Bathrooms is hiring a bathroom designer in New Milton. Before you commit to a full-time hire, it might be worth knowing there's another way to get the CAD and CGI work done.\n\nAt CAD Illustrators we produce finished kitchen & bathroom designs and photoreal renders for showrooms like yours — usually back within 48 hours, with no extra salary on the books. Plenty of our clients use us for overflow when briefs pile up.\n\nWould you be open to a quick 15-minute call this week? I'd happily run your next brief through us for free so you can see the quality first-hand.\n\nBest,\nDhairya\nCAD Illustrators" },
-  { id:"l2", agent_id:"demo-vw", tier:"HOT - Virtual Worlds", score:110, title:"Bathroom Sales Designer", company:"via Ernest Gordon Recruitment", showroom_name:"unknown (recruiter-listed)", location:"Northwich, Cheshire", salary:"£50,000 - £65,000 OTE", is_recruiter:true, decision_maker_hint:"", opening_line:"Noticed a Virtual Worlds designer role in Northwich — that £65k OTE is roughly what our whole service costs in a year.", url:"#", source:"Reed", status:"New", found_at:new Date(Date.now()-1000*60*60*6).toISOString() },
-  { id:"l3", agent_id:"demo-vw", tier:"HOT - Virtual Worlds", score:100, title:"Showroom Designer", company:"PHS Bathrooms", showroom_name:"PHS Bathrooms", location:"Milton Keynes", salary:null, is_recruiter:false, decision_maker_hint:"Chris Leighton (Director)", opening_line:"You already run the 4D theatre at PHS — so this 30-second idea about overflow design will make immediate sense.", url:"#", source:"Adzuna (GB)", status:"Contacted", found_at:new Date(Date.now()-1000*60*60*26).toISOString() },
-  { id:"l4", agent_id:"demo-vw", tier:"WARM - Winner/Cyncly", score:90, title:"Kitchen & Bathroom Designer", company:"DTS Plumbing & Heating", showroom_name:"DTS Plumbing & Heating", location:"Rotherham", salary:"£26,000 - £30,000", is_recruiter:false, decision_maker_hint:"Shannon Carnall (Director)", opening_line:"Saw your designer ad — we hand kitchen & bathroom showrooms finished plans and renders in 48 hours, first one free.", url:"#", source:"Adzuna (GB)", status:"Replied", found_at:new Date(Date.now()-1000*60*60*30).toISOString() },
-  { id:"l5", agent_id:"demo-vw", tier:"WARM - Winner/Cyncly", score:80, title:"Bathroom Designer", company:"Aylesbury Bathroom Centre", showroom_name:"Aylesbury Bathroom Centre", location:"Aylesbury, Bucks", salary:"£30,000", is_recruiter:false, decision_maker_hint:"Michele Fierro (Director)", opening_line:"You're advertising for a designer in Aylesbury — here's how to clear the brief backlog without another salary on the books.", url:"#", source:"Reed", status:"New", found_at:new Date(Date.now()-1000*60*60*40).toISOString() },
-  { id:"l6", agent_id:"demo-vw", tier:"HOT - Virtual Worlds", score:100, title:"Senior Bathroom Designer", company:"Walton Bathrooms", showroom_name:"Walton Bathrooms", location:"Walton-on-Thames, Surrey", salary:"£35,000 - £42,000", is_recruiter:false, decision_maker_hint:"Matthew Kallum (MD)", opening_line:"Saw Walton's designer role — one relationship could cover both Walton and Kallums, with renders back in 48 hours.", url:"#", source:"Adzuna (GB)", status:"New", found_at:new Date(Date.now()-1000*60*60*48).toISOString() },
-  { id:"l7", agent_id:"demo-vw", tier:"WATCH - generic CAD", score:50, title:"CAD Designer (KBB)", company:"Stanford Design Ltd", showroom_name:"Stanford Design Ltd", location:"Upminster, Essex", salary:null, is_recruiter:false, decision_maker_hint:"", opening_line:"Spotted your CAD designer ad — quick question on whether outsourced design might beat hiring for your next few projects.", url:"#", source:"Reed", status:"New", found_at:new Date(Date.now()-1000*60*60*54).toISOString() },
-  // --- Showroom-list leads (Companies House source) ---
-  { id:"s1", agent_id:"demo-sr", tier:"HOT - New showroom", score:90, title:"Newly registered KBB business", company:"Riverside Kitchens Ltd", showroom_name:"Riverside Kitchens Ltd", location:"Guildford, Surrey", is_recruiter:false, opening_line:"Clearly a kitchen showroom — recently incorporated, likely setting up their design process.", url:"https://find-and-update.company-information.service.gov.uk/company/15012345", source:"Companies House", status:"New", found_at:new Date(Date.now()-1000*60*60*8).toISOString(), website:"https://www.riversidekitchens.co.uk", social_facebook:"https://facebook.com/riversidekitchens", social_instagram:"https://instagram.com/riversidekitchens", contact_email:"hello@riversidekitchens.co.uk", contact_name:"Riverside Kitchens" },
-  { id:"s2", agent_id:"demo-sr", tier:"WARM - New showroom", score:70, title:"Newly registered KBB business", company:"Aqua Bathrooms & Interiors Ltd", showroom_name:"Aqua Bathrooms & Interiors Ltd", location:"Leeds, West Yorkshire", is_recruiter:false, opening_line:"Bathroom & interiors retailer — good fit for outsourced CGI.", url:"https://find-and-update.company-information.service.gov.uk/company/15067890", source:"Companies House", status:"New", found_at:new Date(Date.now()-1000*60*60*10).toISOString(), website:"https://www.aquabathrooms.co.uk", social_instagram:"https://instagram.com/aquabathrooms", social_houzz:"https://houzz.co.uk/pro/aquabathrooms" },
-  { id:"s3", agent_id:"demo-sr", tier:"WARM - New showroom", score:65, title:"Newly registered KBB business", company:"The Bedroom Studio Ltd", showroom_name:"The Bedroom Studio Ltd", location:"Bristol", is_recruiter:false, opening_line:"Fitted-bedroom studio — likely needs design visuals.", url:"https://find-and-update.company-information.service.gov.uk/company/15099111", source:"Companies House", status:"Contacted", found_at:new Date(Date.now()-1000*60*60*20).toISOString(), website:"https://www.thebedroomstudio.co.uk", social_facebook:"https://facebook.com/thebedroomstudio" },
-];
+const DEMO_LEADS = [];
 
 /* ----------------------------- Helpers ---------------------------------------- */
 const STATUSES = ["New", "Contacted", "Replied", "Call booked", "Free project", "Subscribed", "Not interested"];
