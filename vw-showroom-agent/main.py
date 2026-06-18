@@ -9,6 +9,8 @@ The leads it writes are ordinary leads, so agent #2 then enriches them (contact,
 socials) and drafts outreach - same pipeline as job-ad leads, just a new source.
 """
 import logging
+import random
+import time
 
 import config
 import companies_house
@@ -33,9 +35,13 @@ def run() -> None:
     if settings is None:                       # paused in the dashboard
         return
 
-    found = companies_house.fetch_all(settings)
+    # Pull the FULL KBB set (all dates) and process whatever we haven't judged yet,
+    # shuffled so every category/recency gets coverage even on a capped run. This makes
+    # the daily agent gradually finish the historical backlog AND catch new registrations.
+    found = companies_house.fetch_all_backfill(settings)
     new = store.filter_new(found)
-    log.info("%d new companies after de-duplication", len(new))
+    random.shuffle(new)
+    log.info("%d unjudged companies (processing up to the per-run cap)", len(new))
     if not new:
         supabase_io.finish_run("ok", 0)
         return
@@ -51,6 +57,7 @@ def run() -> None:
         lead["tier"] = brain.tier_from_registration(lead.get("registered_at"), settings)
         if use_brain:
             v = brain.classify(lead, settings)  # brain decides fit + business category
+            time.sleep(1.5)                     # pace under Groq per-minute limits
             if v is None:                       # API failed -> keep, category unknown
                 lead["category"] = "other"
                 lead["score"] = min_score
