@@ -6,7 +6,9 @@ Run it after approving drafts:  python send_approved.py
 On success a lead becomes draft_status='sent' (+ sent_at); on failure 'failed'."""
 import base64
 import logging
+import random
 import smtplib
+import time
 from datetime import datetime, timezone
 from email.mime.text import MIMEText
 import requests
@@ -55,8 +57,17 @@ def run() -> None:
         log.error("M365 OAuth/SMTP not configured - cannot send. Set OAUTH_* and SMTP_USER.")
         return
 
-    queue = supabase_io.leads_to_send()
-    log.info("%d approved draft(s) to send.", len(queue))
+    # Daily cap (deliverability / warm-up) + per-run batch.
+    sent_today = supabase_io.sent_today_count()
+    remaining = config.SEND_DAILY_CAP - sent_today
+    if remaining <= 0:
+        log.info("Daily cap reached (%d sent today / cap %d) - nothing to send.",
+                 sent_today, config.SEND_DAILY_CAP)
+        return
+    batch = max(0, min(config.SEND_PER_RUN, remaining))
+    queue = supabase_io.leads_to_send(limit=batch)
+    log.info("Sent today %d/%d; sending up to %d this run; %d approved waiting.",
+             sent_today, config.SEND_DAILY_CAP, batch, len(queue))
     if not queue:
         return
 
@@ -69,7 +80,7 @@ def run() -> None:
 
     sent = 0
     try:
-        for lead in queue:
+        for i, lead in enumerate(queue):
             to = lead.get("contact_email")
             subject = lead.get("draft_subject") or "Hello"
             body = lead.get("draft_body") or ""
@@ -89,6 +100,10 @@ def run() -> None:
             except Exception as e:
                 log.warning("Send failed for %s: %s", to, e)
                 supabase_io.update_lead(lead["id"], {"draft_status": "failed"})
+            # Human-like jittered gap between sends (not after the last one).
+            if i < len(queue) - 1:
+                time.sleep(random.randint(config.SEND_MIN_GAP_SECONDS,
+                                          config.SEND_MIN_GAP_SECONDS * 2))
     finally:
         try:
             s.quit()

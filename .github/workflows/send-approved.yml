@@ -5,7 +5,9 @@ name: VW Send Approved Emails
 on:
   workflow_dispatch: {}
   schedule:
-    - cron: "30 9,15 * * 1-6"   # 9:30am & 3:30pm UTC, Mon-Sat
+    # Hourly during UK business hours, Mon-Fri. Each run sends a small batch (SEND_PER_RUN)
+    # with jittered gaps, capped at SEND_DAILY_CAP/day - gentle warm-up for deliverability.
+    - cron: "0 8,9,10,11,12,13,14,15,16 * * 1-5"
 
 jobs:
   send:

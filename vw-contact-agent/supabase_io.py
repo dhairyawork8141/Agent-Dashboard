@@ -83,6 +83,20 @@ def leads_requested_draft(limit: int = 25) -> list[dict]:
         return []
 
 
+def sent_today_count() -> int:
+    """How many emails have already been sent today (UTC) - for the daily cap."""
+    start = datetime.now(timezone.utc).strftime("%Y-%m-%dT00:00:00Z")
+    try:
+        r = requests.get(f"{_base()}/leads", headers=_headers({"Prefer": "count=exact"}),
+                         params={"select": "id", "sent_at": f"gte.{start}", "limit": "1"},
+                         timeout=TIMEOUT)
+        r.raise_for_status()
+        return int((r.headers.get("content-range") or "*/0").split("/")[-1])
+    except Exception as e:
+        log.warning("sent_today_count failed: %s", e)
+        return 0
+
+
 def leads_to_send(limit: int = 25) -> list[dict]:
     """Leads you've approved in the dashboard that haven't been sent yet."""
     try:

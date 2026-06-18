@@ -43,6 +43,11 @@ OAUTH_CLIENT_SECRET = os.getenv("OAUTH_CLIENT_SECRET", "")
 STUDIO_NAME = os.getenv("STUDIO_NAME", "CAD Illustrators")
 SENDER_NAME = os.getenv("SENDER_NAME", "Dhairya")
 
+# --- Send throttling (cold-email warm-up / deliverability) ---
+SEND_DAILY_CAP = int(os.getenv("SEND_DAILY_CAP", "30"))        # max approved emails sent per day
+SEND_PER_RUN = int(os.getenv("SEND_PER_RUN", "6"))            # max per workflow run (hourly)
+SEND_MIN_GAP_SECONDS = int(os.getenv("SEND_MIN_GAP_SECONDS", "45"))   # min gap between sends (jittered up to 2x)
+
 # --- Fallback settings, used when the dashboard row carries none. The dashboard edits a
 #     copy of this shape stored in the agents table. ---
 DEFAULT_SETTINGS = {
