@@ -1,78 +1,71 @@
-"""Drafts a personalised cold-outreach email for an enriched lead, using the free Groq
-brain. Returns {subject, body} or None on any error (fail-soft: no draft, no crash).
-
-The email is NEVER sent from here - it's parked as 'pending' for human approval in the
-dashboard. The sender mails it only after you approve."""
-import json
+"""Drafts an outreach email by filling the right FIXED template for the lead's type:
+  - showroom leads -> by category (fitter / interior / bathroom) or, for
+    kitchen/kbb/bedroom, by recency (new <=6mo vs established).
+  - job leads      -> by the role advertised (kitchen / bathroom / both).
+Templates live in templates/*.txt. No AI/Groq - on-brand, free, deterministic.
+The email is parked as 'pending' for human approval; it is never sent from here."""
 import logging
-import requests
+import os
 import config
 
 log = logging.getLogger("draft")
-TIMEOUT = 30
-_ENDPOINT = "https://api.groq.com/openai/v1/chat/completions"
-
-_SYSTEM = """You write short, warm, non-salesy B2B cold emails for {studio}, an outsourced
-CAD/CGI studio that produces kitchen, bedroom & bathroom (KBB) and interior-design visuals
-for showrooms and design retailers.
-
-Context: the recipient's business just advertised a DESIGNER vacancy. The angle is that
-{studio} can take CAD/CGI design work off their plate (faster renders, no extra hire,
-overflow capacity) - a helpful alternative or supplement to hiring.
-
-Rules:
-- Address the named contact by first name if given.
-- Reference their specific business and the role they advertised - make it clearly personal.
-- 90-130 words. Plain, friendly, British English. No jargon, no hype, no "I hope this finds you well".
-- One soft call to action (a quick reply or a 15-min call). Sign off as {sender}, {studio}.
-- Do NOT invent facts, prices, or fake mutual connections.
-
-Reply with ONLY a JSON object, no prose:
-{{"subject": "<short, specific subject line>", "body": "<the full email body with line breaks>"}}"""
+_DIR = os.path.join(os.path.dirname(__file__), "templates")
+_CACHE = {}
 
 
 def available() -> bool:
-    return bool(config.GROQ_API_KEY)
+    return os.path.isdir(_DIR)
 
 
-def _user_prompt(lead: dict, contact: dict) -> str:
-    return (
-        f"Recipient first name: {(contact.get('contact_name') or '').split(' ')[0] or 'there'}\n"
-        f"Recipient title: {contact.get('contact_title') or 'decision-maker'}\n"
-        f"Business: {lead.get('showroom_name') or lead.get('company') or 'their showroom'}\n"
-        f"Location: {lead.get('location') or 'the UK'}\n"
-        f"Role they advertised: {lead.get('title') or 'a designer'}\n"
-        f"Tier/why this is a fit: {lead.get('tier') or ''}\n"
-        f"(If an opener was suggested, you may build on it: {lead.get('opening_line') or 'n/a'})"
-    )
+def _load(key: str) -> str:
+    if key not in _CACHE:
+        with open(os.path.join(_DIR, key + ".txt"), encoding="utf-8") as f:
+            _CACHE[key] = f.read()
+    return _CACHE[key]
 
 
-def draft_email(lead: dict, contact: dict, settings: dict | None = None) -> dict | None:
-    if not available():
-        return None
-    model = (settings or {}).get("brain_model") or config.GROQ_MODEL
-    system = _SYSTEM.format(studio=config.STUDIO_NAME, sender=config.SENDER_NAME)
+def _template_key(lead: dict) -> str:
+    cat = (lead.get("category") or "").lower().strip()
+    if cat:                                       # showroom lead (has a category)
+        if cat == "fitter":   return "showroom_fitter"
+        if cat == "interior": return "showroom_interior"
+        if cat == "bathroom": return "showroom_bathroom"
+        # kitchen / kbb / bedroom / other -> by recency tier
+        return ("showroom_new_6mo" if (lead.get("tier") or "").startswith("HOT")
+                else "showroom_established_12mo")
+    # job lead -> by the role(s) advertised in the title
+    t = (lead.get("title") or "").lower()
+    k, b = "kitchen" in t, "bathroom" in t
+    if k and b: return "job_kitchen_bathroom"
+    if b:       return "job_bathroom"
+    return "job_kitchen"
+
+
+def _first_name(merged: dict) -> str:
+    n = (merged.get("contact_name") or "").strip()
+    return n.split()[0] if n else "there"
+
+
+def draft_email(lead: dict, contact: dict | None = None, settings: dict | None = None) -> dict | None:
+    merged = {**(lead or {}), **{k: v for k, v in (contact or {}).items() if v}}
+    key = _template_key(merged)
     try:
-        r = requests.post(_ENDPOINT, timeout=TIMEOUT,
-            headers={"Authorization": f"Bearer {config.GROQ_API_KEY}",
-                     "Content-Type": "application/json"},
-            json={
-                "model": model,
-                "temperature": 0.6,
-                "response_format": {"type": "json_object"},
-                "messages": [
-                    {"role": "system", "content": system},
-                    {"role": "user", "content": _user_prompt(lead, contact)},
-                ],
-            })
-        r.raise_for_status()
-        out = json.loads(r.json()["choices"][0]["message"]["content"])
+        text = _load(key)
     except Exception as e:
-        log.warning("Draft failed for lead %s (%s)", lead.get("id"), e)
+        log.warning("Template '%s' load failed: %s", key, e)
         return None
 
-    subject = (out.get("subject") or "").strip()
-    body = (out.get("body") or "").strip()
+    name = merged.get("showroom_name") or merged.get("company") or "your showroom"
+    for a, b in {"[First Name]": _first_name(merged), "[Showroom Name]": name,
+                 "[Company Name]": name, "[Your Name]": config.SENDER_NAME}.items():
+        text = text.replace(a, b)
+
+    lines = text.splitlines()
+    subject, start = "", 0
+    if lines and lines[0].lower().startswith("subject:"):
+        subject = lines[0].split(":", 1)[1].strip()
+        start = 1
+    body = "\n".join(lines[start:]).strip()
     if not subject or not body:
         return None
-    return {"subject": subject, "body": body}
+    return {"subject": subject, "body": body, "template": key}
