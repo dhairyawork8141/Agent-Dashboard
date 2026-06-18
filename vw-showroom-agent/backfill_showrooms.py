@@ -42,7 +42,7 @@ def run():
             log.info("  ...judged %d/%d, kept %d so far", i, len(new), kept)
         if len(batch) >= 50:
             supabase_io.upsert_leads(config.AGENT_ID, batch); batch = []
-        time.sleep(2.1)                     # pace under Groq free RPM
+        time.sleep(4.5)                     # pace under Groq 8B free TPM (~6k) to avoid 429s
 
     if batch:
         supabase_io.upsert_leads(config.AGENT_ID, batch)

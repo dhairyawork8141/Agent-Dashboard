@@ -1,6 +1,7 @@
 """Groq 'brain' that judges whether a newly-registered company is a genuine KBB /
 interior-design business CAD Illustrators could sell outsourced CAD/CGI design to.
 Returns {fit, tier, score, reason} or None on error (fail-soft -> keyword fallback)."""
+import datetime
 import json
 import logging
 import requests
@@ -15,22 +16,33 @@ TIER_WARM = "WARM - New showroom"
 TIER_WATCH = "WATCH - New showroom"
 _TIER = {"HOT": TIER_HOT, "WARM": TIER_WARM, "WATCH": TIER_WATCH}
 
-_SYSTEM = """You qualify newly-registered UK companies as sales leads for CAD Illustrators,
-an outsourced CAD/CGI studio that produces kitchen, bedroom & bathroom (KBB) and
-interior-design visuals for showrooms, retailers and fitters.
+_SYSTEM = """You qualify UK companies as sales leads for CAD Illustrators, an outsourced
+CAD/CGI studio that makes kitchen, bedroom & bathroom (KBB) and interior-design visuals
+for showrooms and retailers.
 
-A GOOD lead is a business that designs/sells/fits kitchens, bedrooms, bathrooms, fitted
-furniture, tiles/worktops, or does interior design - i.e. someone who needs design
-renders. A BAD lead is anything unrelated (plumbing-only, scaffolding, cleaning,
-property/lettings, cafes, consultancies, holding companies, etc.) even if the name
-coincidentally contains a keyword.
+fit=false (drop it) = anything that is NOT a real KBB/interior-design business:
+plumbing-only, scaffolding, cleaning, property/lettings, cafes, consultancies, holding
+companies, or a coincidental name match.
 
-Tier by how clearly they're a design-led KBB/interior business:
-  HOT  = clearly a kitchen/bathroom/bedroom showroom or interior-design studio
-  WARM = plausibly KBB/interior (fitter, furniture, tiles) but less certain
-  WATCH= weak/ambiguous
+For fit=true businesses, choose the tier from BOTH what they are AND how new they are
+(use the "Registered" line):
+  HOT  = a clear kitchen/bathroom/bedroom SHOWROOM or interior-design studio that is NEW
+         (recently registered). Brand-new showrooms are the best targets - just opening,
+         no existing CGI supplier yet.
+  WARM = a clear KBB/interior business that is ESTABLISHED (older), OR any less-certain
+         KBB type (fitter, furniture maker, joinery, tiles) at any age.
+  WATCH= weak / ambiguous.
 Reply with ONLY JSON:
 {"fit": true|false, "tier": "HOT|WARM|WATCH", "score": 0-100, "reason": "<one short line>"}"""
+
+
+def _months_old(date_str: str):
+    try:
+        d = datetime.date.fromisoformat((date_str or "")[:10])
+        t = datetime.date.today()
+        return (t.year - d.year) * 12 + (t.month - d.month)
+    except Exception:
+        return None
 
 
 def available() -> bool:
@@ -41,8 +53,16 @@ def classify(lead: dict, settings: dict | None = None) -> dict | None:
     if not available():
         return None
     model = (settings or {}).get("brain_model") or config.GROQ_MODEL
+    hot_max = int((settings or {}).get("hot_max_age_months", 18))
+    age = _months_old(lead.get("posted", ""))
+    if age is None:
+        recency = "Registered: date unknown"
+    else:
+        tag = "NEW" if age <= hot_max else "ESTABLISHED"
+        recency = f"Registered: {lead.get('posted')} ({age} months ago - {tag})"
     user = (f"Company: {lead.get('company','')}\n"
             f"Location: {lead.get('location','')}\n"
+            f"{recency}\n"
             f"Details: {lead.get('description','')}")
     try:
         r = requests.post(_ENDPOINT, timeout=TIMEOUT,
