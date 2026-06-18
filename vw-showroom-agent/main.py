@@ -51,15 +51,18 @@ def run() -> None:
             v = brain.classify(lead, settings)
             if v is None:                       # API failed -> keep with a neutral tier
                 lead["tier"] = brain.TIER_WATCH
+                lead["category"] = "other"
                 lead["score"] = min_score
             elif v["fit"] and v["score"] >= min_score:
                 lead["tier"] = v["tier"]
+                lead["category"] = v["category"]
                 lead["score"] = v["score"]
                 lead["reason"] = v["reason"]
             else:
                 continue                        # brain rejected -> skip
         else:
             lead["tier"] = brain.TIER_WARM
+            lead["category"] = "other"
             lead["score"] = min_score
         kept.append(lead)
 

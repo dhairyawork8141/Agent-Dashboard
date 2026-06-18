@@ -37,6 +37,7 @@ def run():
             time.sleep(6); continue
         if v["fit"] and v["score"] >= min_score:
             lead["tier"], lead["score"], lead["reason"] = v["tier"], v["score"], v["reason"]
+            lead["category"] = v["category"]
             batch.append(lead); kept += 1
         if i % 25 == 0:
             log.info("  ...judged %d/%d, kept %d so far", i, len(new), kept)

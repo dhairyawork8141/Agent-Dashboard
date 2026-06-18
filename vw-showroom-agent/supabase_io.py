@@ -60,6 +60,7 @@ def upsert_leads(agent_id: str, leads: list[dict]) -> None:
         "agent_id": agent_id,
         "external_key": l.get("key"),
         "tier": l.get("tier"),
+        "category": l.get("category"),
         "score": l.get("score"),
         "title": l.get("title"),
         "company": l.get("company"),

@@ -11,29 +11,42 @@ log = logging.getLogger("brain")
 TIMEOUT = 30
 _ENDPOINT = "https://api.groq.com/openai/v1/chat/completions"
 
+# Tier strings keep the "- New showroom" suffix so they match the contact agent's
+# apollo_tiers setting (only HOT leads spend Apollo credits).
 TIER_HOT = "HOT - New showroom"
 TIER_WARM = "WARM - New showroom"
 TIER_WATCH = "WATCH - New showroom"
 _TIER = {"HOT": TIER_HOT, "WARM": TIER_WARM, "WATCH": TIER_WATCH}
+# Valid business-type categories the brain may return.
+CATEGORIES = {"kitchen", "bathroom", "kbb", "bedroom", "fitter", "interior", "other"}
 
 _SYSTEM = """You qualify UK companies as sales leads for CAD Illustrators, an outsourced
 CAD/CGI studio that makes kitchen, bedroom & bathroom (KBB) and interior-design visuals
-for showrooms and retailers.
+for showrooms, retailers and fitters.
 
-fit=false (drop it) = anything that is NOT a real KBB/interior-design business:
+fit=false (drop it) = anything that is NOT a KBB/interior-design business:
 plumbing-only, scaffolding, cleaning, property/lettings, cafes, consultancies, holding
 companies, or a coincidental name match.
 
-For fit=true businesses, choose the tier from BOTH what they are AND how new they are
-(use the "Registered" line):
-  HOT  = a clear kitchen/bathroom/bedroom SHOWROOM or interior-design studio that is NEW
-         (recently registered). Brand-new showrooms are the best targets - just opening,
-         no existing CGI supplier yet.
-  WARM = a clear KBB/interior business that is ESTABLISHED (older), OR any less-certain
-         KBB type (fitter, furniture maker, joinery, tiles) at any age.
-  WATCH= weak / ambiguous.
+For fit=true businesses, return TWO things:
+
+1) category - the business TYPE (pick exactly one):
+   "kitchen"  = kitchen showroom / kitchen retailer
+   "bathroom" = bathroom showroom / bathroom retailer
+   "kbb"      = clearly does BOTH kitchens AND bathrooms
+   "bedroom"  = fitted-bedroom / fitted-furniture specialist
+   "fitter"   = installer / fitter / joiner who fits kitchens or bathrooms (NOT a retail showroom)
+   "interior" = interior-design studio / firm
+   "other"    = KBB-related but none of the above, or unclear
+
+2) tier - the PRIORITY, judged purely on how new it is (use the "Registered" line):
+   "HOT"   = NEW (recently registered) - the best targets, just starting out, no CGI supplier yet
+   "WARM"  = ESTABLISHED (older)
+   "WATCH" = ambiguous / low confidence
+
 Reply with ONLY JSON:
-{"fit": true|false, "tier": "HOT|WARM|WATCH", "score": 0-100, "reason": "<one short line>"}"""
+{"fit": true|false, "category": "kitchen|bathroom|kbb|bedroom|fitter|interior|other",
+ "tier": "HOT|WARM|WATCH", "score": 0-100, "reason": "<one short line>"}"""
 
 
 def _months_old(date_str: str):
@@ -77,8 +90,10 @@ def classify(lead: dict, settings: dict | None = None) -> dict | None:
     except Exception as e:
         log.warning("Brain call failed for %r (%s)", lead.get("company"), e)
         return None
+    cat = str(out.get("category", "")).lower().strip()
     return {
         "fit": bool(out.get("fit")),
+        "category": cat if cat in CATEGORIES else "other",
         "tier": _TIER.get(str(out.get("tier", "")).upper(), TIER_WATCH),
         "score": int(out.get("score") or 0),
         "reason": (out.get("reason") or "").strip(),

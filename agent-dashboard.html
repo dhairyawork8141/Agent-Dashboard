@@ -118,6 +118,12 @@ const DEMO_LEADS = [];
 /* ----------------------------- Helpers ---------------------------------------- */
 const STATUSES = ["New", "Contacted", "Replied", "Call booked", "Free project", "Subscribed", "Not interested"];
 
+// Showroom business-type category -> short label for the lead-card chip.
+const CAT_LABEL = {
+  kitchen: "Kitchen showroom", bathroom: "Bathroom showroom", kbb: "Kitchen & Bath",
+  bedroom: "Bedroom / furniture", fitter: "Fitter", interior: "Interior designer", other: "Other",
+};
+
 function tierKey(t) {
   if (!t) return "watch";
   if (t.startsWith("HOT")) return "hot";
@@ -581,6 +587,7 @@ function LeadsTable({ leads, onStatus, onDraft, showAgentHint }) {
               <div className="min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                   <TierBadge tier={l.tier} />
+                  {l.category && <span className="rounded-full border border-line text-muted text-[10px] font-semibold px-2 py-0.5">{CAT_LABEL[l.category] || l.category}</span>}
                   {l.contact_email && <span className="rounded-full bg-ink text-bone text-[10px] font-semibold px-2 py-0.5">✓ Contact</span>}
                   <span className="text-[11px] text-muted">{l.source} · {timeAgo(l.found_at)}</span>
                 </div>
@@ -697,37 +704,66 @@ function JobLeadsView({ agents, leads, setView, onToggle, onStatus, onDraft, onA
   );
 }
 
-function ShowroomListsView({ agents, leads, setView, onToggle, onStatus, onDraft, onAdd }) {
-  const [source, setSource] = useState("all");
-  // Source filter buttons are derived from the data, so new sources appear automatically.
-  const sources = useMemo(() => {
-    const set = new Set(leads.map(l => l.source).filter(Boolean));
-    return Array.from(set).sort();
-  }, [leads]);
-  const shown = source === "all" ? leads : leads.filter(l => l.source === source);
+// Showroom business-type tabs. Keys match the brain's `category` output.
+const SHOWROOM_CATS = [
+  { key: "all",      label: "All",                 icon: "fa-list" },
+  { key: "kitchen",  label: "Kitchen showrooms",   icon: "fa-kitchen-set" },
+  { key: "bathroom", label: "Bathroom showrooms",  icon: "fa-bath" },
+  { key: "kbb",      label: "Kitchen & Bath",      icon: "fa-house-chimney" },
+  { key: "bedroom",  label: "Bedroom / furniture", icon: "fa-bed" },
+  { key: "fitter",   label: "Fitters",             icon: "fa-screwdriver-wrench" },
+  { key: "interior", label: "Interior designers",  icon: "fa-couch" },
+  { key: "other",    label: "Other",               icon: "fa-ellipsis" },
+];
 
+function ShowroomListsView({ agents, leads, setView, onToggle, onStatus, onDraft, onAdd }) {
+  const [cat, setCat] = useState("all");
+  const [source, setSource] = useState("all");
+
+  const catCount = (k) => k === "all" ? leads.length
+    : leads.filter(l => (l.category || "other") === k).length;
+  const byCat = cat === "all" ? leads : leads.filter(l => (l.category || "other") === cat);
+
+  // Source buttons derive from the data, so future sources appear automatically.
+  const sources = useMemo(() =>
+    Array.from(new Set(byCat.map(l => l.source).filter(Boolean))).sort(), [byCat]);
+  const shown = source === "all" ? byCat : byCat.filter(l => l.source === source);
+
+  const catTab = (c) => (
+    <button key={c.key} onClick={() => { setCat(c.key); setSource("all"); }}
+      className={"flex items-center gap-2 rounded-xl px-3.5 py-2 text-sm font-semibold transition-colors " +
+        (cat === c.key ? "bg-ink text-bone" : "border border-line text-muted hover:text-ink")}>
+      <i className={"fa-solid " + c.icon + " text-xs"}></i>{c.label}
+      <span className={cat === c.key ? "text-bone/70" : "text-muted"}>{catCount(c.key)}</span>
+    </button>
+  );
   const srcBtn = (key, label) => (
     <button key={key} onClick={() => setSource(key)}
       className={"rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors " +
         (source === key ? "bg-brass text-paper" : "border border-line text-muted hover:text-ink")}>
-      {label}{key !== "all" ? " (" + leads.filter(l => l.source === key).length + ")" : ""}
+      {label}{key !== "all" ? " (" + byCat.filter(l => l.source === key).length + ")" : ""}
     </button>
   );
 
   return (
     <div className="max-w-5xl mx-auto px-6 py-9">
-      <SectionHeader icon="fa-store" eyebrow="KBB showrooms — all sources" title="Showroom Lists" count={leads.length} />
+      <SectionHeader icon="fa-store" eyebrow="KBB showrooms — by type" title="Showroom Lists" count={leads.length} />
       <AgentStrip agents={agents} section="showroom" setView={setView} onToggle={onToggle}
         onAdd={onAdd} addType="showroom_watcher" addLabel="Add a showroom source" />
 
-      {/* Source filter buttons (extensible: gov.uk now, more sources later) */}
-      <div className="mb-4">
-        <Eyebrow className="mb-2">Filter by source</Eyebrow>
-        <div className="flex flex-wrap gap-2">
-          {srcBtn("all", "All sources (" + leads.length + ")")}
-          {sources.map(s => srcBtn(s, s))}
+      {/* Category tabs — each business type is reached differently */}
+      <div className="flex flex-wrap gap-2 mb-5">{SHOWROOM_CATS.map(catTab)}</div>
+
+      {/* Source filter (Companies House now; more sources appear here automatically) */}
+      {sources.length > 1 && (
+        <div className="mb-4">
+          <Eyebrow className="mb-2">Filter by source</Eyebrow>
+          <div className="flex flex-wrap gap-2">
+            {srcBtn("all", "All sources (" + byCat.length + ")")}
+            {sources.map(s => srcBtn(s, s))}
+          </div>
         </div>
-      </div>
+      )}
 
       <LeadsTable leads={shown} onStatus={onStatus} onDraft={onDraft} />
     </div>
