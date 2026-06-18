@@ -141,6 +141,13 @@ function timeAgo(iso) {
   const d = Math.floor(h / 24); return d + "d ago";
 }
 
+function fmtDate(iso) {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  if (isNaN(d)) return iso;
+  return d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+}
+
 // Count records per day over the last `days` days, bucketed by a timestamp field.
 function dailySeries(records, field, days) {
   const today = new Date(); today.setHours(0, 0, 0, 0);
@@ -611,11 +618,14 @@ function LeadsTable({ leads, onStatus, onDraft, showAgentHint }) {
                   <span className="text-[11px] text-muted">{l.source} · {timeAgo(l.found_at)}</span>
                 </div>
                 <div className="mt-1.5 font-serif text-lg text-ink leading-snug" style={{ letterSpacing: "-0.01em" }}>
-                  {l.title} <span className="text-muted font-sans text-sm">— {l.showroom_name && !l.showroom_name.includes("unknown") ? l.showroom_name : (l.company || "company in advert")}</span>
+                  {l.registered_at
+                    ? (l.showroom_name || l.company || "Unnamed business")
+                    : <span>{l.title} <span className="text-muted font-sans text-sm">— {l.showroom_name && !l.showroom_name.includes("unknown") ? l.showroom_name : (l.company || "company in advert")}</span></span>}
                 </div>
                 <div className="mt-0.5 text-xs text-muted">
-                  {l.location || "UK"}{l.salary ? " · " + l.salary : ""}{l.decision_maker_hint ? " · " + l.decision_maker_hint : ""}
-                  {l.is_recruiter ? " · via recruiter" : ""}
+                  {l.registered_at
+                    ? <span><i className="fa-regular fa-calendar mr-1"></i>Registered {fmtDate(l.registered_at)}{l.location ? " · " + l.location : ""}</span>
+                    : <span>{l.location || "UK"}{l.salary ? " · " + l.salary : ""}{l.decision_maker_hint ? " · " + l.decision_maker_hint : ""}{l.is_recruiter ? " · via recruiter" : ""}</span>}
                 </div>
                 {l.opening_line && (
                   <div className="mt-2 text-sm text-ink/80 border-l-2 border-brass pl-3">

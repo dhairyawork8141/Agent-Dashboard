@@ -39,9 +39,9 @@ DEFAULT_SETTINGS = {
     "max_per_run": int(os.getenv("MAX_PER_RUN", "25")),       # cap brain calls / writes per run
     "use_brain": _flag("USE_BRAIN", "true"),
     "min_score": int(os.getenv("MIN_SCORE", "50")),
-    # A showroom is HOT only if incorporated within this many months (else WARM). New
-    # showrooms are the best targets, so recency drives the HOT tier.
-    "hot_max_age_months": int(os.getenv("HOT_MAX_AGE_MONTHS", "18")),
+    # Recency drives the tier: <= hot_max_months = HOT, <= warm_max_months = WARM, else WATCH.
+    "hot_max_months": int(os.getenv("HOT_MAX_MONTHS", "6")),
+    "warm_max_months": int(os.getenv("WARM_MAX_MONTHS", "12")),
     # Optional SIC-code filter (KBB-relevant). Empty = name-keyword search only.
     "sic_codes": _list("SIC_CODES", ""),
 }

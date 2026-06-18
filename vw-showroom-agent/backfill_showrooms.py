@@ -36,7 +36,8 @@ def run():
         if v is None:                       # rate-limited / error -> keep neutral, don't lose it
             time.sleep(6); continue
         if v["fit"] and v["score"] >= min_score:
-            lead["tier"], lead["score"], lead["reason"] = v["tier"], v["score"], v["reason"]
+            lead["tier"] = brain.tier_from_registration(lead.get("registered_at"), settings)
+            lead["score"], lead["reason"] = v["score"], v["reason"]
             lead["category"] = v["category"]
             batch.append(lead); kept += 1
         if i % 25 == 0:

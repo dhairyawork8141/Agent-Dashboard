@@ -61,20 +61,22 @@ def _to_lead(item: dict) -> dict | None:
     if not number or not name:
         return None
     sics = item.get("sic_codes") or []
+    created = item.get("date_of_creation", "")
     return {
         "key": f"companieshouse:{number}",
         "source": "Companies House",
-        "title": "Newly registered KBB/interior business",
+        "title": name,                          # the showroom's name is the headline
         "company": name,
         "showroom_name": name,
         "location": _fmt_address(item.get("registered_office_address") or {}),
+        "registered_at": created or None,       # official registration date
         "salary": None,
         "url": f"{_PROFILE_URL}{number}",
-        "posted": item.get("date_of_creation", ""),
-        "description": f"Incorporated {item.get('date_of_creation','?')}. "
+        "posted": created,
+        "description": f"Incorporated {created or '?'}. "
                        f"SIC: {', '.join(sics) if sics else 'n/a'}. "
                        f"Status: {item.get('company_status','')}.",
-        "matched_on": "Companies House (new incorporation)",
+        "matched_on": "Companies House",
     }
 
 

@@ -53,9 +53,25 @@ def _months_old(date_str: str):
     try:
         d = datetime.date.fromisoformat((date_str or "")[:10])
         t = datetime.date.today()
-        return (t.year - d.year) * 12 + (t.month - d.month)
+        return (t.year - d.year) * 12 + (t.month - d.month) - (1 if t.day < d.day else 0)
     except Exception:
         return None
+
+
+def tier_from_registration(date_str: str, settings: dict | None = None) -> str:
+    """Deterministic tier purely by how recently the company was registered:
+    <= hot_max_months -> HOT, <= warm_max_months -> WARM, else WATCH."""
+    s = settings or {}
+    hot = int(s.get("hot_max_months", 6))
+    warm = int(s.get("warm_max_months", 12))
+    age = _months_old(date_str)
+    if age is None:
+        return TIER_WATCH
+    if age <= hot:
+        return TIER_HOT
+    if age <= warm:
+        return TIER_WARM
+    return TIER_WATCH
 
 
 def available() -> bool:

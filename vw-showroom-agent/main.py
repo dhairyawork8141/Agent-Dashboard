@@ -47,21 +47,20 @@ def run() -> None:
     candidates = new[:cap]                      # bound brain calls / writes per run
     kept = []
     for lead in candidates:
+        # Tier is deterministic from the registration date (<=6mo HOT, <=12mo WARM, else WATCH).
+        lead["tier"] = brain.tier_from_registration(lead.get("registered_at"), settings)
         if use_brain:
-            v = brain.classify(lead, settings)
-            if v is None:                       # API failed -> keep with a neutral tier
-                lead["tier"] = brain.TIER_WATCH
+            v = brain.classify(lead, settings)  # brain decides fit + business category
+            if v is None:                       # API failed -> keep, category unknown
                 lead["category"] = "other"
                 lead["score"] = min_score
             elif v["fit"] and v["score"] >= min_score:
-                lead["tier"] = v["tier"]
                 lead["category"] = v["category"]
                 lead["score"] = v["score"]
                 lead["reason"] = v["reason"]
             else:
                 continue                        # brain rejected -> skip
         else:
-            lead["tier"] = brain.TIER_WARM
             lead["category"] = "other"
             lead["score"] = min_score
         kept.append(lead)
