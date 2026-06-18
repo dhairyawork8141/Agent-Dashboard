@@ -27,6 +27,8 @@ AGENT_ID = os.getenv("AGENT_ID", "")                          # the contact-find
 # --- Groq "brain": free LLM that drafts the personalised outreach email ---
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+# Smaller/faster model for the light email personalisation (high free-tier limits).
+DRAFT_MODEL = os.getenv("DRAFT_MODEL", "llama-3.1-8b-instant")
 
 # --- Sending: Microsoft 365 OAuth2 (app-only) SMTP. Same app/secrets as the job agent.
 #     The sender mails APPROVED drafts; it stays inert until these are set. ---
@@ -55,6 +57,8 @@ DEFAULT_SETTINGS = {
     "draft_emails": _flag("DRAFT_EMAILS", "true"),
     # Only these tiers get a draft (default HOT only) — keeps drafting focused on hot leads.
     "draft_tiers": _list("DRAFT_TIERS", "HOT - Virtual Worlds,HOT - New showroom"),
+    # Let the AI lightly personalise each template draft (falls back to plain template).
+    "personalise_drafts": _flag("PERSONALISE_DRAFTS", "true"),
     "locations": _list("LOCATIONS", "United Kingdom"),
     "titles": [
         "Owner", "Founder", "Co-Founder", "Managing Director", "Director",

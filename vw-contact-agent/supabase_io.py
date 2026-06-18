@@ -68,6 +68,21 @@ def leads_needing_contact(limit: int) -> list[dict]:
         return []
 
 
+def leads_requested_draft(limit: int = 25) -> list[dict]:
+    """Leads you flagged in the dashboard with the 'Draft email' button (any tier).
+    They get enriched if needed and drafted, regardless of the normal tier gate."""
+    try:
+        r = requests.get(f"{_base()}/leads", headers=_headers(), params={
+            "select": "*", "draft_status": "eq.requested",
+            "order": "score.desc.nullslast", "limit": str(limit),
+        }, timeout=TIMEOUT)
+        r.raise_for_status()
+        return r.json()
+    except Exception as e:
+        log.warning("leads_requested_draft failed: %s", e)
+        return []
+
+
 def leads_to_send(limit: int = 25) -> list[dict]:
     """Leads you've approved in the dashboard that haven't been sent yet."""
     try:

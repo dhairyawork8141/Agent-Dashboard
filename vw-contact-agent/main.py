@@ -147,6 +147,35 @@ def run() -> None:
                      " +draft" if contact.get("draft_status") == "pending"
                      else "")
 
+    # Manually-requested drafts (dashboard "Draft email" button) — enrich if needed,
+    # then draft regardless of tier. Clears the request if no email can be found.
+    requested = supabase_io.leads_requested_draft()
+    if requested:
+        log.info("%d manually-requested draft(s) to handle.", len(requested))
+    for lead in requested:
+        name = _company_name(lead)
+        contact = {k: lead.get(k) for k in ("contact_name", "contact_title",
+                   "contact_email", "contact_phone", "contact_linkedin") if lead.get(k)}
+        if not contact.get("contact_email") and name:
+            web = web_search_enrich.enrich_from_web(name, lead.get("location"))
+            for k, v in (web or {}).items():
+                if v and not contact.get(k):
+                    contact[k] = v
+        email = contact.get("contact_email")
+        patch = dict(contact)
+        patch["enriched_at"] = datetime.now(timezone.utc).isoformat()
+        d = draft.draft_email(lead, contact, settings) if (email and draft.available()) else None
+        if d:
+            patch.update({"draft_subject": d["subject"], "draft_body": d["body"],
+                          "draft_status": "pending",
+                          "drafted_at": datetime.now(timezone.utc).isoformat(),
+                          "status": "Contact found"})
+        else:
+            patch["draft_status"] = "none"     # couldn't draft (no email) - clear the request
+        supabase_io.update_lead(lead["id"], patch)
+        log.info("Requested draft for '%s' -> %s", name,
+                 "drafted" if d else "no email, cleared")
+
     supabase_io.finish_run("ok", done)
     log.info("Done - %d contact(s) written to the dashboard.", done)
 
