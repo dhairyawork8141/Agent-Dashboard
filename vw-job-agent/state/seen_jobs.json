@@ -30,9 +30,11 @@
     "adzuna:5766985457",
     "adzuna:5767960633",
     "adzuna:5768004846",
+    "adzuna:5769031830",
     "jooble:-1121910287175556837",
     "jooble:-1387132607859037453",
     "jooble:-1621556170975363917",
+    "jooble:-1637813788789373642",
     "jooble:-1719959856972586287",
     "jooble:-1777256695574047651",
     "jooble:-1911487469018558217",
@@ -53,6 +55,7 @@
     "jooble:-3278387735431490672",
     "jooble:-3309370729569837368",
     "jooble:-3664119120696383514",
+    "jooble:-3732986075590363851",
     "jooble:-384439673724345633",
     "jooble:-3878675626607392506",
     "jooble:-4017596965838744399",
@@ -146,6 +149,7 @@
     "jooble:7006756854300576357",
     "jooble:7083055401874215006",
     "jooble:7210314775584914464",
+    "jooble:7234248933805019627",
     "jooble:7330035105732745659",
     "jooble:7336357784784408336",
     "jooble:7399318617816400859",
@@ -1738,6 +1742,38 @@
       "company": "Galleria Design inc",
       "tier": "WARM - Winner/Cyncly",
       "url": "https://www.adzuna.ca/details/5767960633?utm_medium=api&utm_source=119695ba"
+    },
+    {
+      "found_at": "2026-06-19T16:40:09.676301+00:00",
+      "key": "jooble:7234248933805019627",
+      "title": "Lux Kitchen Designer - Showroom CAD, Denver",
+      "company": "Downtown Boulder Partnership",
+      "tier": "HOT - Virtual Worlds",
+      "url": "https://jooble.org/jdp/7234248933805019627"
+    },
+    {
+      "found_at": "2026-06-19T16:40:09.676301+00:00",
+      "key": "jooble:-3732986075590363851",
+      "title": "Senior Kitchen Designer",
+      "company": "Metropolitan Cabinets and Countertops",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://jooble.org/jdp/-3732986075590363851"
+    },
+    {
+      "found_at": "2026-06-19T16:40:09.676301+00:00",
+      "key": "adzuna:5769031830",
+      "title": "Kitchen Designer - Hybrid, Ashland, MA",
+      "company": "The Corner Cabinet",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://www.adzuna.com/land/ad/5769031830?se=Bv65e_1r8RGl0MKcaJBBpg&utm_medium=api&utm_source=119695ba&v=4A7A9919DCEABD0174C2E5F00B65AB3A0D1A8BA3"
+    },
+    {
+      "found_at": "2026-06-19T16:40:09.676301+00:00",
+      "key": "jooble:-1637813788789373642",
+      "title": "Kitchen Designer - New York",
+      "company": "Riverhead Building Supply",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://jooble.org/jdp/-1637813788789373642"
     }
   ]
 }
