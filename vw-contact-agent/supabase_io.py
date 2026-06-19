@@ -52,12 +52,15 @@ def load_settings():
 
 
 def leads_needing_contact(limit: int) -> list[dict]:
-    """Highest-scoring leads that don't yet have a contact email. Filtering by tier /
-    recruiter is done in Python so odd characters in tier names can't break the query."""
+    """Highest-scoring leads not yet enriched (no contact email AND never attempted).
+    Selects '*' so drafting has category/location/registered_at for the right template;
+    `enriched_at is null` stops us re-trying (and re-spending Apollo on) the same lead
+    every run when no email can be found. Tier/recruiter filtering is done in Python."""
     try:
         r = requests.get(f"{_base()}/leads", headers=_headers(), params={
-            "select": "id,company,showroom_name,tier,score,url,is_recruiter,contact_email",
+            "select": "*",
             "contact_email": "is.null",
+            "enriched_at": "is.null",
             "order": "score.desc.nullslast",
             "limit": str(max(limit * 4, limit)),
         }, timeout=TIMEOUT)
