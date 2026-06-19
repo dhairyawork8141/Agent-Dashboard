@@ -31,6 +31,8 @@
     "adzuna:5767960633",
     "adzuna:5768004846",
     "adzuna:5769031830",
+    "adzuna:5769576657",
+    "adzuna:5769718887",
     "jooble:-1121910287175556837",
     "jooble:-1387132607859037453",
     "jooble:-1621556170975363917",
@@ -39,6 +41,7 @@
     "jooble:-1777256695574047651",
     "jooble:-1911487469018558217",
     "jooble:-1934217174579074837",
+    "jooble:-1981717554949932891",
     "jooble:-2012413074359467507",
     "jooble:-2149437418717606651",
     "jooble:-2255263629384134413",
@@ -51,6 +54,7 @@
     "jooble:-3018240908888730069",
     "jooble:-3046390339479683131",
     "jooble:-311184592952519845",
+    "jooble:-3128559562541643373",
     "jooble:-3236944371715953839",
     "jooble:-3278387735431490672",
     "jooble:-3309370729569837368",
@@ -110,6 +114,7 @@
     "jooble:2149090274419386785",
     "jooble:2157351894422652445",
     "jooble:2333840196159679068",
+    "jooble:2480077444184334532",
     "jooble:259510892236014357",
     "jooble:2602520626374154112",
     "jooble:269311894836635885",
@@ -1774,6 +1779,46 @@
       "company": "Riverhead Building Supply",
       "tier": "WARM - Winner/Cyncly",
       "url": "https://jooble.org/jdp/-1637813788789373642"
+    },
+    {
+      "found_at": "2026-06-19T21:55:38.481691+00:00",
+      "key": "adzuna:5769718887",
+      "title": "Kitchen Designer",
+      "company": "Mitre 10 MEGA",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://www.adzuna.co.nz/details/5769718887?utm_medium=api&utm_source=119695ba"
+    },
+    {
+      "found_at": "2026-06-19T21:55:38.481691+00:00",
+      "key": "jooble:-1981717554949932891",
+      "title": "CAD Designer",
+      "company": "The Fountain Group",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://jooble.org/jdp/-1981717554949932891"
+    },
+    {
+      "found_at": "2026-06-19T21:55:38.481691+00:00",
+      "key": "adzuna:5769576657",
+      "title": "Designer",
+      "company": "Monarch Cabinetry & Manufacturing",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://www.adzuna.com/land/ad/5769576657?se=JqXDkils8RGJe8gKxAvXaw&utm_medium=api&utm_source=119695ba&v=1E104CF0A502B52E59A7104AE9E2F2662E28F0DD"
+    },
+    {
+      "found_at": "2026-06-19T21:55:38.481691+00:00",
+      "key": "jooble:2480077444184334532",
+      "title": "Kitchen Designer & Sales — Signing Bonus & Top Pay",
+      "company": "NKBA",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://jooble.org/jdp/2480077444184334532"
+    },
+    {
+      "found_at": "2026-06-19T21:55:38.481691+00:00",
+      "key": "jooble:-3128559562541643373",
+      "title": "Kitchen Designer/Sales",
+      "company": "NKBA",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://jooble.org/jdp/-3128559562541643373"
     }
   ]
 }
