@@ -1156,15 +1156,15 @@ function App() {
   // Once an email is SENT the lead is "connected" — it leaves the working lists and
   // moves to its own section, so Job Leads / Showroom Lists / approval stay fresh.
   const connectedLeads = useMemo(() => leads.filter(l => l.draft_status === "sent"), [leads]);
-  const showroomLeads = useMemo(() => {
-    const ids = new Set(showroomAgents.map(a => a.id));
-    return leads.filter(l => l.draft_status !== "sent" &&
-      (ids.has(l.agent_id) || (l.source || "").includes("Companies House")));
-  }, [leads, showroomAgents]);
-  const jobLeads = useMemo(() => {
-    const sh = new Set(showroomLeads);
-    return leads.filter(l => l.draft_status !== "sent" && !sh.has(l));
-  }, [leads, showroomLeads]);
+  const showroomIds = useMemo(() => new Set(showroomAgents.map(a => a.id)), [showroomAgents]);
+  const isShowroom = (l) => showroomIds.has(l.agent_id) || (l.source || "").includes("Companies House");
+  // Only HOT/WARM (new ≤12mo) showrooms are leads; established (WATCH) ones are hidden.
+  const showroomLeads = useMemo(() => leads.filter(l =>
+    l.draft_status !== "sent" && isShowroom(l) && !(l.tier || "").startsWith("WATCH")
+  ), [leads, showroomIds]);
+  const jobLeads = useMemo(() => leads.filter(l =>
+    l.draft_status !== "sent" && !isShowroom(l)
+  ), [leads, showroomIds]);
   const openAdd = (t) => setAdding(t || true);
 
   /* mutations (write-through in live mode) */

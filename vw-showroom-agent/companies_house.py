@@ -107,10 +107,24 @@ def fetch_all(settings: dict) -> list[dict]:
 
 
 def fetch_all_backfill(settings: dict) -> list[dict]:
-    """Backfill mode: ALL matching companies regardless of incorporation date."""
+    """Backfill mode: ALL matching companies regardless of incorporation date.
+    (Used only by one-off maintenance scripts.)"""
     if not config.COMPANIES_HOUSE_API_KEY:
         log.error("COMPANIES_HOUSE_API_KEY not set - nothing to fetch.")
         return []
     out = _search_keywords(settings, None)
     log.info("Backfill fetched %d unique companies (all dates)", len(out))
+    return out
+
+
+def fetch_lead_window(settings: dict) -> list[dict]:
+    """Only companies incorporated within `warm_max_months` (default 12). Beyond that a
+    showroom is WATCH (established) - not a lead for us - so we don't even fetch/judge them."""
+    if not config.COMPANIES_HOUSE_API_KEY:
+        log.error("COMPANIES_HOUSE_API_KEY not set - nothing to fetch.")
+        return []
+    months = int(settings.get("warm_max_months", 12))
+    since = (date.today() - timedelta(days=int(months * 30.5))).isoformat()
+    out = _search_keywords(settings, since)
+    log.info("Fetched %d companies incorporated since %s (<=%d months)", len(out), since, months)
     return out
