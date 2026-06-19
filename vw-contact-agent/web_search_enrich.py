@@ -86,7 +86,8 @@ _JUNK_EMAIL_DOMAINS = frozenset([
 # (these slip in from licensing/regulator pages, e.g. onlinehelp@dcwp.nyc.gov).
 _JUNK_DOMAIN_SUFFIXES = (".gov", ".gov.uk", ".gov.au", ".gov.ie", ".gc.ca",
                          ".nhs.uk", ".police.uk", ".mil", ".ac.uk", ".edu", ".sch.uk")
-_JUNK_DOMAIN_SUBSTR = ("council", "nhs", "police", "hmrc", "parliament", ".gov.")
+_JUNK_DOMAIN_SUBSTR = ("council", "nhs", "police", "hmrc", "parliament", ".gov.",
+                       "wixpress", "sentry", "godaddy", "wordpress", "squarespace")
 
 
 def _is_junk_domain(domain: str) -> bool:
@@ -96,6 +97,52 @@ def _is_junk_domain(domain: str) -> bool:
     if any(d.endswith(s) for s in _JUNK_DOMAIN_SUFFIXES):
         return True
     return any(s in d for s in _JUNK_DOMAIN_SUBSTR)
+
+
+# Words too generic to identify a company (so a domain sharing only these isn't a match).
+_GENERIC_NAME_WORDS = frozenset([
+    "the", "and", "ltd", "limited", "llp", "plc", "uk", "co", "group", "company",
+    "studio", "studios", "services", "service", "solutions", "design", "designs",
+    "designer", "interior", "interiors", "kitchen", "kitchens", "bathroom", "bathrooms",
+    "bedroom", "bedrooms", "fitted", "furniture", "tiles", "tile", "home", "homes",
+])
+# Free email providers never prove company ownership -> can't be domain-matched.
+_FREE_EMAIL_DOMAINS = frozenset([
+    "gmail.com", "outlook.com", "hotmail.com", "hotmail.co.uk", "yahoo.com",
+    "yahoo.co.uk", "icloud.com", "aol.com", "live.com", "btinternet.com", "me.com",
+])
+_TLD_STRIP = (".co.uk", ".org.uk", ".com", ".org", ".net", ".uk", ".ie", ".io",
+              ".biz", ".shop", ".store", ".design", ".co")
+
+
+def _company_tokens(name: str) -> list[str]:
+    words = re.findall(r"[a-z0-9]+", (name or "").lower())
+    return [w for w in words if len(w) >= 4 and w not in _GENERIC_NAME_WORDS]
+
+
+def _domain_core(domain: str) -> str:
+    d = (domain or "").lower().split("@")[-1].strip()
+    for tld in _TLD_STRIP:
+        if d.endswith(tld):
+            d = d[: -len(tld)]
+            break
+    return re.sub(r"[^a-z0-9]", "", d)
+
+
+def _domain_matches_company(domain: str, name: str) -> bool:
+    """True only if the domain plausibly belongs to THIS company (shares a distinctive
+    token). Prevents grabbing a different company's domain (e.g. suttonbuild for INODESIGN)."""
+    dl = (domain or "").lower().split("@")[-1]
+    if dl in _FREE_EMAIL_DOMAINS:
+        return False
+    core = _domain_core(domain)
+    if not core:
+        return False
+    toks = _company_tokens(name)
+    if not toks:                                   # no distinctive words -> need full-slug match
+        slug = re.sub(r"[^a-z0-9]", "", (name or "").lower())
+        return bool(slug) and (slug in core or core in slug)
+    return any(t in core or core in t for t in toks)
 
 
 # ---------------------------------------------------------------------------
@@ -425,7 +472,19 @@ def enrich_from_web(company_name: str, location: str | None) -> dict | None:
     # --- Stage B: Google search (optional, if Serper key is set) ---
     result = _enrich_from_serper(name, location, result)
 
-    # --- Post-processing: guess names ---
+    # --- Accuracy gate: drop anything that doesn't belong to THIS company ---
+    # (the scraper/Serper can surface a different company's site/email).
+    _SOCIAL_KEYS = ("social_facebook", "social_instagram", "social_linkedin",
+                    "social_twitter", "social_youtube", "social_tiktok",
+                    "social_pinterest", "social_houzz")
+    if result.get("website") and not _domain_matches_company(result["website"], name):
+        for key in ("website", "contact_phone") + _SOCIAL_KEYS:
+            result.pop(key, None)
+    if result.get("contact_email") and not _domain_matches_company(result["contact_email"], name):
+        for key in ("contact_email", "contact_name", "contact_title"):
+            result.pop(key, None)
+
+    # --- Post-processing: guess names (only from a kept, matching email/profile) ---
     if not result.get("contact_name"):
         if result.get("contact_linkedin"):
             result["contact_name"] = _guess_name_from_linkedin(

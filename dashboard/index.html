@@ -390,9 +390,10 @@ const hasSocial = (l) => !!(l.social_facebook || l.social_instagram || l.social_
   l.social_twitter || l.social_youtube || l.social_tiktok || l.social_pinterest || l.social_houzz);
 
 function Overview({ agents, allLeads, jobLeads, showroomLeads, setView, onToggle }) {
+  const isLead = (l) => l.draft_status !== "sent" && ["hot", "warm"].includes(tierKey(l.tier));
   const k = useMemo(() => ({
-    leads:     allLeads.length,
-    hot:       allLeads.filter(l => tierKey(l.tier) === "hot").length,
+    leads:     allLeads.filter(isLead).length,                             // HOT + WARM only
+    hot:       allLeads.filter(l => tierKey(l.tier) === "hot" && l.draft_status !== "sent").length,
     socials:   allLeads.filter(hasSocial).length,
     contacts:  allLeads.filter(l => l.contact_email || l.contact_phone).length,
     connected: allLeads.filter(l => l.draft_status === "sent").length,
@@ -406,14 +407,14 @@ function Overview({ agents, allLeads, jobLeads, showroomLeads, setView, onToggle
       <h1 className="font-serif text-4xl text-ink mt-1 mb-7" style={{ letterSpacing: "-0.02em" }}>Overview</h1>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <StatTile label="Total leads" value={k.leads} />
+        <StatTile label="Total leads (hot+warm)" value={k.leads} accent />
         <StatTile label="Hot leads" value={k.hot} accent />
+        <StatTile label="Showroom list" value={showroomLeads.length} />
         <StatTile label="Contacts found" value={k.contacts} />
         <StatTile label="Social profiles" value={k.socials} />
+        <StatTile label="Awaiting approval" value={k.pending} />
         <StatTile label="Connected" value={k.connected} />
-        <StatTile label="Awaiting approval" value={k.pending} accent />
         <StatTile label="Emails sent" value={k.sent} />
-        <StatTile label="Active agents" value={agents.filter(a => a.enabled).length} />
       </div>
 
       {/* Stream breakdown */}
@@ -1158,9 +1159,10 @@ function App() {
   const connectedLeads = useMemo(() => leads.filter(l => l.draft_status === "sent"), [leads]);
   const showroomIds = useMemo(() => new Set(showroomAgents.map(a => a.id)), [showroomAgents]);
   const isShowroom = (l) => showroomIds.has(l.agent_id) || (l.source || "").includes("Companies House");
-  // Only HOT/WARM (new ≤12mo) showrooms are leads; established (WATCH) ones are hidden.
+  // Showroom Lists shows the FULL directory (all tiers). "Leads" (HOT+WARM) is counted
+  // separately in the Overview — established WATCH showrooms are data, not leads.
   const showroomLeads = useMemo(() => leads.filter(l =>
-    l.draft_status !== "sent" && isShowroom(l) && !(l.tier || "").startsWith("WATCH")
+    l.draft_status !== "sent" && isShowroom(l)
   ), [leads, showroomIds]);
   const jobLeads = useMemo(() => leads.filter(l =>
     l.draft_status !== "sent" && !isShowroom(l)

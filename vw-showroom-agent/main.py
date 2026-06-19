@@ -35,13 +35,13 @@ def run() -> None:
     if settings is None:                       # paused in the dashboard
         return
 
-    # Only the ≤12-month lead window (HOT/WARM); established showrooms aren't leads for us.
-    # Process unjudged ones shuffled, up to the per-run cap, so coverage stays balanced and
-    # the daily agent gradually finishes the window AND catches new registrations.
-    found = companies_house.fetch_lead_window(settings)
+    # Capture the FULL KBB directory (all dates) — established (WATCH) ones are kept as
+    # data but don't count as "leads" (the dashboard's Total leads = HOT+WARM only).
+    # Shuffled + capped per run so the daily agent finishes the backlog and catches new ones.
+    found = companies_house.fetch_all_backfill(settings)
     new = store.filter_new(found)
     random.shuffle(new)
-    log.info("%d unjudged companies in the lead window", len(new))
+    log.info("%d unjudged companies (processing up to the per-run cap)", len(new))
     if not new:
         supabase_io.finish_run("ok", 0)
         return
@@ -55,8 +55,6 @@ def run() -> None:
     for lead in candidates:
         # Tier is deterministic from the registration date (<=6mo HOT, <=12mo WARM, else WATCH).
         lead["tier"] = brain.tier_from_registration(lead.get("registered_at"), settings)
-        if (lead["tier"] or "").startswith("WATCH"):
-            continue                            # established (>12mo) -> not a lead, skip
         if use_brain:
             v = brain.classify(lead, settings)  # brain decides fit + business category
             time.sleep(1.5)                     # pace under Groq per-minute limits
