@@ -648,10 +648,11 @@ function LeadsTable({ leads, onStatus, onDraft, showAgentHint }) {
                     </div>
                   </div>
                 )}
-                {(l.website || l.social_facebook || l.social_instagram || l.social_linkedin || l.social_twitter || l.social_youtube || l.social_tiktok || l.social_pinterest || l.social_houzz) && (
+                {(l.website || (l.url && l.url !== "#") || l.social_facebook || l.social_instagram || l.social_linkedin || l.social_twitter || l.social_youtube || l.social_tiktok || l.social_pinterest || l.social_houzz) && (
                   <div className="mt-2.5 pt-2 border-t border-line/40 flex flex-wrap items-center gap-x-4 gap-y-2">
                     {l.website && <a href={l.website} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-[11px] uppercase tracking-wide font-semibold text-brass hover:text-ink transition-colors"><i className="fa-solid fa-globe text-sm"></i> Website</a>}
-                    
+                    {l.url && l.url !== "#" && <a href={l.url} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-[11px] uppercase tracking-wide font-semibold text-brass hover:text-ink transition-colors"><i className="fa-solid fa-arrow-up-right-from-square text-sm"></i> {l.registered_at ? "Companies House" : "View advert"}</a>}
+
                     <div className="flex items-center gap-3 ml-auto text-base">
                       {l.social_facebook && <a href={l.social_facebook} target="_blank" rel="noreferrer" className="text-muted hover:text-[#1877F2] transition-colors"><i className="fa-brands fa-facebook"></i></a>}
                       {l.social_instagram && <a href={l.social_instagram} target="_blank" rel="noreferrer" className="text-muted hover:text-[#E4405F] transition-colors"><i className="fa-brands fa-instagram"></i></a>}
@@ -673,10 +674,6 @@ function LeadsTable({ leads, onStatus, onDraft, showAgentHint }) {
                   className="rounded-lg border border-line bg-bone text-xs px-2.5 py-1.5 text-ink">
                   {STATUSES.map(s => <option key={s}>{s}</option>)}
                 </select>
-                {l.url && l.url !== "#" && (
-                  <a href={l.url} target="_blank" rel="noreferrer"
-                    className="block mt-2 text-xs font-semibold text-brass hover:underline">View ↗</a>
-                )}
                 {onDraft && (!l.draft_status || l.draft_status === "none") && (
                   <button onClick={() => onDraft(l, { draft_status: "requested" })}
                     className="block mt-2 ml-auto rounded-full border border-line text-xs font-semibold px-3 py-1 text-ink hover:border-brass hover:text-brass transition-colors">
