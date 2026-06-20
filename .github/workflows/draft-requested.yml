@@ -1,0 +1,28 @@
+name: VW Draft Requested
+
+# Fast worker for the dashboard "Draft email" button — drafts leads flagged
+# draft_status='requested' so a clicked draft shows in Needs approval within ~20 min.
+# The job exits in seconds when nothing is requested.
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: "*/20 8-18 * * 1-6"   # every 20 min, 8am-6pm UTC, Mon-Sat
+
+jobs:
+  draft:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - run: pip install -r vw-contact-agent/requirements.txt
+      - name: Process requested drafts
+        env:
+          AGENT_ID:             b7e6d5c4-3a2b-4c1d-9e8f-0a1b2c3d4e5f
+          SUPABASE_URL:         ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          GROQ_API_KEY:         ${{ secrets.GROQ_API_KEY }}
+          SERPER_API_KEY:       ${{ secrets.SERPER_API_KEY }}
+        working-directory: vw-contact-agent
+        run: python draft_requested.py
