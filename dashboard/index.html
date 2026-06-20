@@ -348,13 +348,18 @@ function Sidebar({ view, setView, email, onSignOut, isDark, setIsDark }) {
 }
 
 /* ----------------------------- Overview --------------------------------------- */
-function StatTile({ label, value, accent }) {
-  return (
-    <div className="rounded-2xl border border-line bg-paper px-5 py-4">
+function StatTile({ label, value, accent, onClick }) {
+  const cls = "rounded-2xl border border-line bg-paper px-5 py-4" +
+    (onClick ? " text-left w-full cursor-pointer transition-colors hover:border-brass hover:bg-brass/5" : "");
+  const inner = (
+    <React.Fragment>
       <Eyebrow>{label}</Eyebrow>
       <div className={"font-serif text-3xl mt-1 " + (accent ? "text-brass" : "text-ink")} style={{ letterSpacing: "-0.02em" }}>{value}</div>
-    </div>
+    </React.Fragment>
   );
+  return onClick
+    ? <button onClick={onClick} className={cls}>{inner}</button>
+    : <div className={cls}>{inner}</div>;
 }
 
 function AgentCard({ agent, leads, onOpen, onToggle }) {
@@ -408,14 +413,14 @@ function Overview({ agents, allLeads, jobLeads, showroomLeads, setView, onToggle
       <h1 className="font-serif text-4xl text-ink mt-1 mb-7" style={{ letterSpacing: "-0.02em" }}>Overview</h1>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <StatTile label="Total leads (hot+warm)" value={k.leads} accent />
-        <StatTile label="Hot leads" value={k.hot} accent />
-        <StatTile label="Showroom list" value={showroomLeads.length} />
-        <StatTile label="Contacts found" value={k.contacts} />
-        <StatTile label="Social profiles" value={k.socials} />
-        <StatTile label="Awaiting approval" value={k.pending} />
-        <StatTile label="Connected" value={k.connected} />
-        <StatTile label="Emails sent" value={k.sent} />
+        <StatTile label="Total leads (hot+warm)" value={k.leads} accent onClick={() => setView({ name: "job" })} />
+        <StatTile label="Hot leads" value={k.hot} accent onClick={() => setView({ name: "job", filter: "hot" })} />
+        <StatTile label="Showroom list" value={showroomLeads.length} onClick={() => setView({ name: "showroom" })} />
+        <StatTile label="Contacts found" value={k.contacts} onClick={() => setView({ name: "datacenter" })} />
+        <StatTile label="Social profiles" value={k.socials} onClick={() => setView({ name: "showroom" })} />
+        <StatTile label="Awaiting approval" value={k.pending} onClick={() => setView({ name: "job", filter: "approval" })} />
+        <StatTile label="Connected" value={k.connected} onClick={() => setView({ name: "connected" })} />
+        <StatTile label="Emails sent" value={k.sent} onClick={() => setView({ name: "connected" })} />
       </div>
 
       {/* Stream breakdown */}
@@ -531,8 +536,8 @@ function DraftPanel({ lead, onDraft }) {
 }
 
 /* ----------------------------- Leads table ------------------------------------ */
-function LeadsTable({ leads, onStatus, onDraft, showAgentHint }) {
-  const [filter, setFilter] = useState("all");
+function LeadsTable({ leads, onStatus, onDraft, showAgentHint, initialFilter }) {
+  const [filter, setFilter] = useState(initialFilter || "all");
   const [searchQuery, setSearchQuery] = useState("");
 
   const shown = leads
@@ -731,13 +736,13 @@ function SectionHeader({ icon, eyebrow, title, count }) {
   );
 }
 
-function JobLeadsView({ agents, leads, setView, onToggle, onStatus, onDraft, onAdd }) {
+function JobLeadsView({ agents, leads, setView, onToggle, onStatus, onDraft, onAdd, initialFilter }) {
   return (
     <div className="max-w-5xl mx-auto px-6 py-9">
       <SectionHeader icon="fa-briefcase" eyebrow="Showrooms hiring designers" title="Job Leads" count={leads.length} />
       <AgentStrip agents={agents} section="job" setView={setView} onToggle={onToggle}
         onAdd={onAdd} addType="job_watcher" addLabel="Add a job-source agent" />
-      <LeadsTable leads={leads} onStatus={onStatus} onDraft={onDraft} />
+      <LeadsTable leads={leads} onStatus={onStatus} onDraft={onDraft} initialFilter={initialFilter} />
     </div>
   );
 }
@@ -1355,7 +1360,8 @@ function App() {
 
         {view.name === "job" &&
           <JobLeadsView agents={jobAgents} leads={jobLeads} setView={setView}
-            onToggle={toggleAgent} onStatus={setStatus} onDraft={updateDraft} onAdd={openAdd} />}
+            onToggle={toggleAgent} onStatus={setStatus} onDraft={updateDraft} onAdd={openAdd}
+            initialFilter={view.filter} />}
 
         {view.name === "showroom" &&
           <ShowroomListsView agents={showroomAgents} leads={showroomLeads} setView={setView}
