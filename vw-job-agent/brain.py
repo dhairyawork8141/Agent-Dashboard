@@ -4,12 +4,10 @@ who'd use CAD/CGI. Returns a verdict (fit, tier, score, reason, opener) or None 
 error so the run falls back to the keyword score (fail-soft, like the job sources)."""
 import json
 import logging
-import requests
 import config
+import groq_pool
 
 log = logging.getLogger("brain")
-TIMEOUT = 30
-_ENDPOINT = "https://api.groq.com/openai/v1/chat/completions"
 
 # CAD Illustrators' ideal customer, in plain language for the model.
 _SYSTEM = """You are a lead-qualification analyst for CAD Illustrators, an outsourced
@@ -42,7 +40,7 @@ _TIER_LABEL = {"HOT": "HOT - Virtual Worlds", "WARM": "WARM - Winner/Cyncly", "W
 
 
 def available() -> bool:
-    return bool(config.GROQ_API_KEY)
+    return groq_pool.available()
 
 
 def _user_prompt(job: dict) -> str:
@@ -58,24 +56,18 @@ def classify(job: dict, settings: dict | None = None) -> dict | None:
     if not available():
         return None
     model = (settings or {}).get("brain_model") or config.GROQ_MODEL
+    content = groq_pool.chat(
+        [{"role": "system", "content": _SYSTEM},
+         {"role": "user", "content": _user_prompt(job)}],
+        model=model, role="judge", temperature=0)
+    if not content:
+        log.warning("Brain unavailable/exhausted for %r - falling back to keyword score",
+                    job.get("title"))
+        return None
     try:
-        r = requests.post(_ENDPOINT, timeout=TIMEOUT,
-            headers={"Authorization": f"Bearer {config.GROQ_API_KEY}",
-                     "Content-Type": "application/json"},
-            json={
-                "model": model,
-                "temperature": 0,
-                "response_format": {"type": "json_object"},
-                "messages": [
-                    {"role": "system", "content": _SYSTEM},
-                    {"role": "user", "content": _user_prompt(job)},
-                ],
-            })
-        r.raise_for_status()
-        content = r.json()["choices"][0]["message"]["content"]
         verdict = json.loads(content)
     except Exception as e:
-        log.warning("Brain call failed for %r (%s) - falling back to keyword score",
+        log.warning("Brain bad JSON for %r (%s) - falling back to keyword score",
                     job.get("title"), e)
         return None
 

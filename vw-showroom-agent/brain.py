@@ -4,12 +4,10 @@ Returns {fit, tier, score, reason} or None on error (fail-soft -> keyword fallba
 import datetime
 import json
 import logging
-import requests
 import config
+import groq_pool
 
 log = logging.getLogger("brain")
-TIMEOUT = 30
-_ENDPOINT = "https://api.groq.com/openai/v1/chat/completions"
 
 # Tier strings keep the "- New showroom" suffix so they match the contact agent's
 # apollo_tiers setting (only HOT leads spend Apollo credits).
@@ -75,7 +73,7 @@ def tier_from_registration(date_str: str, settings: dict | None = None) -> str:
 
 
 def available() -> bool:
-    return bool(config.GROQ_API_KEY)
+    return groq_pool.available()
 
 
 def classify(lead: dict, settings: dict | None = None) -> dict | None:
@@ -93,18 +91,16 @@ def classify(lead: dict, settings: dict | None = None) -> dict | None:
             f"Location: {lead.get('location','')}\n"
             f"{recency}\n"
             f"Details: {lead.get('description','')}")
+    content = groq_pool.chat(
+        [{"role": "system", "content": _SYSTEM}, {"role": "user", "content": user}],
+        model=model, role="judge", temperature=0)
+    if not content:
+        log.warning("Brain unavailable/exhausted for %r", lead.get("company"))
+        return None
     try:
-        r = requests.post(_ENDPOINT, timeout=TIMEOUT,
-            headers={"Authorization": f"Bearer {config.GROQ_API_KEY}",
-                     "Content-Type": "application/json"},
-            json={"model": model, "temperature": 0,
-                  "response_format": {"type": "json_object"},
-                  "messages": [{"role": "system", "content": _SYSTEM},
-                               {"role": "user", "content": user}]})
-        r.raise_for_status()
-        out = json.loads(r.json()["choices"][0]["message"]["content"])
+        out = json.loads(content)
     except Exception as e:
-        log.warning("Brain call failed for %r (%s)", lead.get("company"), e)
+        log.warning("Brain bad JSON for %r (%s)", lead.get("company"), e)
         return None
     cat = str(out.get("category", "")).lower().strip()
     return {
