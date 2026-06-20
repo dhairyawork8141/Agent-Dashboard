@@ -128,6 +128,29 @@ def update_lead(lead_id: str, fields: dict) -> bool:
         return False
 
 
+def record_candidate_outcome(lead: dict, contact: dict | None,
+                             stage: str = "enriched", outcome: str | None = None) -> None:
+    """Datacenter (v8): record this lead's enrichment/outreach OUTCOME so the source
+    scoreboard shows real conversion. Upserts on (source, external_key) — a partial patch
+    that only touches outcome columns, preserving the finder's category/score/raw."""
+    key, src = lead.get("external_key"), lead.get("source")
+    if not key or not src:
+        return
+    row = {"source": src, "external_key": key, "stage": stage,
+           "contact_found": bool((contact or {}).get("contact_email")),
+           "lead_id": lead.get("id")}
+    if outcome:
+        row["outcome"] = outcome
+    try:
+        r = requests.post(f"{_base()}/lead_candidates",
+                          headers=_headers({"Prefer": "resolution=merge-duplicates,return=minimal"}),
+                          params={"on_conflict": "source,external_key"},
+                          json=row, timeout=TIMEOUT)
+        r.raise_for_status()
+    except Exception as e:
+        log.warning("record_candidate_outcome failed: %s", e)
+
+
 def finish_run(status: str, count: int) -> None:
     now = datetime.now(timezone.utc).isoformat()
     try:

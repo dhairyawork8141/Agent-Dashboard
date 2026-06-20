@@ -158,12 +158,15 @@ def run() -> None:
 
         if supabase_io.update_lead(lead["id"], contact):
             done += 1
+            drafted = contact.get("draft_status") == "pending"
+            supabase_io.record_candidate_outcome(
+                lead, contact, stage="drafted" if drafted else "enriched",
+                outcome="pending" if drafted else None)
             log.info("Enriched '%s' via %s -> %s, %s <%s>%s", name,
                      source_label, contact.get("contact_name"),
                      contact.get("contact_title") or "",
                      email or "no email",
-                     " +draft" if contact.get("draft_status") == "pending"
-                     else "")
+                     " +draft" if drafted else "")
 
     # Manually-requested drafts (dashboard "Draft email" button) — enrich if needed,
     # then draft regardless of tier. Clears the request if no email can be found.
@@ -191,6 +194,9 @@ def run() -> None:
         else:
             patch["draft_status"] = "none"     # couldn't draft (no email) - clear the request
         supabase_io.update_lead(lead["id"], patch)
+        supabase_io.record_candidate_outcome(
+            lead, contact, stage="drafted" if d else "enriched",
+            outcome="pending" if d else None)
         log.info("Requested draft for '%s' -> %s", name,
                  "drafted" if d else "no email, cleared")
 

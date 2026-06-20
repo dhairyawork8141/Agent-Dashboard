@@ -52,13 +52,23 @@ def run() -> None:
     # Stage 2 - AI brain judges each candidate for genuine KBB/interior-design fit.
     if candidates and settings.get("use_brain") and brain.available():
         cap = settings.get("brain_max_per_run", config.DEFAULT_SETTINGS["brain_max_per_run"])
-        judged = [brain.judge(j, settings) for j in candidates[:cap]]
+        batch = candidates[:cap]
+        judged = [brain.judge(j, settings) for j in batch]
         kept = [j for j in judged if j is not None]
-        rejected = len(candidates[:cap]) - len(kept)
+        rejected = len(batch) - len(kept)
+        # Datacenter: record EVERY judged candidate (kept AND rejected) before filtering.
+        kept_ids = {id(j) for j in kept}
+        for j in batch:
+            j["_stage"] = "judged"
+            j["_decision"] = "kept" if id(j) in kept_ids else "rejected"
+            if id(j) not in kept_ids:
+                j["_reject_reason"] = "not a KBB-designer fit"
+        if supabase_io.configured():
+            supabase_io.record_candidates(batch)
         leftover = candidates[cap:]     # beyond the per-run cap: keep keyword verdict
         new = kept + leftover
         log.info("AI brain: kept %d, rejected %d (of %d judged; %d beyond cap kept on keyword score)",
-                 len(kept), rejected, len(candidates[:cap]), len(leftover))
+                 len(kept), rejected, len(batch), len(leftover))
     else:
         new = candidates
 

@@ -273,6 +273,7 @@ const NAV = [
   { key: "showroom",  label: "Showroom Lists", icon: "fa-store" },
   { key: "connected", label: "Connected",      icon: "fa-circle-check" },
   { key: "reports",   label: "Reports",        icon: "fa-chart-line" },
+  { key: "datacenter",label: "Datacenter",     icon: "fa-database" },
 ];
 
 function Sidebar({ view, setView, email, onSignOut, isDark, setIsDark }) {
@@ -1093,6 +1094,107 @@ function ReportsView({ leads }) {
   );
 }
 
+/* ----------------------------- Datacenter ------------------------------------- */
+function DatacenterView() {
+  const [rows, setRows] = useState(null);   // raw candidate rows (null = loading)
+  const [err, setErr] = useState("");
+  useEffect(() => {
+    if (!isLive) { setRows([]); return; }
+    (async () => {
+      try {
+        const sb = await getSB();
+        const { data, error } = await sb.from("lead_candidates")
+          .select("source,tier,decision,contact_found,outcome,discovered_at")
+          .order("discovered_at", { ascending: false }).limit(5000);
+        if (error) throw error;
+        setRows(data || []);
+      } catch (e) { setErr(e.message || String(e)); setRows([]); }
+    })();
+  }, []);
+
+  const GOAL = 10;
+  const isHot = (t) => (t || "").toUpperCase().startsWith("HOT");
+  const today = new Date().toISOString().slice(0, 10);
+  const all = rows || [];
+  const hotToday = all.filter(r => isHot(r.tier) && (r.discovered_at || "").slice(0, 10) === today).length;
+  const pct = Math.min(100, Math.round(hotToday / GOAL * 100));
+
+  const bySource = useMemo(() => {
+    const m = {};
+    all.forEach(r => {
+      const k = r.source || "unknown";
+      const s = m[k] || (m[k] = { source: k, discovered: 0, kept: 0, hot: 0, contacted: 0, sent: 0, replied: 0 });
+      s.discovered++;
+      if (r.decision === "kept") s.kept++;
+      if (isHot(r.tier)) s.hot++;
+      if (r.contact_found) s.contacted++;
+      if (r.outcome === "sent") s.sent++;
+      if (r.outcome === "replied") s.replied++;
+    });
+    return Object.values(m).sort((a, b) => b.hot - a.hot || b.discovered - a.discovered);
+  }, [rows]);
+
+  return (
+    <div className="max-w-5xl mx-auto px-6 py-9">
+      <SectionHeader icon="fa-database" eyebrow="Shared memory — every candidate, every source" title="Datacenter" count={all.length} />
+
+      <div className="rounded-2xl border border-line bg-paper p-5 mb-4">
+        <div className="flex items-end justify-between mb-2">
+          <div className="text-sm font-semibold text-ink">HOT leads today</div>
+          <div className="font-serif text-3xl text-ink" style={{ letterSpacing: "-0.02em" }}>{hotToday}<span className="text-muted text-lg"> / {GOAL}</span></div>
+        </div>
+        <div className="h-2 rounded-full bg-line overflow-hidden">
+          <div style={{ width: pct + "%", background: "var(--color-brass)" }} className="h-full rounded-full transition-all" />
+        </div>
+        <div className="text-[11px] text-muted mt-1.5">Hermes steers every agent toward {GOAL} genuine HOT leads a day.</div>
+      </div>
+
+      <div className="rounded-2xl border border-line bg-paper overflow-hidden">
+        <div className="px-5 py-3 border-b border-line text-sm font-semibold text-ink">What's working — by source</div>
+        {rows === null ? (
+          <div className="px-5 py-8 text-sm text-muted">Loading…</div>
+        ) : err ? (
+          <div className="px-5 py-8 text-sm text-muted">Couldn't load the datacenter: {err}</div>
+        ) : bySource.length === 0 ? (
+          <div className="px-5 py-8 text-sm text-muted">No candidates recorded yet — they appear here after the next agent run.</div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-[11px] uppercase tracking-wide text-muted">
+                  <th className="text-left font-semibold px-5 py-2">Source</th>
+                  <th className="text-right font-semibold px-3 py-2">Found</th>
+                  <th className="text-right font-semibold px-3 py-2">Kept</th>
+                  <th className="text-right font-semibold px-3 py-2">HOT</th>
+                  <th className="text-right font-semibold px-3 py-2">HOT %</th>
+                  <th className="text-right font-semibold px-3 py-2">Contacted</th>
+                  <th className="text-right font-semibold px-3 py-2">Sent</th>
+                  <th className="text-right font-semibold px-5 py-2">Replied</th>
+                </tr>
+              </thead>
+              <tbody>
+                {bySource.map(s => (
+                  <tr key={s.source} className="border-t border-line">
+                    <td className="text-left px-5 py-2.5 font-medium text-ink">{s.source}</td>
+                    <td className="text-right px-3 py-2.5 text-muted">{s.discovered}</td>
+                    <td className="text-right px-3 py-2.5 text-muted">{s.kept}</td>
+                    <td className="text-right px-3 py-2.5 font-semibold text-ink">{s.hot}</td>
+                    <td className="text-right px-3 py-2.5 text-muted">{s.discovered ? Math.round(s.hot / s.discovered * 100) : 0}%</td>
+                    <td className="text-right px-3 py-2.5 text-muted">{s.contacted}</td>
+                    <td className="text-right px-3 py-2.5 text-muted">{s.sent}</td>
+                    <td className="text-right px-5 py-2.5 text-muted">{s.replied}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+      <p className="text-xs text-muted mt-5">Every candidate Hermes evaluates — kept or rejected — is recorded here, so you can see which sources actually produce HOT leads.</p>
+    </div>
+  );
+}
+
 /* ----------------------------- App -------------------------------------------- */
 function App() {
   const [session, setSession] = useState(null);
@@ -1218,6 +1320,8 @@ function App() {
           <ConnectedView leads={connectedLeads} onStatus={setStatus} onDraft={updateDraft} />}
 
         {view.name === "reports" && <ReportsView leads={leads} />}
+
+        {view.name === "datacenter" && <DatacenterView />}
 
         {view.name === "account" && <Account email={email} />}
 

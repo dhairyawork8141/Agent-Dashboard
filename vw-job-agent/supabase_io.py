@@ -73,6 +73,38 @@ def upsert_leads(agent_id: str, jobs: list) -> None:
         log.warning("upsert_leads failed: %s", e)
 
 
+def record_candidates(rows: list[dict]) -> None:
+    """Datacenter (v8): record EVERY judged candidate — kept or rejected — so the source
+    scoreboard shows which job boards actually produce HOT leads. Upserts on (source, external_key)."""
+    payload = []
+    for r in rows:
+        if not r.get("key"):
+            continue
+        payload.append({
+            "source": r.get("source"),
+            "external_key": r.get("key"),
+            "company": r.get("company"),
+            "location": r.get("location"),
+            "stage": r.get("_stage", "judged"),
+            "decision": r.get("_decision"),
+            "reject_reason": r.get("_reject_reason"),
+            "tier": r.get("tier"),
+            "score": r.get("score"),
+            "raw": {k: v for k, v in r.items() if not k.startswith("_")},
+        })
+    if not payload:
+        return
+    try:
+        resp = requests.post(f"{_base()}/lead_candidates",
+                             headers=_headers({"Prefer": "resolution=merge-duplicates,return=minimal"}),
+                             params={"on_conflict": "source,external_key"},
+                             json=payload, timeout=TIMEOUT)
+        resp.raise_for_status()
+        log.info("Datacenter: recorded %d candidate(s)", len(payload))
+    except Exception as e:
+        log.warning("record_candidates failed: %s", e)
+
+
 def finish_run(agent_id: str, status: str, found_count: int) -> None:
     now = datetime.now(timezone.utc).isoformat()
     try:
