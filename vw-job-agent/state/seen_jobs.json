@@ -27,6 +27,8 @@
     "adzuna:5766691383",
     "adzuna:5766757580",
     "adzuna:5766758325",
+    "adzuna:5766911438",
+    "adzuna:5766911961",
     "adzuna:5766912716",
     "adzuna:5766985457",
     "adzuna:5767004738",
@@ -49,6 +51,7 @@
     "adzuna:5769273874",
     "adzuna:5769490824",
     "adzuna:5769500757",
+    "adzuna:5769544849",
     "adzuna:5769576657",
     "adzuna:5769718887",
     "adzuna:5769808577",
@@ -63,6 +66,7 @@
     "jooble:-1777256695574047651",
     "jooble:-1803307760703858286",
     "jooble:-1874248887394372716",
+    "jooble:-187819137326647709",
     "jooble:-1911487469018558217",
     "jooble:-1918765755259411138",
     "jooble:-1934217174579074837",
@@ -73,8 +77,10 @@
     "jooble:-2628326685075748827",
     "jooble:-2628760420764924094",
     "jooble:-2797552488141251384",
+    "jooble:-2809054065378291810",
     "jooble:-2828083960256119695",
     "jooble:-2844904577360058027",
+    "jooble:-2881843752925884073",
     "jooble:-2918769015103411133",
     "jooble:-2945937129462718518",
     "jooble:-2960874773523546472",
@@ -84,6 +90,7 @@
     "jooble:-3128559562541643373",
     "jooble:-3166685541122830156",
     "jooble:-3236944371715953839",
+    "jooble:-3267974522172656807",
     "jooble:-3268118636417279993",
     "jooble:-3275642005516449043",
     "jooble:-3278387735431490672",
@@ -101,6 +108,8 @@
     "jooble:-4361320337850715768",
     "jooble:-4462599788456272714",
     "jooble:-475188320337359541",
+    "jooble:-4911411157079786756",
+    "jooble:-4996024708276125374",
     "jooble:-5266049939829761154",
     "jooble:-5391141511907276017",
     "jooble:-5490870300157115750",
@@ -169,6 +178,7 @@
     "jooble:3122949024895409700",
     "jooble:314518107411943508",
     "jooble:322339380557573781",
+    "jooble:3241459521366692755",
     "jooble:3377924943690341043",
     "jooble:3380014825735170343",
     "jooble:3494890494321772979",
@@ -187,9 +197,12 @@
     "jooble:4394908419091150485",
     "jooble:4501826694283584816",
     "jooble:4514186555436391523",
+    "jooble:4549176732248032295",
+    "jooble:4670102372397545063",
     "jooble:4745063137486016086",
     "jooble:4998816410062309920",
     "jooble:5003469569564336728",
+    "jooble:5028832215188568060",
     "jooble:5057090966055305622",
     "jooble:5300404700028982161",
     "jooble:5380345587778562359",
@@ -202,6 +215,7 @@
     "jooble:5730559700076769412",
     "jooble:5805565337064373098",
     "jooble:5874817656489935490",
+    "jooble:5904776752880306711",
     "jooble:5909859189230833869",
     "jooble:5928553843903646264",
     "jooble:6137768448713515923",
@@ -215,6 +229,7 @@
     "jooble:7027594634149029560",
     "jooble:7055163170583790525",
     "jooble:7083055401874215006",
+    "jooble:7107500068935492210",
     "jooble:7125332685721867246",
     "jooble:7138408932253714975",
     "jooble:7168563663591820553",
@@ -227,7 +242,9 @@
     "jooble:7512493678377626758",
     "jooble:7520497402954471069",
     "jooble:7682288187934539628",
+    "jooble:796589656358809867",
     "jooble:8058706670406632176",
+    "jooble:8102844372059271454",
     "jooble:8168364863955627474",
     "jooble:837787478330810055",
     "jooble:8408964610536045413",
@@ -243,11 +260,17 @@
     "jsearch:2x-BVxCtGV8UZra2AAAAAA==",
     "jsearch:31NqZtzYFe3l-UDMAAAAAA==",
     "jsearch:3eY1VG-xl9IF0d2XAAAAAA==",
+    "jsearch:6_NPZD9TwL6TJfR8AAAAAA==",
+    "jsearch:F2ROdnM5Y2pNTN-8AAAAAA==",
+    "jsearch:FuKC7OrBS0daudLrAAAAAA==",
     "jsearch:LlMHB2J3NmuZ0Pl0AAAAAA==",
+    "jsearch:MDSbWh3D_N3DXMh_AAAAAA==",
     "jsearch:Sly_LwLn0pXcgk9mAAAAAA==",
     "jsearch:ir5JUEaRhtYLV_FHAAAAAA==",
     "jsearch:k2_BPsLW4zLvbWRvAAAAAA==",
+    "jsearch:mbH-823gebH8Hr5hAAAAAA==",
     "jsearch:oY7_die2UAEt0UWfAAAAAA==",
+    "jsearch:r6n58fjiei9G3DsAAAAAAA==",
     "jsearch:s2Fl5XN1Emtkgc14AAAAAA==",
     "reed:56665799",
     "reed:56883073",
@@ -2485,6 +2508,190 @@
       "company": "Riverhead Building Supply",
       "tier": "WARM - Winner/Cyncly",
       "url": "https://jooble.org/jdp/-7914943930625183830"
+    },
+    {
+      "found_at": "2026-06-20T21:57:37.818807+00:00",
+      "key": "adzuna:5769544849",
+      "title": "Lecturer, Cyber Operations (Career-Track)",
+      "company": "University of Arizona",
+      "tier": "WATCH - generic CAD",
+      "url": "https://www.adzuna.com/land/ad/5769544849?se=Gon___Js8RGJe8gKxAvXaw&utm_medium=api&utm_source=119695ba&v=608A1F0FA187884A6AD702B8250E1C394389602C"
+    },
+    {
+      "found_at": "2026-06-20T21:57:37.818807+00:00",
+      "key": "jooble:7107500068935492210",
+      "title": "Coach South Gwinnett HS Students to Solve Real-World Problems!",
+      "company": "JA of Georgia (Junior Achievement)",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/7107500068935492210"
+    },
+    {
+      "found_at": "2026-06-20T21:57:37.818807+00:00",
+      "key": "jooble:-4996024708276125374",
+      "title": "Worldmark By Wyndham Sales Representative",
+      "company": "Travel + Leisure Co.",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/-4996024708276125374"
+    },
+    {
+      "found_at": "2026-06-20T21:57:37.818807+00:00",
+      "key": "jooble:5904776752880306711",
+      "title": "Temp Integration Technician",
+      "company": "NEP Group Inc.",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/5904776752880306711"
+    },
+    {
+      "found_at": "2026-06-20T21:57:37.818807+00:00",
+      "key": "jsearch:F2ROdnM5Y2pNTN-8AAAAAA==",
+      "title": "FULL TIME Netflix From Home Watching Movies@ La…",
+      "company": "frontendnode-production.up.railway.app",
+      "tier": "WATCH - generic CAD",
+      "url": "https://frontendnode-production.up.railway.app/job/full-time-netflix-from-home-watching-movies-la-1"
+    },
+    {
+      "found_at": "2026-06-20T21:57:37.818807+00:00",
+      "key": "jsearch:r6n58fjiei9G3DsAAAAAAA==",
+      "title": "Disney Virtual Assistant jobs (part time) $25/Per hour   Hiring Work From Home Jobs",
+      "company": "frontendnode-production.up.railway.app",
+      "tier": "WATCH - generic CAD",
+      "url": "https://frontendnode-production.up.railway.app/job/disney-virtual-assistant-jobs-part-time-25per-hour-hiring-work-from-home-jobs"
+    },
+    {
+      "found_at": "2026-06-20T21:57:37.818807+00:00",
+      "key": "jsearch:6_NPZD9TwL6TJfR8AAAAAA==",
+      "title": "Entry-Level Game App Tester – Virtual Part-Time Opportunity to Turn Your Gaming Passion into a Rewarding Career",
+      "company": "frontendnode-production.up.railway.app",
+      "tier": "WATCH - generic CAD",
+      "url": "https://frontendnode-production.up.railway.app/job/entry-level-game-app-tester-virtual-part-time-opportunity-to-turn-your-gaming-passion-into-a-rewarding-career"
+    },
+    {
+      "found_at": "2026-06-20T21:57:37.818807+00:00",
+      "key": "jsearch:FuKC7OrBS0daudLrAAAAAA==",
+      "title": "Virtual Patient Support Specialist - REMS",
+      "company": "Syneos Health Commercial Solutions",
+      "tier": "WATCH - generic CAD",
+      "url": "https://www.linkedin.com/jobs/view/virtual-patient-support-specialist-rems-at-syneos-health-commercial-solutions-4431169618"
+    },
+    {
+      "found_at": "2026-06-20T21:57:37.818807+00:00",
+      "key": "jsearch:MDSbWh3D_N3DXMh_AAAAAA==",
+      "title": "Apply Now: Disney Remote Jobs ($24/Hour) Â  DPS",
+      "company": "frontendnode-production.up.railway.app",
+      "tier": "WATCH - generic CAD",
+      "url": "https://frontendnode-production.up.railway.app/job/apply-now-disney-remote-jobs-24hour-dps-1"
+    },
+    {
+      "found_at": "2026-06-20T21:57:37.818807+00:00",
+      "key": "jsearch:mbH-823gebH8Hr5hAAAAAA==",
+      "title": "Senior Tech Business Dev Mgr, Amazon Anywhere",
+      "company": "careersprint",
+      "tier": "WATCH - generic CAD",
+      "url": "https://careersprint.7f.liveblog365.com/job/276885"
+    },
+    {
+      "found_at": "2026-06-20T21:57:37.818807+00:00",
+      "key": "jooble:-3267974522172656807",
+      "title": "Outside Sales Representative",
+      "company": "American Home Design",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/-3267974522172656807"
+    },
+    {
+      "found_at": "2026-06-20T21:57:37.818807+00:00",
+      "key": "jooble:-2881843752925884073",
+      "title": "In-Store Sales Representative",
+      "company": "American Home Design",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/-2881843752925884073"
+    },
+    {
+      "found_at": "2026-06-20T21:57:37.818807+00:00",
+      "key": "jooble:796589656358809867",
+      "title": "Life Insurance Solutions, Design and Consulting & Sales support (remote)",
+      "company": "National Financial Partners",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/796589656358809867"
+    },
+    {
+      "found_at": "2026-06-20T21:57:37.818807+00:00",
+      "key": "jooble:-2809054065378291810",
+      "title": "Structural Project Engineer (All Levels)",
+      "company": "Northern Impact",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/-2809054065378291810"
+    },
+    {
+      "found_at": "2026-06-20T21:57:37.818807+00:00",
+      "key": "jooble:8102844372059271454",
+      "title": "Project Manager",
+      "company": "Northern Impact",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/8102844372059271454"
+    },
+    {
+      "found_at": "2026-06-20T21:57:37.818807+00:00",
+      "key": "jooble:4549176732248032295",
+      "title": "Structural Project Manager (All Levels)",
+      "company": "Northern Impact",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/4549176732248032295"
+    },
+    {
+      "found_at": "2026-06-20T21:57:37.818807+00:00",
+      "key": "jooble:-187819137326647709",
+      "title": "Data Engineer",
+      "company": "Rysun Labs Inc",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/-187819137326647709"
+    },
+    {
+      "found_at": "2026-06-20T21:57:37.818807+00:00",
+      "key": "jooble:-4911411157079786756",
+      "title": "Technical Architect",
+      "company": "Rysun Labs Inc",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/-4911411157079786756"
+    },
+    {
+      "found_at": "2026-06-20T21:57:37.818807+00:00",
+      "key": "adzuna:5766911961",
+      "title": "Showroom Sales Manager",
+      "company": "City Plumbing",
+      "tier": "WATCH - generic CAD",
+      "url": "https://www.adzuna.co.uk/jobs/land/ad/5766911961?se=FmrOCPNs8RGJe8gKxAvXaw&utm_medium=api&utm_source=119695ba&v=B43A69BD1CC311A6928C615632B3553D23FF1396"
+    },
+    {
+      "found_at": "2026-06-20T21:57:37.818807+00:00",
+      "key": "adzuna:5766911438",
+      "title": "Showroom Sales Manager",
+      "company": "City Plumbing",
+      "tier": "WATCH - generic CAD",
+      "url": "https://www.adzuna.co.uk/jobs/land/ad/5766911438?se=FmrOCPNs8RGJe8gKxAvXaw&utm_medium=api&utm_source=119695ba&v=1CB887E0EA1163E5D0BAD4FC723914E9FE2F6C2D"
+    },
+    {
+      "found_at": "2026-06-20T21:57:37.818807+00:00",
+      "key": "jooble:5028832215188568060",
+      "title": "CAD Designer",
+      "company": "Contech Systems",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/5028832215188568060"
+    },
+    {
+      "found_at": "2026-06-20T21:57:37.818807+00:00",
+      "key": "jooble:4670102372397545063",
+      "title": "Cad/Cam Designer Experienced",
+      "company": "DCS Dental Lab",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/4670102372397545063"
+    },
+    {
+      "found_at": "2026-06-20T21:57:37.818807+00:00",
+      "key": "jooble:3241459521366692755",
+      "title": "Drafter / CAD Designer",
+      "company": "Lifewater Engineering Company",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/3241459521366692755"
     }
   ]
 }
