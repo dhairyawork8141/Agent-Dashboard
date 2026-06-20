@@ -27,10 +27,6 @@ SUPABASE_URL = os.getenv("SUPABASE_URL", "")
 SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_KEY", "")   # service_role key (server only)
 AGENT_ID = os.getenv("AGENT_ID", "")
 
-# --- Gemini enrichment credentials (the on/off toggle lives in settings) ---
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
-ENRICH_MODEL = os.getenv("ENRICH_MODEL", "gemini-2.0-flash")
-
 # --- Groq "brain": free LLM that judges each candidate lead for KBB/interior-design fit ---
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
@@ -60,7 +56,6 @@ DEFAULT_SETTINGS = {
     "jsearch_countries": [c.strip() for c in os.getenv("JSEARCH_COUNTRIES", "gb,us").split(",") if c.strip()],
     "jsearch_max_per_run": int(os.getenv("JSEARCH_MAX_PER_RUN", "2")),  # free BASIC safe: 2/run x3/day ~= 180/mo
     "max_days_old": int(os.getenv("MAX_DAYS_OLD", "3")),
-    "enrich_with_claude": _flag("ENRICH_WITH_CLAUDE"),
     "send_email": _flag("SEND_EMAIL"),
     # --- AI brain (Groq): final human-like judge of KBB/interior-design fit. Runs only on
     #     candidates that clear the keyword pre-filter, capped per run to respect free quota. ---

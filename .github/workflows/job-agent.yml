@@ -28,7 +28,6 @@ jobs:
           SUPABASE_URL:         ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
           AGENT_ID:             ${{ secrets.AGENT_ID }}
-          GEMINI_API_KEY:       ${{ secrets.GEMINI_API_KEY }}
           GROQ_API_KEY:         ${{ secrets.GROQ_API_KEY }}
           GROQ_API_KEY_2:       ${{ secrets.GROQ_API_KEY_2 }}
           GROQ_API_KEY_3:       ${{ secrets.GROQ_API_KEY_3 }}

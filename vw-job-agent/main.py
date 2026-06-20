@@ -12,7 +12,6 @@ import sources
 import store
 import scorer
 import brain
-import enrich
 import notify
 import hermes
 import supabase_io
@@ -70,8 +69,6 @@ def run() -> None:
         store.commit(scored)            # still remember them so they aren't re-checked
         return
 
-    if settings.get("enrich_with_claude"):
-        new = [enrich.enrich(j) for j in new]
     new.sort(key=lambda j: -j.get("score", 0))
 
     notify.notify(new, bool(settings.get("send_email")))
