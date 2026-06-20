@@ -136,6 +136,7 @@
     "jooble:-7572343325622969088",
     "jooble:-7636406145393359928",
     "jooble:-7902092451433650557",
+    "jooble:-7914943930625183830",
     "jooble:-7949806845461475743",
     "jooble:-7969275060865857443",
     "jooble:-8107874206396877798",
@@ -2476,6 +2477,14 @@
       "company": "Aegis Worldwide",
       "tier": "WATCH - generic CAD",
       "url": "https://jooble.org/jdp/8890869474542288211"
+    },
+    {
+      "found_at": "2026-06-20T21:11:34.054995+00:00",
+      "key": "jooble:-7914943930625183830",
+      "title": "Kitchen Designer - New York",
+      "company": "Riverhead Building Supply",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://jooble.org/jdp/-7914943930625183830"
     }
   ]
 }
