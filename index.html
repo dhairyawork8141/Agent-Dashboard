@@ -1098,9 +1098,11 @@ function ReportsView({ leads }) {
 function DatacenterView() {
   const [rows, setRows] = useState(null);   // source_performance rows (null = loading)
   const [hotToday, setHotToday] = useState(0);
+  const [detail, setDetail] = useState(null);   // individual lead_candidates rows
+  const [q, setQ] = useState("");
   const [err, setErr] = useState("");
   useEffect(() => {
-    if (!isLive) { setRows([]); return; }
+    if (!isLive) { setRows([]); setDetail([]); return; }
     (async () => {
       try {
         const sb = await getSB();
@@ -1108,9 +1110,14 @@ function DatacenterView() {
         if (a.error) throw a.error;
         const b = await sb.from("hot_today").select("*");
         if (b.error) throw b.error;
+        const c = await sb.from("lead_candidates")
+          .select("company,source,location,category,tier,score,decision,reject_reason,contact_found,outcome,discovered_at")
+          .order("discovered_at", { ascending: false }).limit(1000);
+        if (c.error) throw c.error;
         setRows(a.data || []);
         setHotToday((b.data && b.data[0] && b.data[0].hot_today) || 0);
-      } catch (e) { setErr(e.message || String(e)); setRows([]); }
+        setDetail(c.data || []);
+      } catch (e) { setErr(e.message || String(e)); setRows([]); setDetail([]); }
     })();
   }, []);
 
@@ -1119,6 +1126,11 @@ function DatacenterView() {
   const totalFound = all.reduce((s, r) => s + (r.discovered || 0), 0);
   const pct = Math.min(100, Math.round(hotToday / GOAL * 100));
   const bySource = [...all].sort((a, b) => (b.hot || 0) - (a.hot || 0) || (b.discovered || 0) - (a.discovered || 0));
+  const ql = q.trim().toLowerCase();
+  const dRows = (detail || []).filter(r => !ql ||
+    (r.company || "").toLowerCase().includes(ql) ||
+    (r.location || "").toLowerCase().includes(ql) ||
+    (r.source || "").toLowerCase().includes(ql));
 
   return (
     <div className="max-w-5xl mx-auto px-6 py-9">
@@ -1176,7 +1188,54 @@ function DatacenterView() {
           </div>
         )}
       </div>
-      <p className="text-xs text-muted mt-5">Every candidate Hermes evaluates — kept or rejected — is recorded here, so you can see which sources actually produce HOT leads.</p>
+      {/* Every candidate — full detail */}
+      <div className="rounded-2xl border border-line bg-paper overflow-hidden mt-4">
+        <div className="px-5 py-3 border-b border-line flex items-center justify-between gap-3">
+          <div className="text-sm font-semibold text-ink">Every candidate{detail ? " (" + dRows.length + ")" : ""}</div>
+          <input value={q} onChange={e => setQ(e.target.value)} placeholder="Search company / town / source…"
+            className="text-sm bg-paper border border-line rounded-lg px-3 py-1.5 w-64 max-w-[55%] text-ink placeholder:text-muted focus:outline-none focus:border-brass" />
+        </div>
+        {detail === null ? (
+          <div className="px-5 py-8 text-sm text-muted">Loading…</div>
+        ) : dRows.length === 0 ? (
+          <div className="px-5 py-8 text-sm text-muted">{ql ? "No matches." : "No candidates recorded yet — they appear here after the next agent run."}</div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-[11px] uppercase tracking-wide text-muted">
+                  <th className="text-left font-semibold px-5 py-2">Company</th>
+                  <th className="text-left font-semibold px-3 py-2">Source</th>
+                  <th className="text-left font-semibold px-3 py-2">Location</th>
+                  <th className="text-left font-semibold px-3 py-2">Category</th>
+                  <th className="text-left font-semibold px-3 py-2">Tier</th>
+                  <th className="text-right font-semibold px-3 py-2">Score</th>
+                  <th className="text-left font-semibold px-3 py-2">Decision</th>
+                  <th className="text-center font-semibold px-3 py-2">Contact</th>
+                  <th className="text-left font-semibold px-5 py-2">Found</th>
+                </tr>
+              </thead>
+              <tbody>
+                {dRows.map((r, i) => (
+                  <tr key={i} className="border-t border-line">
+                    <td className="text-left px-5 py-2.5 font-medium text-ink">{r.company || "—"}</td>
+                    <td className="text-left px-3 py-2.5 text-muted">{r.source}</td>
+                    <td className="text-left px-3 py-2.5 text-muted">{r.location || "—"}</td>
+                    <td className="text-left px-3 py-2.5 text-muted">{r.category || "—"}</td>
+                    <td className="text-left px-3 py-2.5">{r.tier ? <TierBadge tier={r.tier} /> : <span className="text-muted">—</span>}</td>
+                    <td className="text-right px-3 py-2.5 text-muted">{r.score ?? "—"}</td>
+                    <td className="text-left px-3 py-2.5"><span className={r.decision === "kept" ? "text-[#4f7d3a] font-medium" : "text-muted"} title={r.reject_reason || ""}>{r.decision || "—"}</span></td>
+                    <td className="text-center px-3 py-2.5 text-muted">{r.contact_found ? "✓" : "—"}</td>
+                    <td className="text-left px-5 py-2.5 text-muted whitespace-nowrap">{(r.discovered_at || "").slice(0, 10)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      <p className="text-xs text-muted mt-5">Every candidate Hermes evaluates — kept or rejected — is recorded here, so you can see which sources actually produce HOT leads. Hover a "rejected" to see why.</p>
     </div>
   );
 }
