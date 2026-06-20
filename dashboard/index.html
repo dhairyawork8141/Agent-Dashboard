@@ -1096,47 +1096,33 @@ function ReportsView({ leads }) {
 
 /* ----------------------------- Datacenter ------------------------------------- */
 function DatacenterView() {
-  const [rows, setRows] = useState(null);   // raw candidate rows (null = loading)
+  const [rows, setRows] = useState(null);   // source_performance rows (null = loading)
+  const [hotToday, setHotToday] = useState(0);
   const [err, setErr] = useState("");
   useEffect(() => {
     if (!isLive) { setRows([]); return; }
     (async () => {
       try {
         const sb = await getSB();
-        const { data, error } = await sb.from("lead_candidates")
-          .select("source,tier,decision,contact_found,outcome,discovered_at")
-          .order("discovered_at", { ascending: false }).limit(5000);
-        if (error) throw error;
-        setRows(data || []);
+        const a = await sb.from("source_performance").select("*");
+        if (a.error) throw a.error;
+        const b = await sb.from("hot_today").select("*");
+        if (b.error) throw b.error;
+        setRows(a.data || []);
+        setHotToday((b.data && b.data[0] && b.data[0].hot_today) || 0);
       } catch (e) { setErr(e.message || String(e)); setRows([]); }
     })();
   }, []);
 
   const GOAL = 10;
-  const isHot = (t) => (t || "").toUpperCase().startsWith("HOT");
-  const today = new Date().toISOString().slice(0, 10);
   const all = rows || [];
-  const hotToday = all.filter(r => isHot(r.tier) && (r.discovered_at || "").slice(0, 10) === today).length;
+  const totalFound = all.reduce((s, r) => s + (r.discovered || 0), 0);
   const pct = Math.min(100, Math.round(hotToday / GOAL * 100));
-
-  const bySource = useMemo(() => {
-    const m = {};
-    all.forEach(r => {
-      const k = r.source || "unknown";
-      const s = m[k] || (m[k] = { source: k, discovered: 0, kept: 0, hot: 0, contacted: 0, sent: 0, replied: 0 });
-      s.discovered++;
-      if (r.decision === "kept") s.kept++;
-      if (isHot(r.tier)) s.hot++;
-      if (r.contact_found) s.contacted++;
-      if (r.outcome === "sent") s.sent++;
-      if (r.outcome === "replied") s.replied++;
-    });
-    return Object.values(m).sort((a, b) => b.hot - a.hot || b.discovered - a.discovered);
-  }, [rows]);
+  const bySource = [...all].sort((a, b) => (b.hot || 0) - (a.hot || 0) || (b.discovered || 0) - (a.discovered || 0));
 
   return (
     <div className="max-w-5xl mx-auto px-6 py-9">
-      <SectionHeader icon="fa-database" eyebrow="Shared memory — every candidate, every source" title="Datacenter" count={all.length} />
+      <SectionHeader icon="fa-database" eyebrow="Shared memory — every candidate, every source" title="Datacenter" count={totalFound} />
 
       <div className="rounded-2xl border border-line bg-paper p-5 mb-4">
         <div className="flex items-end justify-between mb-2">
