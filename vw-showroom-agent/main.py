@@ -18,6 +18,7 @@ import osm_source
 import store
 import brain
 import hotness
+import hermes
 import supabase_io
 
 logging.basicConfig(level=logging.INFO,
@@ -36,6 +37,11 @@ def run() -> None:
     settings = supabase_io.load_settings()
     if settings is None:                       # paused in the dashboard
         return
+
+    # Hermes plans this run from shared memory (datacenter): pushes work caps up when behind
+    # the daily HOT goal, baseline when on track.
+    settings, plan_note = hermes.plan("showroom", settings)
+    log.info("Hermes: %s", plan_note)
 
     # Capture the FULL KBB directory (all dates) — established (WATCH) ones are kept as
     # data but don't count as "leads" (the dashboard's Total leads = HOT+WARM only).

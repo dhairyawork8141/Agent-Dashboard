@@ -25,7 +25,8 @@ def score_hotness(lead: dict, verdict: dict | None, settings: dict) -> int:
     if v.get("fit") is False:
         return 0
     fit_score = int(v.get("score") or lead.get("score") or 0)
-    h = int(fit_score * 0.6)                                  # up to 60 from fit quality
+    weight = float(settings.get("hot_fit_weight", 0.7))
+    h = int(fit_score * weight)                              # up to ~70 from fit quality
     h += _recency_bonus(lead, settings)                      # up to 30 for newness
     cat = (v.get("category") or lead.get("category") or "other")
     if cat not in ("other", ""):

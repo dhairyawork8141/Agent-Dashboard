@@ -66,6 +66,8 @@ DEFAULT_SETTINGS = {
     #     candidates that clear the keyword pre-filter, capped per run to respect free quota. ---
     "use_brain": _flag("USE_BRAIN", "true"),
     "brain_max_per_run": int(os.getenv("BRAIN_MAX_PER_RUN", "30")),
+    # Hermes goal: how many HOT leads/day the planner steers toward.
+    "daily_hot_goal": int(os.getenv("DAILY_HOT_GOAL", "10")),
     # --- Quality gate: only leads scoring >= min_score are saved/emailed. Postings
     #     containing any exclude_term are disqualified outright. Tune from the dashboard.
     #     ~70 = HOT/WARM only, ~50 = + strong WATCH (balanced), ~30 = keep most CAD/KBB.

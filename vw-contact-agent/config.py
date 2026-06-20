@@ -55,6 +55,8 @@ DEFAULT_SETTINGS = {
     # Minimum confidence (0-100) to keep a web-scraped email. Below this we save no email
     # rather than risk a wrong one (cold outreach: a bad address burns the lead + domain).
     "min_contact_confidence": int(os.getenv("MIN_CONTACT_CONFIDENCE", "50")),
+    # Hermes goal: how many HOT leads/day the planner steers toward.
+    "daily_hot_goal": int(os.getenv("DAILY_HOT_GOAL", "10")),
     "tiers": _list("TIERS", "HOT - Virtual Worlds,WARM - Winner/Cyncly"),
     "skip_recruiters": _flag("SKIP_RECRUITERS", "true"),
     "reveal_phone": _flag("REVEAL_PHONE", "false"),

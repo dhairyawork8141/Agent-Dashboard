@@ -15,6 +15,7 @@ from datetime import datetime, timezone
 import config
 import apollo
 import draft
+import hermes
 import supabase_io
 import web_search_enrich
 
@@ -68,6 +69,11 @@ def run() -> None:
     settings = supabase_io.load_settings()
     if settings is None:                       # paused in the dashboard
         return
+
+    # Hermes plans this run from shared memory (datacenter): tunes how many leads to work
+    # toward the daily HOT goal.
+    settings, plan_note = hermes.plan("contact", settings)
+    log.info("Hermes: %s", plan_note)
 
     tiers = set(settings.get("tiers") or [])
     cap = int(settings.get("max_per_run", 10))

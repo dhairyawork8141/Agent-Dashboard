@@ -37,7 +37,12 @@ DEFAULT_SETTINGS = {
     "incorporated_within_days": int(os.getenv("INCORPORATED_WITHIN_DAYS", "45")),
     "company_status": os.getenv("COMPANY_STATUS", "active"),
     "max_per_run": int(os.getenv("MAX_PER_RUN", "25")),       # cap brain calls / writes per run
+    # Bulk judging uses the 8B model (huge daily budget); 70B is reserved for the lower-volume
+    # job agent. Avoids the per-minute rate-limiting seen judging 150 shops/run on 70B.
+    "brain_model": os.getenv("SHOWROOM_BRAIN_MODEL", "llama-3.1-8b-instant"),
     "use_brain": _flag("USE_BRAIN", "true"),
+    # Hermes goal: how many HOT leads/day the planner steers toward.
+    "daily_hot_goal": int(os.getenv("DAILY_HOT_GOAL", "10")),
     "min_score": int(os.getenv("MIN_SCORE", "50")),
     # Recency feeds the Smart HOT score (newness is a strong signal but no longer the ONLY one).
     "hot_max_months": int(os.getenv("HOT_MAX_MONTHS", "6")),

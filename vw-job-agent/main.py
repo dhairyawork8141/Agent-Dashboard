@@ -14,6 +14,7 @@ import scorer
 import brain
 import enrich
 import notify
+import hermes
 import supabase_io
 from settings_loader import load_settings
 
@@ -26,6 +27,10 @@ def run() -> None:
     settings = load_settings()
     if settings is None:                     # paused in the dashboard
         return
+
+    # Hermes plans this run from shared memory (datacenter): tunes work caps toward the HOT goal.
+    settings, plan_note = hermes.plan("job", settings)
+    log.info("Hermes: %s", plan_note)
 
     found = sources.fetch_all(settings)
     new = store.filter_new(found)
