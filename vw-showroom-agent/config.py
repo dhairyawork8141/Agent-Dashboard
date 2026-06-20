@@ -39,9 +39,18 @@ DEFAULT_SETTINGS = {
     "max_per_run": int(os.getenv("MAX_PER_RUN", "25")),       # cap brain calls / writes per run
     "use_brain": _flag("USE_BRAIN", "true"),
     "min_score": int(os.getenv("MIN_SCORE", "50")),
-    # Recency drives the tier: <= hot_max_months = HOT, <= warm_max_months = WARM, else WATCH.
+    # Recency feeds the Smart HOT score (newness is a strong signal but no longer the ONLY one).
     "hot_max_months": int(os.getenv("HOT_MAX_MONTHS", "6")),
     "warm_max_months": int(os.getenv("WARM_MAX_MONTHS", "12")),
+    # Smart HOT thresholds: a lead's 0-100 hotness (fit + recency + category + reachability)
+    # >= hot_threshold => HOT, >= warm_threshold => WARM, else WATCH. Lets any source go HOT.
+    "hot_threshold": int(os.getenv("HOT_THRESHOLD", "70")),
+    "warm_threshold": int(os.getenv("WARM_THRESHOLD", "45")),
     # Optional SIC-code filter (KBB-relevant). Empty = name-keyword search only.
     "sic_codes": _list("SIC_CODES", ""),
+    # --- OpenStreetMap source (free, no key, UK-only existing KBB/interior shops) ---
+    "use_osm": _flag("USE_OSM", "true"),
+    "osm_shop_tags": _list("OSM_SHOP_TAGS",
+        "kitchen,bathroom_furnishing,interior_decoration,bed,tiles"),
+    "osm_max": int(os.getenv("OSM_MAX", "2000")),    # safety bound on the country-wide query
 }

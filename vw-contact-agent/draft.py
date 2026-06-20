@@ -14,13 +14,12 @@ import json
 import logging
 import os
 
-import requests
 import config
+import groq_pool
 
 log = logging.getLogger("draft")
 _DIR = os.path.join(os.path.dirname(__file__), "templates")
 _CACHE = {}
-_ENDPOINT = "https://api.groq.com/openai/v1/chat/completions"
 
 _PERSONALISE_SYSTEM = """You personalise a fixed B2B outreach email for CAD Illustrators.
 You are given a ready template (the business name is already filled in) plus a few facts
@@ -92,7 +91,7 @@ def _keeps_offer(body: str, base_body: str) -> bool:
 
 
 def _personalise(subject: str, body: str, merged: dict, settings: dict) -> tuple | None:
-    if not config.GROQ_API_KEY:
+    if not groq_pool.available():
         return None
     model = (settings or {}).get("draft_model") or config.DRAFT_MODEL
     facts = (f"Business: {merged.get('showroom_name') or merged.get('company') or '?'}\n"
@@ -101,18 +100,15 @@ def _personalise(subject: str, body: str, merged: dict, settings: dict) -> tuple
              f"Registered: {merged.get('registered_at') or 'n/a'}\n"
              f"Contact: {merged.get('contact_name') or 'unknown'}")
     user = f"{facts}\n\nTEMPLATE SUBJECT: {subject}\nTEMPLATE BODY:\n{body}"
+    content = groq_pool.chat(
+        [{"role": "system", "content": _PERSONALISE_SYSTEM}, {"role": "user", "content": user}],
+        model=model, role="draft", temperature=0.5)
+    if not content:
+        return None
     try:
-        r = requests.post(_ENDPOINT, timeout=30,
-            headers={"Authorization": f"Bearer {config.GROQ_API_KEY}",
-                     "Content-Type": "application/json"},
-            json={"model": model, "temperature": 0.5,
-                  "response_format": {"type": "json_object"},
-                  "messages": [{"role": "system", "content": _PERSONALISE_SYSTEM},
-                               {"role": "user", "content": user}]})
-        r.raise_for_status()
-        out = json.loads(r.json()["choices"][0]["message"]["content"])
+        out = json.loads(content)
     except Exception as e:
-        log.warning("Personalise failed (%s) - using plain template.", e)
+        log.warning("Personalise bad JSON (%s) - using plain template.", e)
         return None
     s2 = (out.get("subject") or "").strip()
     b2 = (out.get("body") or "").strip()

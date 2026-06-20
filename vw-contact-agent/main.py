@@ -26,6 +26,18 @@ log = logging.getLogger("main")
 _LEGAL_SUFFIXES = (" limited", " ltd", " ltd.", " llp", " plc", " (uk)", " uk ltd")
 
 
+def _pfx(tier: str) -> str:
+    """The HOT/WARM/WATCH prefix of a tier label, e.g. 'HOT - New showroom' -> 'HOT'.
+    Gates compare by prefix so a HOT lead from ANY source (Companies House, OSM, ...)
+    is treated the same — the source-specific suffix no longer matters."""
+    return (tier or "").split(" ")[0].strip().upper()
+
+
+def _tier_match(tier: str, configured: set) -> bool:
+    """True if the lead's tier prefix matches any configured tier (also by prefix)."""
+    return _pfx(tier) in {_pfx(t) for t in configured}
+
+
 def _clean_company(name: str) -> str:
     """Apollo matches plain trading names better than legal names — drop the suffix."""
     out = name.strip()
@@ -65,7 +77,7 @@ def run() -> None:
     # Filter in Python: only target tiers, drop recruiters, then cap.
     queue = []
     for lead in candidates:
-        if tiers and lead.get("tier") not in tiers:
+        if tiers and not _tier_match(lead.get("tier"), tiers):
             continue
         if skip_recruiters and lead.get("is_recruiter"):
             continue
@@ -84,14 +96,14 @@ def run() -> None:
 
         # --- Stage 1: FREE web-scrape enrichment first (website, socials, maybe email) ---
         # Every lead gets this — it costs nothing.
-        contact = web_search_enrich.enrich_from_web(name, lead.get("location")) or {}
+        contact = web_search_enrich.enrich_from_web(name, lead.get("location"), settings) or {}
         source_label = "Web search" if contact.get("contact_email") else None
 
         # --- Stage 2: Apollo ONLY for high-value leads (conserves paid credits) ---
         # Apollo runs just for tiers listed in `apollo_tiers` (default: HOT only); its
         # verified decision-maker takes priority over any generic web-scraped email.
         apollo_tiers = set(settings.get("apollo_tiers") or [])
-        if has_apollo and lead.get("tier") in apollo_tiers:
+        if has_apollo and _tier_match(lead.get("tier"), apollo_tiers):
             org_id, domain = apollo.find_org(name)
             person = apollo.find_person(org_id, domain, settings["titles"],
                                         settings["locations"]) if org_id else None
@@ -128,7 +140,7 @@ def run() -> None:
         # default HOT) and only if we have an address to send to.
         draft_tiers = set(settings.get("draft_tiers") or [])
         if (email and settings.get("draft_emails") and draft.available()
-                and (not draft_tiers or lead.get("tier") in draft_tiers)):
+                and (not draft_tiers or _tier_match(lead.get("tier"), draft_tiers))):
             d = draft.draft_email(lead, contact, settings)
             if d:
                 contact.update({
@@ -157,7 +169,7 @@ def run() -> None:
         contact = {k: lead.get(k) for k in ("contact_name", "contact_title",
                    "contact_email", "contact_phone", "contact_linkedin") if lead.get(k)}
         if not contact.get("contact_email") and name:
-            web = web_search_enrich.enrich_from_web(name, lead.get("location"))
+            web = web_search_enrich.enrich_from_web(name, lead.get("location"), settings)
             for k, v in (web or {}).items():
                 if v and not contact.get(k):
                     contact[k] = v

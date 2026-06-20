@@ -84,6 +84,41 @@ def upsert_leads(agent_id: str, leads: list[dict]) -> None:
         log.warning("upsert_leads failed: %s", e)
 
 
+def record_candidates(rows: list[dict]) -> None:
+    """THE DATACENTER (v8): record EVERY evaluated candidate — kept or rejected — into
+    lead_candidates, so Hermes can measure which source/strategy produces HOT leads.
+    Upserts on (source, external_key); the full original payload is kept in `raw`."""
+    payload = []
+    for r in rows:
+        if not r.get("key"):
+            continue
+        payload.append({
+            "source": r.get("source"),
+            "external_key": r.get("key"),
+            "company": r.get("company"),
+            "location": r.get("location"),
+            "stage": r.get("_stage", "judged"),
+            "decision": r.get("_decision"),
+            "reject_reason": r.get("_reject_reason"),
+            "fit": r.get("_fit"),
+            "category": r.get("category"),
+            "tier": r.get("tier"),
+            "score": r.get("score"),
+            "raw": {k: v for k, v in r.items() if not k.startswith("_")},
+        })
+    if not payload:
+        return
+    try:
+        r = requests.post(f"{_base()}/lead_candidates",
+                          headers=_headers({"Prefer": "resolution=merge-duplicates,return=minimal"}),
+                          params={"on_conflict": "source,external_key"},
+                          json=payload, timeout=TIMEOUT)
+        r.raise_for_status()
+        log.info("Datacenter: recorded %d candidate(s)", len(payload))
+    except Exception as e:
+        log.warning("record_candidates failed: %s", e)
+
+
 def finish_run(status: str, count: int) -> None:
     now = datetime.now(timezone.utc).isoformat()
     try:

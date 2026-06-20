@@ -18,6 +18,18 @@ from urllib.parse import urljoin, urlparse
 
 import requests
 
+try:                                    # optional: MX (mail-server) validation
+    import dns.resolver as _dnsresolver
+    _DNS_OK = True
+except Exception:                       # dnspython not installed -> skip MX checks, fail-soft
+    _dnsresolver = None
+    _DNS_OK = False
+
+try:                                    # optional: AI decision-maker extraction (Phase 2)
+    import contact_brain
+except Exception:
+    contact_brain = None
+
 log = logging.getLogger("web_enrich")
 TIMEOUT = 10
 _SERPER_URL = "https://google.serper.dev/search"
@@ -417,9 +429,79 @@ def _guess_name_from_email(addr: str) -> str | None:
 
 
 # ---------------------------------------------------------------------------
+#  Accuracy: site verification, MX validation, confidence
+# ---------------------------------------------------------------------------
+_TITLE_TAG_RE = re.compile(r"<title[^>]*>(.*?)</title>", re.I | re.S)
+
+
+def _site_is_company(text: str, html: str, name: str) -> bool:
+    """Confirm a fetched site actually belongs to THIS company before we trust any
+    email off it. Domain-guessing happily returns a *different* business that owns the
+    slug; this checks the company-name tokens really appear in the page <title>/body.
+    Lenient enough for brand vs legal-name drift, strict enough to reject wrong sites."""
+    toks = _company_tokens(name)
+    body = (text or "").lower()
+    m = _TITLE_TAG_RE.search(html or "")
+    title = m.group(1).lower() if m else ""
+    if toks:
+        if any(t in title for t in toks):                 # name in the title = strong signal
+            return True
+        return sum(1 for t in toks if t in body) >= max(1, len(toks) // 2)
+    slug = re.sub(r"[^a-z0-9]", "", (name or "").lower())  # no distinctive words -> full slug
+    return bool(slug) and slug in re.sub(r"[^a-z0-9]", "", title + " " + body)
+
+
+def _has_mx(domain_or_email: str):
+    """True/False if the domain has/lacks a mail server; None if unknown (no dnspython
+    or a transient lookup error - we don't punish a good lead for flaky DNS)."""
+    d = (domain_or_email or "").split("@")[-1].strip().lower().rstrip(".")
+    if not d or not _DNS_OK:
+        return None
+    try:
+        return len(_dnsresolver.resolve(d, "MX", lifetime=6)) > 0
+    except (_dnsresolver.NXDOMAIN, _dnsresolver.NoAnswer):
+        return False
+    except Exception:
+        return None
+
+
+def _discover_domain(name: str, location: str | None) -> str | None:
+    """Find the company's real website. Search-first via Serper (returns the *actual*
+    site, not a name-slug guess), falling back to slug-guessing only if no Serper key."""
+    if _SERPER_KEY:
+        loc = location or ""
+        for r in _serper_search(f"{name} {loc} kitchen bathroom showroom"):
+            host = urlparse(r.get("link") or "").netloc.lower().replace("www.", "")
+            if host and not _is_junk_domain(host) and _domain_matches_company(host, name):
+                return host
+    candidates = _guess_domains(name)
+    return _find_working_domain(candidates) if candidates else None
+
+
+def _confidence(result: dict, name: str, verified: bool, mx) -> int:
+    """0-100 score for how much we trust the found email. Used to gate weak contacts."""
+    email = result.get("contact_email")
+    if not email:
+        return 0
+    score = 20
+    if verified:
+        score += 40                                       # site confirmed to be this company
+    if _domain_matches_company(email, name):
+        score += 25
+    if email.split("@")[0] not in _GENERIC_EMAIL_PREFIXES:
+        score += 15                                       # a personal address, not info@
+    if mx is True:
+        score += 15
+    elif mx is False:
+        score = 0                                         # dead mailbox domain
+    return min(score, 100)
+
+
+# ---------------------------------------------------------------------------
 #  Public API
 # ---------------------------------------------------------------------------
-def enrich_from_web(company_name: str, location: str | None) -> dict | None:
+def enrich_from_web(company_name: str, location: str | None,
+                    settings: dict | None = None) -> dict | None:
     """Find contact details, website, and social media for a company.
 
     Returns a dict with keys matching the Supabase ``leads`` columns::
@@ -433,41 +515,51 @@ def enrich_from_web(company_name: str, location: str | None) -> dict | None:
     or ``None`` if nothing useful was found.
     """
     name = _clean_name(company_name)
+    min_conf = int((settings or {}).get("min_contact_confidence", 50))
     result: dict = {}
+    verified = False
 
-    # --- Stage A: guess domain + scrape website ---
-    candidates = _guess_domains(name)
-    domain = _find_working_domain(candidates) if candidates else None
-
+    # --- Stage A: discover the REAL website (search-first), verify it's this company,
+    #     then scrape it. Unverified sites are dropped - this is the wrong-email fix. ---
+    domain = _discover_domain(name, location)
     if domain:
-        log.info("Found website for '%s': %s", name, domain)
-        result["website"] = _extract_website(domain)
-        result["_domain"] = domain  # internal, stripped before return
-
         scraped = _scrape_site(domain)
-        text = scraped["text"]
-        html = scraped["html"]
+        text, html = scraped["text"], scraped["html"]
+        if _site_is_company(text, html, name):
+            verified = True
+            log.info("Verified website for '%s': %s", name, domain)
+            result["website"] = _extract_website(domain)
+            result["_domain"] = domain  # internal, stripped before return
 
-        # Extract emails (only from own domain preferred).
-        emails = _extract_emails_from_text(text, domain)
-        if emails:
-            result["contact_email"] = emails[0]
+            emails = _extract_emails_from_text(text, domain)
+            if emails:
+                result["contact_email"] = emails[0]
+            phones = _extract_phones(text)
+            if phones:
+                result["contact_phone"] = phones[0]
+            result.update(_extract_socials(html))
+            title_match = _TITLE_RE.search(text)
+            if title_match:
+                result["contact_title"] = title_match.group(0).strip().title()
 
-        # Extract phones.
-        phones = _extract_phones(text)
-        if phones:
-            result["contact_phone"] = phones[0]
-
-        # Extract social media links.
-        socials = _extract_socials(html)
-        result.update(socials)
-
-        # Try to find a title in the text.
-        title_match = _TITLE_RE.search(text)
-        if title_match:
-            result["contact_title"] = title_match.group(0).strip().title()
+            # Phase 2: let the 8B brain pick the best decision-maker from the page,
+            # overriding the regex first-match. Anti-hallucination: only accept an email
+            # that literally appears in the scraped text and isn't a junk domain.
+            if contact_brain and contact_brain.available():
+                ai = contact_brain.extract_contact(name, text, domain, settings)
+                if ai and ai.get("is_company") and ai.get("email"):
+                    ae = ai["email"]
+                    if ae in text.lower() and not _is_junk_domain(ae.split("@")[-1]):
+                        result["contact_email"] = ae
+                        if ai.get("name"):
+                            result["contact_name"] = ai["name"]
+                        if ai.get("title"):
+                            result["contact_title"] = ai["title"]
+        else:
+            log.info("Site %s does not look like '%s' - rejecting (wrong company).",
+                     domain, name)
     else:
-        log.debug("Could not guess a working domain for '%s'.", name)
+        log.debug("Could not find a working domain for '%s'.", name)
 
     # --- Stage B: Google search (optional, if Serper key is set) ---
     result = _enrich_from_serper(name, location, result)
@@ -483,6 +575,25 @@ def enrich_from_web(company_name: str, location: str | None) -> dict | None:
     if result.get("contact_email") and not _domain_matches_company(result["contact_email"], name):
         for key in ("contact_email", "contact_name", "contact_title"):
             result.pop(key, None)
+
+    # --- MX validation: drop an email whose domain has no mail server (dead/typo'd) ---
+    mx = None
+    if result.get("contact_email"):
+        mx = _has_mx(result["contact_email"])
+        if mx is False:
+            log.info("Dropping %s for '%s' - domain has no mail server.",
+                     result["contact_email"], name)
+            for key in ("contact_email", "contact_name", "contact_title"):
+                result.pop(key, None)
+
+    # --- Confidence gate: better no email than a wrong one (cold outreach) ---
+    if result.get("contact_email"):
+        conf = _confidence(result, name, verified, mx)
+        if conf < min_conf:
+            log.info("Dropping low-confidence email %s for '%s' (%d < %d).",
+                     result["contact_email"], name, conf, min_conf)
+            for key in ("contact_email", "contact_name", "contact_title"):
+                result.pop(key, None)
 
     # --- Post-processing: guess names (only from a kept, matching email/profile) ---
     if not result.get("contact_name"):

@@ -52,6 +52,9 @@ SEND_MIN_GAP_SECONDS = int(os.getenv("SEND_MIN_GAP_SECONDS", "45"))   # min gap 
 #     copy of this shape stored in the agents table. ---
 DEFAULT_SETTINGS = {
     "max_per_run": int(os.getenv("MAX_PER_RUN", "10")),
+    # Minimum confidence (0-100) to keep a web-scraped email. Below this we save no email
+    # rather than risk a wrong one (cold outreach: a bad address burns the lead + domain).
+    "min_contact_confidence": int(os.getenv("MIN_CONTACT_CONFIDENCE", "50")),
     "tiers": _list("TIERS", "HOT - Virtual Worlds,WARM - Winner/Cyncly"),
     "skip_recruiters": _flag("SKIP_RECRUITERS", "true"),
     "reveal_phone": _flag("REVEAL_PHONE", "false"),
