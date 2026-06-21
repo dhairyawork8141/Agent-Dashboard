@@ -84,6 +84,20 @@ def upsert_leads(agent_id: str, leads: list[dict]) -> None:
         log.warning("upsert_leads failed: %s", e)
 
 
+def recent_rejections(limit: int = 25) -> list[dict]:
+    """Leads the user REJECTED in the dashboard (with reasons), newest first — fed to the
+    brain so it learns to score similar businesses as a worse fit."""
+    try:
+        r = requests.get(f"{_base()}/lead_candidates", headers=_headers(), params={
+            "select": "company,reject_reason", "outcome": "eq.user_rejected",
+            "reject_reason": "not.is.null", "order": "updated_at.desc", "limit": str(limit)}, timeout=TIMEOUT)
+        r.raise_for_status()
+        return r.json()
+    except Exception as e:
+        log.warning("recent_rejections failed: %s", e)
+        return []
+
+
 def record_candidates(rows: list[dict]) -> None:
     """THE DATACENTER (v8): record EVERY evaluated candidate — kept or rejected — into
     lead_candidates, so Hermes can measure which source/strategy produces HOT leads.

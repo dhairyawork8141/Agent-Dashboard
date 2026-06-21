@@ -76,6 +76,16 @@ def available() -> bool:
     return groq_pool.available()
 
 
+def _feedback_text(settings: dict | None) -> str:
+    """Turn the user's recent rejections into a learning instruction for the brain."""
+    fb = (settings or {}).get("rejection_feedback") or []
+    if not fb:
+        return ""
+    lines = "\n".join(f"- {r.get('company', '?')}: {r.get('reject_reason', '')}" for r in fb[:25])
+    return ("\n\nLEARN FROM THE USER: they recently REJECTED these leads. Judge businesses "
+            "similar to these as a WORSE fit (lower score; fit=false if clearly the same kind):\n" + lines)
+
+
 def classify(lead: dict, settings: dict | None = None) -> dict | None:
     if not available():
         return None
@@ -92,7 +102,8 @@ def classify(lead: dict, settings: dict | None = None) -> dict | None:
             f"{recency}\n"
             f"Details: {lead.get('description','')}")
     content = groq_pool.chat(
-        [{"role": "system", "content": _SYSTEM}, {"role": "user", "content": user}],
+        [{"role": "system", "content": _SYSTEM + _feedback_text(settings)},
+         {"role": "user", "content": user}],
         model=model, role="judge", temperature=0)
     if not content:
         log.warning("Brain unavailable/exhausted for %r", lead.get("company"))

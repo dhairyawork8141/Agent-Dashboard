@@ -42,6 +42,10 @@ def run() -> None:
     # the daily HOT goal, baseline when on track.
     settings, plan_note = hermes.plan("showroom", settings)
     log.info("Hermes: %s", plan_note)
+    # Learning loop: feed the user's recent rejections to the brain so it avoids similar leads.
+    settings["rejection_feedback"] = supabase_io.recent_rejections()
+    if settings["rejection_feedback"]:
+        log.info("Learning from %d recent user rejection(s).", len(settings["rejection_feedback"]))
 
     # Capture the FULL KBB directory (all dates) — established (WATCH) ones are kept as
     # data but don't count as "leads" (the dashboard's Total leads = HOT+WARM only).

@@ -30,6 +30,10 @@ def run() -> None:
     # Hermes plans this run from shared memory (datacenter): tunes work caps toward the HOT goal.
     settings, plan_note = hermes.plan("job", settings)
     log.info("Hermes: %s", plan_note)
+    # Learning loop: feed the user's recent rejections to the brain so it avoids similar leads.
+    settings["rejection_feedback"] = supabase_io.recent_rejections()
+    if settings["rejection_feedback"]:
+        log.info("Learning from %d recent user rejection(s).", len(settings["rejection_feedback"]))
 
     found = sources.fetch_all(settings)
     new = store.filter_new(found)

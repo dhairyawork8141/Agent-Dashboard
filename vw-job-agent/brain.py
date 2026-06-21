@@ -43,6 +43,16 @@ def available() -> bool:
     return groq_pool.available()
 
 
+def _feedback_text(settings: dict | None) -> str:
+    """Turn the user's recent rejections into a learning instruction for the brain."""
+    fb = (settings or {}).get("rejection_feedback") or []
+    if not fb:
+        return ""
+    lines = "\n".join(f"- {r.get('company', '?')}: {r.get('reject_reason', '')}" for r in fb[:25])
+    return ("\n\nLEARN FROM THE USER: they recently REJECTED these leads. Treat similar "
+            "postings as a WORSE fit (lower score; fit=false if clearly the same kind):\n" + lines)
+
+
 def _user_prompt(job: dict) -> str:
     desc = (job.get("description") or "")[:1500]
     return (f"Title: {job.get('title','')}\n"
@@ -57,7 +67,7 @@ def classify(job: dict, settings: dict | None = None) -> dict | None:
         return None
     model = (settings or {}).get("brain_model") or config.GROQ_MODEL
     content = groq_pool.chat(
-        [{"role": "system", "content": _SYSTEM},
+        [{"role": "system", "content": _SYSTEM + _feedback_text(settings)},
          {"role": "user", "content": _user_prompt(job)}],
         model=model, role="judge", temperature=0)
     if not content:
