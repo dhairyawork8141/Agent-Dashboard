@@ -90,7 +90,7 @@
 <div id="root"></div>
 
 <script type="text/babel" data-presets="react">
-const { useState, useEffect, useMemo } = React;
+const { useState, useEffect, useMemo, useRef } = React;
 
 /* ----------------------------- Supabase (lazy, live mode only) ---------------- */
 const isLive = !!(CONFIG.url && CONFIG.anon);
@@ -1245,6 +1245,89 @@ function DatacenterView() {
   );
 }
 
+/* ----------------------------- Hermes chat assistant -------------------------- */
+function HermesChat() {
+  const [open, setOpen] = useState(false);
+  const [msgs, setMsgs] = useState([{ role: "assistant", content: "Hi, I'm Hermes 🪽 — ask me about your leads or the datacenter, or tell me to run an agent (e.g. \"run the showroom finder\")." }]);
+  const [input, setInput] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [voice, setVoice] = useState(false);
+  const boxRef = useRef(null);
+
+  useEffect(() => { if (boxRef.current) boxRef.current.scrollTop = boxRef.current.scrollHeight; }, [msgs, open, busy]);
+
+  const speak = (text) => {
+    try { if (voice && window.speechSynthesis) { const u = new SpeechSynthesisUtterance(text); u.rate = 1.05; window.speechSynthesis.speak(u); } } catch (_) {}
+  };
+
+  const send = async (text) => {
+    const content = (text != null ? text : input).trim();
+    if (!content || busy) return;
+    setInput("");
+    const next = [...msgs, { role: "user", content }];
+    setMsgs(next);
+    setBusy(true);
+    try {
+      const sb = await getSB();
+      const { data } = await sb.auth.getSession();
+      const token = data.session && data.session.access_token;
+      const apiMsgs = next.filter(m => m.role !== "system").map(m => ({ role: m.role, content: m.content })).slice(-12);
+      const r = await fetch("/api/hermes", { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: apiMsgs, access_token: token }) });
+      const j = await r.json();
+      const reply = j.reply || j.error || "Sorry, something went wrong.";
+      setMsgs(m => [...m, { role: "assistant", content: reply }]);
+      speak(reply);
+    } catch (e) {
+      setMsgs(m => [...m, { role: "assistant", content: "Couldn't reach Hermes — is the backend deployed and the secrets set?" }]);
+    } finally { setBusy(false); }
+  };
+
+  const listen = () => {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) { alert("Voice input needs Chrome or Edge."); return; }
+    const rec = new SR(); rec.lang = "en-GB"; rec.interimResults = false;
+    rec.onresult = (e) => { const t = e.results[0][0].transcript; send(t); };
+    rec.start();
+  };
+
+  if (!isLive) return null;
+
+  return (
+    <div className="fixed bottom-5 right-5 z-50 flex flex-col items-end">
+      {open && (
+        <div className="mb-3 w-[min(92vw,380px)] h-[min(70vh,520px)] rounded-2xl border border-line bg-bone shadow-2xl flex flex-col overflow-hidden">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-line bg-paper">
+            <div className="flex items-center gap-2"><span className="text-brass text-lg">🪽</span><span className="font-serif text-lg text-ink">Hermes</span></div>
+            <div className="flex items-center gap-3">
+              <button onClick={() => setVoice(v => !v)} title="Read replies aloud" className={"text-sm " + (voice ? "text-brass" : "text-muted hover:text-ink")}><i className="fa-solid fa-volume-high"></i></button>
+              <button onClick={() => setOpen(false)} className="text-muted hover:text-ink"><i className="fa-solid fa-xmark"></i></button>
+            </div>
+          </div>
+          <div ref={boxRef} className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
+            {msgs.map((m, i) => (
+              <div key={i} className={"flex " + (m.role === "user" ? "justify-end" : "justify-start")}>
+                <div className={"max-w-[85%] rounded-2xl px-3.5 py-2 text-sm whitespace-pre-wrap " + (m.role === "user" ? "bg-ink text-bone" : "bg-paper border border-line text-ink")}>{m.content}</div>
+              </div>
+            ))}
+            {busy && <div className="text-xs text-muted">Hermes is thinking…</div>}
+          </div>
+          <div className="border-t border-line p-2.5 flex items-center gap-2 bg-paper">
+            <button onClick={listen} title="Speak to Hermes" className="text-muted hover:text-brass px-1"><i className="fa-solid fa-microphone"></i></button>
+            <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => { if (e.key === "Enter") send(); }}
+              placeholder="Ask Hermes…" className="flex-1 bg-bone border border-line rounded-xl px-3 py-2 text-sm text-ink placeholder:text-muted focus:outline-none focus:border-brass" />
+            <button onClick={() => send()} disabled={busy} className="rounded-xl bg-ink text-bone px-3 py-2 text-sm disabled:opacity-50"><i className="fa-solid fa-paper-plane"></i></button>
+          </div>
+        </div>
+      )}
+      <button onClick={() => setOpen(o => !o)} title="Ask Hermes"
+        className="w-14 h-14 rounded-full bg-ink text-bone shadow-xl flex items-center justify-center text-2xl hover:scale-105 transition-transform">
+        <span>{open ? "✕" : "🪽"}</span>
+      </button>
+    </div>
+  );
+}
+
 /* ----------------------------- App -------------------------------------------- */
 function App() {
   const [session, setSession] = useState(null);
@@ -1387,6 +1470,8 @@ function App() {
 
       {adding && <AddAgent initialType={typeof adding === "string" ? adding : "job_watcher"}
         onClose={() => setAdding(false)} onCreate={addAgent} />}
+
+      <HermesChat />
     </div>
   );
 }
