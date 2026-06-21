@@ -2,7 +2,7 @@ name: VW Job Watch
 
 on:
   schedule:
-    - cron: "0 7,13,18 * * 1-6"   # 7am, 1pm, 6pm UTC, Mon-Sat
+    - cron: "0 6,11,16,21 * * *"   # 4x/day UTC, every day (7 days)
   workflow_dispatch: {}
 
 permissions:

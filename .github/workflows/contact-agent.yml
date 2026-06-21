@@ -2,7 +2,7 @@ name: VW Contact Finder
 
 on:
   schedule:
-    - cron: "0 8,14,19 * * 1-6"   # 8am, 2pm, 7pm UTC, Mon-Sat (~1h after the job watcher)
+    - cron: "0 7,12,17,22 * * *"   # 4x/day UTC, every day (~1h after the job watcher)
   workflow_dispatch: {}
 
 jobs:

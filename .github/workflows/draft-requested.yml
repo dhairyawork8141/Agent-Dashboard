@@ -6,7 +6,7 @@ name: VW Draft Requested
 on:
   workflow_dispatch: {}
   schedule:
-    - cron: "*/20 8-18 * * 1-6"   # every 20 min, 8am-6pm UTC, Mon-Sat
+    - cron: "*/20 8-18 * * *"   # every 20 min, 8am-6pm UTC, every day
 
 jobs:
   draft:
