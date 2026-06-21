@@ -1,4 +1,249 @@
 {
-  "seen_keys": [],
-  "archive": []
+  "seen_keys": [
+    "adzuna:5768004846",
+    "jooble:-1637813788789373642",
+    "jooble:-1874248887394372716",
+    "jooble:-1981717554949932891",
+    "jooble:-2628326685075748827",
+    "jooble:-3732986075590363851",
+    "jooble:-384439673724345633",
+    "jooble:-3878675626607392506",
+    "jooble:-4081602527097180206",
+    "jooble:-6167138594490114408",
+    "jooble:-7902092451433650557",
+    "jooble:-7949806845461475743",
+    "jooble:2157351894422652445",
+    "jooble:3062164961892848303",
+    "jooble:3241459521366692755",
+    "jooble:5057090966055305622",
+    "jooble:6137768448713515923",
+    "jooble:7234248933805019627",
+    "jooble:8168364863955627474",
+    "jooble:8890869474542288211",
+    "reed:56903504",
+    "reed:56970475",
+    "reed:56978461",
+    "reed:57000699",
+    "reed:57013932",
+    "reed:57016084",
+    "reed:57016154"
+  ],
+  "archive": [
+    {
+      "found_at": "2026-06-21T07:23:41.076774+00:00",
+      "key": "reed:57000699",
+      "title": "Kitchen and Bathroom Designer",
+      "company": "GCS Associates",
+      "tier": "HOT - Virtual Worlds",
+      "url": "https://www.reed.co.uk/jobs/kitchen-and-bathroom-designer/57000699"
+    },
+    {
+      "found_at": "2026-06-21T07:23:41.076774+00:00",
+      "key": "reed:56970475",
+      "title": "Kitchen Designer",
+      "company": "Stoneham PLC",
+      "tier": "HOT - Virtual Worlds",
+      "url": "https://www.reed.co.uk/jobs/kitchen-designer/56970475"
+    },
+    {
+      "found_at": "2026-06-21T07:23:41.076774+00:00",
+      "key": "jooble:-4081602527097180206",
+      "title": "Kitchen Designer",
+      "company": "Innovative Interiors",
+      "tier": "HOT - Virtual Worlds",
+      "url": "https://jooble.org/jdp/-4081602527097180206"
+    },
+    {
+      "found_at": "2026-06-21T07:23:41.076774+00:00",
+      "key": "jooble:8168364863955627474",
+      "title": "Residential Kitchen Designer",
+      "company": "CCTHC Inc / Lavish Kitchen and Bath, Inc.",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://jooble.org/jdp/8168364863955627474"
+    },
+    {
+      "found_at": "2026-06-21T07:23:41.076774+00:00",
+      "key": "jooble:2157351894422652445",
+      "title": "Kitchen and Bath Designer",
+      "company": "Sunique Cabinets",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://jooble.org/jdp/2157351894422652445"
+    },
+    {
+      "found_at": "2026-06-21T07:23:41.076774+00:00",
+      "key": "jooble:-3878675626607392506",
+      "title": "Intermediate Interior Designer",
+      "company": "Innovative Office Solutions LLC",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://jooble.org/jdp/-3878675626607392506"
+    },
+    {
+      "found_at": "2026-06-21T07:23:41.076774+00:00",
+      "key": "jooble:-384439673724345633",
+      "title": "Designer",
+      "company": "Office Revolution",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://jooble.org/jdp/-384439673724345633"
+    },
+    {
+      "found_at": "2026-06-21T07:23:41.076774+00:00",
+      "key": "jooble:6137768448713515923",
+      "title": "Kitchen And Bath Sales Designer",
+      "company": "Kitchen Design Partners, Inc.",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://jooble.org/jdp/6137768448713515923"
+    },
+    {
+      "found_at": "2026-06-21T07:23:41.076774+00:00",
+      "key": "jooble:-2628326685075748827",
+      "title": "Kitchen Designer-European Products Specialist",
+      "company": "Nobilia North America Inc.",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://jooble.org/jdp/-2628326685075748827"
+    },
+    {
+      "found_at": "2026-06-21T07:23:41.076774+00:00",
+      "key": "jooble:-7902092451433650557",
+      "title": "Kitchen and Bath Designer (Design Sales)",
+      "company": "",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://jooble.org/jdp/-7902092451433650557"
+    },
+    {
+      "found_at": "2026-06-21T07:23:41.076774+00:00",
+      "key": "jooble:3062164961892848303",
+      "title": "Kitchen Designer / Project Manager",
+      "company": "Z Ventures Ny Corp DBA Doca NYC",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://jooble.org/jdp/3062164961892848303"
+    },
+    {
+      "found_at": "2026-06-21T07:23:41.076774+00:00",
+      "key": "jooble:-1981717554949932891",
+      "title": "CAD Designer",
+      "company": "The Fountain Group",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://jooble.org/jdp/-1981717554949932891"
+    },
+    {
+      "found_at": "2026-06-21T07:23:41.076774+00:00",
+      "key": "adzuna:5768004846",
+      "title": "Kitchen Designer",
+      "company": "DESIGNER RECRUITMENT LTD",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://www.adzuna.co.uk/jobs/land/ad/5768004846?se=SquAFEJt8RGJe8gKxAvXaw&utm_medium=api&utm_source=119695ba&v=169230BDA26896344CA8DC44B7963BE29C27DB5F"
+    },
+    {
+      "found_at": "2026-06-21T07:23:41.076774+00:00",
+      "key": "reed:57013932",
+      "title": "Kitchen Designer",
+      "company": "Dennis and Robinson T/A Paula Rosa Manhattan",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://www.reed.co.uk/jobs/kitchen-designer/57013932"
+    },
+    {
+      "found_at": "2026-06-21T07:23:41.076774+00:00",
+      "key": "reed:56903504",
+      "title": "Kitchen Designer",
+      "company": "Workshop Recruitment",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://www.reed.co.uk/jobs/kitchen-designer/56903504"
+    },
+    {
+      "found_at": "2026-06-21T07:23:41.076774+00:00",
+      "key": "reed:56978461",
+      "title": "Commercial Kitchen Designer",
+      "company": "Cavendish Maine Recruitment",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://www.reed.co.uk/jobs/commercial-kitchen-designer/56978461"
+    },
+    {
+      "found_at": "2026-06-21T07:23:41.076774+00:00",
+      "key": "reed:57016154",
+      "title": "Trainee Kitchen Designer/Sales Executive (Full CAD Training)",
+      "company": "Ernest Gordon Recruitment Limited",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://www.reed.co.uk/jobs/trainee-kitchen-designer-sales-executive-full-cad-training/57016154"
+    },
+    {
+      "found_at": "2026-06-21T07:23:41.076774+00:00",
+      "key": "reed:57016084",
+      "title": "CAD Technician/Interior Designer (Kitchens)",
+      "company": "Ernest Gordon Recruitment Limited",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://www.reed.co.uk/jobs/cad-technician-interior-designer-kitchens/57016084"
+    },
+    {
+      "found_at": "2026-06-21T07:23:41.076774+00:00",
+      "key": "jooble:-1637813788789373642",
+      "title": "Kitchen Designer - New York",
+      "company": "Riverhead Building Supply",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/-1637813788789373642"
+    },
+    {
+      "found_at": "2026-06-21T07:23:41.076774+00:00",
+      "key": "jooble:8890869474542288211",
+      "title": "CAD Drafter Designer",
+      "company": "Aegis Worldwide",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/8890869474542288211"
+    },
+    {
+      "found_at": "2026-06-21T07:23:41.076774+00:00",
+      "key": "jooble:-3732986075590363851",
+      "title": "Senior Kitchen Designer",
+      "company": "Metropolitan Cabinets and Countertops",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/-3732986075590363851"
+    },
+    {
+      "found_at": "2026-06-21T07:23:41.076774+00:00",
+      "key": "jooble:-6167138594490114408",
+      "title": "PCB CAD Designer",
+      "company": "Robert Half",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/-6167138594490114408"
+    },
+    {
+      "found_at": "2026-06-21T07:23:41.076774+00:00",
+      "key": "jooble:-7949806845461475743",
+      "title": "Kitchen and Bath Designer",
+      "company": "Flagship Staffing Services",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/-7949806845461475743"
+    },
+    {
+      "found_at": "2026-06-21T07:23:41.076774+00:00",
+      "key": "jooble:-1874248887394372716",
+      "title": "Fire Alarm CAD Designer",
+      "company": "Fire Systems, Inc.",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/-1874248887394372716"
+    },
+    {
+      "found_at": "2026-06-21T07:23:41.076774+00:00",
+      "key": "jooble:3241459521366692755",
+      "title": "Drafter / CAD Designer",
+      "company": "Lifewater Engineering Company",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/3241459521366692755"
+    },
+    {
+      "found_at": "2026-06-21T07:23:41.076774+00:00",
+      "key": "jooble:5057090966055305622",
+      "title": "Kitchen and Bath Interior Designer / Sales",
+      "company": "Dreammaker Bath and Kitchen of Madison",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/5057090966055305622"
+    },
+    {
+      "found_at": "2026-06-21T07:23:41.076774+00:00",
+      "key": "jooble:7234248933805019627",
+      "title": "Lux Kitchen Designer - Showroom CAD, Denver",
+      "company": "Downtown Boulder Partnership",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/7234248933805019627"
+    }
+  ]
 }
