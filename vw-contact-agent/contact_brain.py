@@ -64,3 +64,28 @@ def extract_contact(company: str, page_text: str, domain: str | None = None,
         "title": (out.get("title") or "").strip() or None,
         "confidence": int(out.get("confidence") or 0),
     }
+
+
+_CONFIRM_SYSTEM = """You verify whether a web domain is the OFFICIAL site of a specific UK
+KBB/interior business (kitchen/bedroom/bathroom showroom, fitter, or interior designer).
+Say no if the domain belongs to a DIFFERENT organisation that merely shares a word — e.g. a
+magazine, newspaper, a town/council/community site, a directory, or an unrelated company in
+another trade or country. Reply ONLY JSON: {"belongs": true|false}"""
+
+
+def confirm_match(company: str, domain: str, settings: dict | None = None):
+    """True/False whether `domain` is plausibly THIS company's official site; None if the
+    brain is unavailable (caller then falls back to the heuristic only)."""
+    if not available() or not domain:
+        return None
+    model = (settings or {}).get("draft_model") or config.DRAFT_MODEL
+    user = f"Business name: {company}\nDomain: {domain}\nDoes this domain belong to that exact business?"
+    content = groq_pool.chat(
+        [{"role": "system", "content": _CONFIRM_SYSTEM}, {"role": "user", "content": user}],
+        model=model, role="extract", temperature=0)
+    if not content:
+        return None
+    try:
+        return bool(json.loads(content).get("belongs"))
+    except Exception:
+        return None

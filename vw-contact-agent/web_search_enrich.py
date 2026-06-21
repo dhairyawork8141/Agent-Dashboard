@@ -117,7 +117,27 @@ _GENERIC_NAME_WORDS = frozenset([
     "studio", "studios", "services", "service", "solutions", "design", "designs",
     "designer", "interior", "interiors", "kitchen", "kitchens", "bathroom", "bathrooms",
     "bedroom", "bedrooms", "fitted", "furniture", "tiles", "tile", "home", "homes",
+    # industry / filler words that aren't distinctive enough to identify a company
+    "appliances", "appliance", "supply", "supplies", "lumber", "movers", "magazine",
+    "news", "makeover", "makeovers", "renovation", "renovations", "international",
+    "cabinets", "cabinet", "countertops", "worktops", "units", "makers", "centre",
+    "center", "world", "direct", "online", "trade", "contracts", "projects", "living",
+    "luxury", "elite", "modern", "premier", "quality", "affordable", "dream", "ventures",
 ])
+# Place names commonly shared by unrelated local sites (a domain that is ONLY a place name
+# is not the company, e.g. paisley.org.uk for "Paisley Kitchen & Bathroom").
+_PLACE_WORDS = frozenset([
+    "paisley", "coventry", "london", "leeds", "manchester", "birmingham", "glasgow",
+    "edinburgh", "bristol", "sheffield", "liverpool", "cardiff", "belfast", "nottingham",
+    "leicester", "bedford", "sutton", "preston", "plymouth", "reading", "oxford",
+    "cambridge", "brighton", "bolton", "stockport", "swindon", "luton", "bournemouth",
+    "norwich", "york", "exeter", "chester", "bath", "boulder", "metropolitan", "downtown",
+])
+# Domain substrings that signal a NON-business site (media, council, directory, etc.).
+_NON_BUSINESS_DOMAIN_SUBSTR = (
+    "magazine", "news", "gazette", "herald", "times", "directory", "yell", "yelp",
+    "freeindex", "thomson", "council", "gov", "nhs", ".org.uk", ".org",
+)
 # Free email providers never prove company ownership -> can't be domain-matched.
 _FREE_EMAIL_DOMAINS = frozenset([
     "gmail.com", "outlook.com", "hotmail.com", "hotmail.co.uk", "yahoo.com",
@@ -142,19 +162,26 @@ def _domain_core(domain: str) -> str:
 
 
 def _domain_matches_company(domain: str, name: str) -> bool:
-    """True only if the domain plausibly belongs to THIS company (shares a distinctive
-    token). Prevents grabbing a different company's domain (e.g. suttonbuild for INODESIGN)."""
+    """True only if the domain plausibly belongs to THIS company. Stricter than a loose
+    token overlap: needs a DISTINCTIVE (>=5-char, non-generic, non-place) company word in
+    the domain, OR the full company slug to match. Rejects media/council/place-only domains
+    (e.g. verobeachmagazine for 'Vero Kitchen', paisley.org.uk for 'Paisley Kitchen')."""
     dl = (domain or "").lower().split("@")[-1]
     if dl in _FREE_EMAIL_DOMAINS:
         return False
-    core = _domain_core(domain)
-    if not core:
+    if any(s in dl for s in _NON_BUSINESS_DOMAIN_SUBSTR):
         return False
-    toks = _company_tokens(name)
-    if not toks:                                   # no distinctive words -> need full-slug match
-        slug = re.sub(r"[^a-z0-9]", "", (name or "").lower())
-        return bool(slug) and (slug in core or core in slug)
-    return any(t in core or core in t for t in toks)
+    core = _domain_core(domain)
+    if not core or core in _PLACE_WORDS:           # a bare place-name domain isn't the company
+        return False
+    # 1) a distinctive company word appears in the domain core (the strong signal)
+    distinctive = [t for t in _company_tokens(name) if len(t) >= 5 and t not in _PLACE_WORDS]
+    if any(t in core for t in distinctive):
+        return True
+    # 2) fallback: the WHOLE company slug essentially is the domain (handles short names
+    #    like IN2/ALJ and exact matches like verokitchen.co.uk, without matching fragments)
+    slug = re.sub(r"[^a-z0-9]", "", (name or "").lower())
+    return bool(slug) and (slug in core or core in slug)
 
 
 # ---------------------------------------------------------------------------
@@ -575,6 +602,17 @@ def enrich_from_web(company_name: str, location: str | None,
     if result.get("contact_email") and not _domain_matches_company(result["contact_email"], name):
         for key in ("contact_email", "contact_name", "contact_title"):
             result.pop(key, None)
+
+    # --- AI confirmation: even if a token matched, ask the brain whether the domain really
+    #     is THIS company's (catches semantic mismatches the rules miss, e.g. a movers or
+    #     magazine site that shares a word). Only an explicit "no" drops it (fail-soft). ---
+    if contact_brain and contact_brain.available():
+        dom = (result.get("contact_email") or result.get("website") or "").split("@")[-1]
+        if dom and contact_brain.confirm_match(name, dom, settings) is False:
+            log.info("AI confirms %s is NOT '%s' - dropping contact + website.", dom, name)
+            for key in ("contact_email", "contact_name", "contact_title",
+                        "website", "contact_phone") + _SOCIAL_KEYS:
+                result.pop(key, None)
 
     # --- MX validation: drop an email whose domain has no mail server (dead/typo'd) ---
     mx = None

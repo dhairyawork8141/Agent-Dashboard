@@ -51,9 +51,9 @@ OAUTH_CLIENT_SECRET = os.getenv("OAUTH_CLIENT_SECRET", "")
 # --- Fallback settings, used when Supabase isn't connected. The dashboard edits a copy
 #     of this shape stored in the agents table. ---
 DEFAULT_SETTINGS = {
-    "countries": [c.strip() for c in os.getenv("COUNTRIES", "gb,us,ca,au,nz,de,fr,nl").split(",") if c.strip()],
-    "careerjet_locales": [c.strip() for c in os.getenv("CAREERJET_LOCALES", "en_GB,en_US").split(",") if c.strip()],
-    "jsearch_countries": [c.strip() for c in os.getenv("JSEARCH_COUNTRIES", "gb,us").split(",") if c.strip()],
+    "countries": [c.strip() for c in os.getenv("COUNTRIES", "gb").split(",") if c.strip()],            # UK only
+    "careerjet_locales": [c.strip() for c in os.getenv("CAREERJET_LOCALES", "en_GB").split(",") if c.strip()],
+    "jsearch_countries": [c.strip() for c in os.getenv("JSEARCH_COUNTRIES", "gb").split(",") if c.strip()],
     "jsearch_max_per_run": int(os.getenv("JSEARCH_MAX_PER_RUN", "2")),  # free BASIC safe: 2/run x3/day ~= 180/mo
     "max_days_old": int(os.getenv("MAX_DAYS_OLD", "3")),
     "send_email": _flag("SEND_EMAIL"),

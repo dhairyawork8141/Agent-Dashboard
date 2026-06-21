@@ -103,13 +103,20 @@ export async function onRequestPost({ request, env }) {
 }
 
 async function runWithTools(messages, env) {
+  if (!env.GROQ_API_KEY) {
+    return "I'm not configured yet — GROQ_API_KEY is missing in Cloudflare → Pages → Settings → Environment variables (Production). Add it and redeploy.";
+  }
   for (let step = 0; step < 4; step++) {
     const r = await fetch(GROQ_URL, {
       method: "POST",
       headers: { Authorization: `Bearer ${env.GROQ_API_KEY}`, "Content-Type": "application/json" },
       body: JSON.stringify({ model: MODEL, temperature: 0.2, messages, tools: TOOLS, tool_choice: "auto" }),
     });
-    if (!r.ok) return `Model error (${r.status}). Try again in a moment.`;
+    if (!r.ok) {
+      const detail = (await r.text()).slice(0, 180);
+      if (r.status === 401) return "Groq rejected the key (401). Check GROQ_API_KEY in Cloudflare is a valid key (starts with 'gsk_') and redeploy the dashboard.";
+      return `Model error (${r.status}): ${detail}`;
+    }
     const data = await r.json();
     const msg = data.choices && data.choices[0] && data.choices[0].message;
     if (!msg) return "Sorry, I couldn't get a response.";
