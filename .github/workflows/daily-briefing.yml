@@ -1,0 +1,28 @@
+name: VW Daily Briefing
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: "30 6 * * *"   # 6:30am UTC daily — morning pipeline summary email
+
+jobs:
+  brief:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - run: pip install -r vw-contact-agent/requirements.txt
+      - name: Email the daily briefing
+        env:
+          AGENT_ID:             b7e6d5c4-3a2b-4c1d-9e8f-0a1b2c3d4e5f
+          SUPABASE_URL:         ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          SMTP_USER:            ${{ secrets.SMTP_USER }}
+          ALERT_TO:             ${{ secrets.ALERT_TO }}
+          OAUTH_TENANT_ID:      ${{ secrets.OAUTH_TENANT_ID }}
+          OAUTH_CLIENT_ID:      ${{ secrets.OAUTH_CLIENT_ID }}
+          OAUTH_CLIENT_SECRET:  ${{ secrets.OAUTH_CLIENT_SECRET }}
+        working-directory: vw-contact-agent
+        run: python daily_briefing.py

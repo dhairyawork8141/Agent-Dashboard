@@ -538,6 +538,22 @@ function DraftPanel({ lead, onDraft }) {
 }
 
 /* ----------------------------- Leads table ------------------------------------ */
+// Heuristic "how likely to reply" 0-100 — used to rank the approval queue best-first.
+const _GENERIC_LOCAL = ["info", "sales", "enquiries", "enquiry", "contact", "hello", "admin", "office", "mail", "accounts", "team", "support"];
+function replyScore(l) {
+  let s = 0;
+  const t = tierKey(l.tier);
+  s += t === "hot" ? 40 : t === "warm" ? 20 : 0;
+  if (l.contact_email) {
+    s += 10;
+    if (!_GENERIC_LOCAL.includes((l.contact_email.split("@")[0] || "").toLowerCase())) s += 20; // personal address
+  }
+  if (l.website) s += 10;
+  if (l.contact_phone) s += 10;
+  if (l.category && l.category !== "other") s += 10;
+  return Math.min(s, 100);
+}
+
 function LeadsTable({ leads, onStatus, onDraft, showAgentHint, initialFilter, onReject }) {
   const [filter, setFilter] = useState(initialFilter || "all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -558,7 +574,9 @@ function LeadsTable({ leads, onStatus, onDraft, showAgentHint, initialFilter, on
         (l.contact_email || "").toLowerCase().includes(q)
       );
     })
-    .sort((a, b) => (b.score || 0) - (a.score || 0));
+    .sort((a, b) => filter === "approval"
+      ? replyScore(b) - replyScore(a)
+      : (b.score || 0) - (a.score || 0));
 
   const stats = {
     total: leads.length,
@@ -625,6 +643,7 @@ function LeadsTable({ leads, onStatus, onDraft, showAgentHint, initialFilter, on
                   <TierBadge tier={l.tier} />
                   {l.category && <span className="rounded-full border border-line text-muted text-[10px] font-semibold px-2 py-0.5">{CAT_LABEL[l.category] || l.category}</span>}
                   {l.contact_email && <span className="rounded-full bg-ink text-bone text-[10px] font-semibold px-2 py-0.5">✓ Contact</span>}
+                  {filter === "approval" && <span className="rounded-full border border-brass text-brass text-[10px] font-semibold px-2 py-0.5">★ {replyScore(l)}% likely</span>}
                   <span className="text-[11px] text-muted">{l.source} · {timeAgo(l.found_at)}</span>
                 </div>
                 <div className="mt-1.5 font-serif text-lg text-ink leading-snug" style={{ letterSpacing: "-0.01em" }}>
