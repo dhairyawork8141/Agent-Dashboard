@@ -2,7 +2,7 @@
 key, so this must only ever run server-side (GitHub Actions / your VPS) - never in the
 browser dashboard."""
 import logging
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import requests
 import config
 
@@ -163,6 +163,46 @@ def record_candidate_outcome(lead: dict, contact: dict | None,
         r.raise_for_status()
     except Exception as e:
         log.warning("record_candidate_outcome failed: %s", e)
+
+
+def leads_awaiting_reply(limit: int = 300) -> list[dict]:
+    """Sent leads we haven't yet seen a reply from (for the reply-watcher)."""
+    try:
+        r = requests.get(f"{_base()}/leads", headers=_headers(), params={
+            "select": "id,contact_email,sent_at", "draft_status": "eq.sent",
+            "replied_at": "is.null", "contact_email": "not.is.null", "limit": str(limit)}, timeout=TIMEOUT)
+        r.raise_for_status()
+        return r.json()
+    except Exception as e:
+        log.warning("leads_awaiting_reply failed: %s", e)
+        return []
+
+
+def mark_replied(lead_id: str, unsubscribed: bool = False) -> None:
+    """A reply was detected — stop chasing this lead (and opt out if they asked)."""
+    patch = {"replied_at": datetime.now(timezone.utc).isoformat(),
+             "status": "Unsubscribed" if unsubscribed else "Replied"}
+    if unsubscribed:
+        patch["unsubscribed"] = True
+    update_lead(lead_id, patch)
+
+
+def leads_needing_followup(days: int, max_followups: int, limit: int = 40) -> list[dict]:
+    """Sent leads with no reply after `days`, not opted out, under the follow-up cap, whose
+    last touch (send or previous follow-up) is older than `days`."""
+    cutoff = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
+    try:
+        r = requests.get(f"{_base()}/leads", headers=_headers(), params={
+            "select": "*", "draft_status": "eq.sent", "replied_at": "is.null",
+            "unsubscribed": "is.false", "sent_at": f"lte.{cutoff}",
+            "follow_up_count": f"lt.{max_followups}",
+            "or": f"(last_followup_at.is.null,last_followup_at.lte.{cutoff})",
+            "limit": str(limit)}, timeout=TIMEOUT)
+        r.raise_for_status()
+        return r.json()
+    except Exception as e:
+        log.warning("leads_needing_followup failed: %s", e)
+        return []
 
 
 def finish_run(status: str, count: int) -> None:

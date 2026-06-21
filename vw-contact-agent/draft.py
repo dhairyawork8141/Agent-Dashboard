@@ -118,6 +118,22 @@ def _personalise(subject: str, body: str, merged: dict, settings: dict) -> tuple
     return None
 
 
+def follow_up(lead: dict, settings: dict | None = None) -> dict | None:
+    """Build a polite follow-up email from the followup template (lightly personalised)."""
+    try:
+        subject, body = _split(_fill(_load("followup"), lead))
+    except Exception as e:
+        log.warning("Follow-up template failed: %s", e)
+        return None
+    if not subject or not body:
+        return None
+    if (settings or {}).get("personalise_drafts", True):
+        p = _personalise(subject, body, lead, settings or {})
+        if p:
+            subject, body = p
+    return {"subject": subject, "body": body}
+
+
 def draft_email(lead: dict, contact: dict | None = None, settings: dict | None = None) -> dict | None:
     merged = {**(lead or {}), **{k: v for k, v in (contact or {}).items() if v}}
     key = _template_key(merged)
