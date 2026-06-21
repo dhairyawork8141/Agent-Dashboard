@@ -27,6 +27,7 @@ jobs:
           GROQ_API_KEY:            ${{ secrets.GROQ_API_KEY }}
           GROQ_API_KEY_2:          ${{ secrets.GROQ_API_KEY_2 }}
           GROQ_API_KEY_3:          ${{ secrets.GROQ_API_KEY_3 }}
+          SERPER_API_KEY:          ${{ secrets.SERPER_API_KEY }}   # optional: search-based UK discovery
         working-directory: vw-showroom-agent
         run: python main.py
       - name: Commit updated state

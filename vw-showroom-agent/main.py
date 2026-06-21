@@ -15,6 +15,7 @@ import time
 import config
 import companies_house
 import osm_source
+import serper_source
 import store
 import brain
 import hotness
@@ -52,7 +53,9 @@ def run() -> None:
     # Shuffled + capped per run so the daily agent finishes the backlog and catches new ones.
     # Multi-source UK lead finding: Companies House (new registrations) + OpenStreetMap
     # (existing mapped KBB/interior shops). Both feed the same brain → tier → upsert pipeline.
-    found = companies_house.fetch_all_backfill(settings) + osm_source.fetch_all(settings)
+    found = (companies_house.fetch_all_backfill(settings)
+             + osm_source.fetch_all(settings)
+             + serper_source.fetch_all(settings))
     new = store.filter_new(found)
     random.shuffle(new)
     log.info("%d unjudged companies (processing up to the per-run cap)", len(new))
