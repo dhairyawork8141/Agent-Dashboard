@@ -5,14 +5,18 @@
     "jooble:-1874248887394372716",
     "jooble:-1981717554949932891",
     "jooble:-2628326685075748827",
+    "jooble:-3128559562541643373",
     "jooble:-3732986075590363851",
     "jooble:-384439673724345633",
     "jooble:-3878675626607392506",
     "jooble:-4081602527097180206",
     "jooble:-6167138594490114408",
+    "jooble:-6858202802408723724",
     "jooble:-7902092451433650557",
+    "jooble:-7914943930625183830",
     "jooble:-7949806845461475743",
     "jooble:2157351894422652445",
+    "jooble:2480077444184334532",
     "jooble:3062164961892848303",
     "jooble:3241459521366692755",
     "jooble:5057090966055305622",
@@ -244,6 +248,38 @@
       "company": "Downtown Boulder Partnership",
       "tier": "WATCH - generic CAD",
       "url": "https://jooble.org/jdp/7234248933805019627"
+    },
+    {
+      "found_at": "2026-06-21T16:57:25.539513+00:00",
+      "key": "jooble:-6858202802408723724",
+      "title": "Kitchen and Bath Designer",
+      "company": "West Haven Lumber",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://jooble.org/jdp/-6858202802408723724"
+    },
+    {
+      "found_at": "2026-06-21T16:57:25.539513+00:00",
+      "key": "jooble:-7914943930625183830",
+      "title": "Kitchen Designer - New York",
+      "company": "Riverhead Building Supply",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://jooble.org/jdp/-7914943930625183830"
+    },
+    {
+      "found_at": "2026-06-21T16:57:25.539513+00:00",
+      "key": "jooble:2480077444184334532",
+      "title": "Kitchen Designer & Sales — Signing Bonus & Top Pay",
+      "company": "NKBA",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://jooble.org/jdp/2480077444184334532"
+    },
+    {
+      "found_at": "2026-06-21T16:57:25.539513+00:00",
+      "key": "jooble:-3128559562541643373",
+      "title": "Kitchen Designer/Sales",
+      "company": "NKBA",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://jooble.org/jdp/-3128559562541643373"
     }
   ]
 }
