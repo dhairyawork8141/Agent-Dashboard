@@ -200,6 +200,15 @@ def run() -> None:
         log.info("Requested draft for '%s' -> %s", name,
                  "drafted" if d else "no email, cleared")
 
+    # Auto-draft: queue a draft for EVERY HOT lead that has an email but no draft yet, so
+    # hot leads get an outreach email immediately (the draft-requested worker drafts them).
+    if settings.get("draft_emails", True):
+        hot_undrafted = supabase_io.leads_hot_needing_draft()
+        for lead in hot_undrafted:
+            supabase_io.update_lead(lead["id"], {"draft_status": "requested"})
+        if hot_undrafted:
+            log.info("Auto-queued %d hot lead(s) for immediate drafting.", len(hot_undrafted))
+
     supabase_io.finish_run("ok", done)
     log.info("Done - %d contact(s) written to the dashboard.", done)
 

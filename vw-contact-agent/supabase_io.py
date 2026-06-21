@@ -128,6 +128,20 @@ def update_lead(lead_id: str, fields: dict) -> bool:
         return False
 
 
+def leads_hot_needing_draft(limit: int = 50) -> list[dict]:
+    """HOT leads that already have a contact email but no draft yet — so EVERY hot lead
+    gets an outreach email drafted automatically (no manual 'Draft email' click needed)."""
+    try:
+        r = requests.get(f"{_base()}/leads", headers=_headers(), params={
+            "select": "id", "tier": "like.HOT*", "contact_email": "not.is.null",
+            "or": "(draft_status.is.null,draft_status.eq.none)", "limit": str(limit)}, timeout=TIMEOUT)
+        r.raise_for_status()
+        return r.json()
+    except Exception as e:
+        log.warning("leads_hot_needing_draft failed: %s", e)
+        return []
+
+
 def record_candidate_outcome(lead: dict, contact: dict | None,
                              stage: str = "enriched", outcome: str | None = None) -> None:
     """Datacenter (v8): record this lead's enrichment/outreach OUTCOME so the source

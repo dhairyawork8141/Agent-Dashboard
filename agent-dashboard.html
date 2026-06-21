@@ -271,6 +271,8 @@ const NAV = [
   { key: "overview",  label: "Overview",       icon: "fa-gauge-high" },
   { key: "job",       label: "Job Leads",      icon: "fa-briefcase" },
   { key: "showroom",  label: "Showroom Lists", icon: "fa-store" },
+  { key: "hot",       label: "Hot Leads",      icon: "fa-fire" },
+  { key: "warm",      label: "Warm Leads",     icon: "fa-temperature-half" },
   { key: "connected", label: "Connected",      icon: "fa-circle-check" },
   { key: "reports",   label: "Reports",        icon: "fa-chart-line" },
   { key: "datacenter",label: "Datacenter",     icon: "fa-database" },
@@ -414,7 +416,7 @@ function Overview({ agents, allLeads, jobLeads, showroomLeads, setView, onToggle
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <StatTile label="Total leads (hot+warm)" value={k.leads} accent onClick={() => setView({ name: "job" })} />
-        <StatTile label="Hot leads" value={k.hot} accent onClick={() => setView({ name: "job", filter: "hot" })} />
+        <StatTile label="Hot leads" value={k.hot} accent onClick={() => setView({ name: "hot" })} />
         <StatTile label="Showroom list" value={showroomLeads.length} onClick={() => setView({ name: "showroom" })} />
         <StatTile label="Contacts found" value={k.contacts} onClick={() => setView({ name: "datacenter" })} />
         <StatTile label="Social profiles" value={k.socials} onClick={() => setView({ name: "showroom" })} />
@@ -536,7 +538,7 @@ function DraftPanel({ lead, onDraft }) {
 }
 
 /* ----------------------------- Leads table ------------------------------------ */
-function LeadsTable({ leads, onStatus, onDraft, showAgentHint, initialFilter }) {
+function LeadsTable({ leads, onStatus, onDraft, showAgentHint, initialFilter, onReject }) {
   const [filter, setFilter] = useState(initialFilter || "all");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -688,6 +690,12 @@ function LeadsTable({ leads, onStatus, onDraft, showAgentHint, initialFilter }) 
                 )}
                 {l.draft_status === "requested" && (
                   <span className="block mt-2 text-[11px] text-brass">✎ Draft queued…</span>
+                )}
+                {onReject && (
+                  <button onClick={() => onReject(l)}
+                    className="block mt-2 ml-auto rounded-full border border-line text-xs font-semibold px-3 py-1 text-[#9a3b2e] hover:border-[#9a3b2e] hover:bg-[#9a3b2e]/5 transition-colors">
+                    ✕ Reject
+                  </button>
                 )}
               </div>
             </div>
@@ -1328,6 +1336,50 @@ function HermesChat() {
   );
 }
 
+/* ----------------------------- Hot / Warm tier views -------------------------- */
+// Gathers ALL leads of a tier from every source (job + showroom) into one place.
+function TierLeadsView({ tier, leads, onStatus, onDraft, onReject }) {
+  const hot = tier === "hot";
+  return (
+    <div className="max-w-5xl mx-auto px-6 py-9">
+      <SectionHeader icon={hot ? "fa-fire" : "fa-temperature-half"}
+        eyebrow={hot ? "Your best leads — gathered from every source" : "Warming up — gathered from every source"}
+        title={hot ? "Hot Leads" : "Warm Leads"} count={leads.length} />
+      <LeadsTable leads={leads} onStatus={onStatus} onDraft={onDraft} onReject={onReject} initialFilter="all" />
+    </div>
+  );
+}
+
+// Reject-with-reason modal — the reason is saved to the datacenter so Hermes learns.
+function RejectModal({ lead, onCancel, onConfirm }) {
+  const [reason, setReason] = useState("");
+  const presets = ["Not a real KBB business", "Wrong / duplicate contact", "Already has a CGI supplier",
+                   "Outside our area", "Too small / not a fit", "Low-quality lead"];
+  return (
+    <div className="fixed inset-0 z-[60] bg-black/40 flex items-center justify-center p-4" onClick={onCancel}>
+      <div className="bg-bone rounded-2xl border border-line w-[min(92vw,440px)] p-5" onClick={e => e.stopPropagation()}>
+        <div className="font-serif text-xl text-ink">Reject lead</div>
+        <div className="text-sm text-muted mb-3">{lead.showroom_name || lead.company || lead.title || "this lead"}</div>
+        <div className="text-xs text-muted mb-2">Why? Hermes learns from this and avoids similar leads.</div>
+        <div className="flex flex-wrap gap-2 mb-3">
+          {presets.map(p => (
+            <button key={p} onClick={() => setReason(p)}
+              className={"rounded-full px-3 py-1 text-xs border transition-colors " +
+                (reason === p ? "bg-ink text-bone border-ink" : "border-line text-muted hover:text-ink")}>{p}</button>
+          ))}
+        </div>
+        <textarea value={reason} onChange={e => setReason(e.target.value)} rows={2} placeholder="Or type a reason…"
+          className="w-full rounded-xl border border-line bg-paper px-3 py-2 text-sm text-ink focus:outline-none focus:border-brass" />
+        <div className="flex justify-end gap-2 mt-4">
+          <button onClick={onCancel} className="rounded-full border border-line text-muted text-xs font-semibold px-4 py-2 hover:text-ink">Cancel</button>
+          <button onClick={() => onConfirm(reason.trim() || "No reason given")}
+            className="rounded-full bg-[#9a3b2e] text-bone text-xs font-semibold px-4 py-2 hover:opacity-90">Reject lead</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ----------------------------- App -------------------------------------------- */
 function App() {
   const [session, setSession] = useState(null);
@@ -1336,6 +1388,7 @@ function App() {
   const [leads, setLeads] = useState(isLive ? [] : DEMO_LEADS);
   const [view, setView] = useState({ name: "overview" });
   const [adding, setAdding] = useState(false);
+  const [rejecting, setRejecting] = useState(null);   // lead pending rejection (opens RejectModal)
   const [isDark, setIsDark] = useState(() => {
     return localStorage.getItem("theme") === "dark" || 
       (!localStorage.getItem("theme") && window.matchMedia("(prefers-color-scheme: dark)").matches);
@@ -1386,12 +1439,13 @@ function App() {
   const isShowroom = (l) => showroomIds.has(l.agent_id) || (l.source || "").includes("Companies House");
   // Showroom Lists shows the FULL directory (all tiers). "Leads" (HOT+WARM) is counted
   // separately in the Overview — established WATCH showrooms are data, not leads.
-  const showroomLeads = useMemo(() => leads.filter(l =>
-    l.draft_status !== "sent" && isShowroom(l)
-  ), [leads, showroomIds]);
-  const jobLeads = useMemo(() => leads.filter(l =>
-    l.draft_status !== "sent" && !isShowroom(l)
-  ), [leads, showroomIds]);
+  // Working lists exclude sent (-> Connected) AND rejected (-> gone).
+  const isLiveLead = (l) => l.draft_status !== "sent" && l.draft_status !== "rejected";
+  const showroomLeads = useMemo(() => leads.filter(l => isLiveLead(l) && isShowroom(l)), [leads, showroomIds]);
+  const jobLeads = useMemo(() => leads.filter(l => isLiveLead(l) && !isShowroom(l)), [leads, showroomIds]);
+  // Hot / Warm sections gather leads of that tier from EVERY source into one place.
+  const hotLeads = useMemo(() => leads.filter(l => isLiveLead(l) && tierKey(l.tier) === "hot"), [leads]);
+  const warmLeads = useMemo(() => leads.filter(l => isLiveLead(l) && tierKey(l.tier) === "warm"), [leads]);
   const openAdd = (t) => setAdding(t || true);
 
   /* mutations (write-through in live mode) */
@@ -1424,6 +1478,19 @@ function App() {
     setLeads(prev => prev.map(l => l.id === lead.id ? { ...l, ...patch } : l));
     if (isLive) { const sb = await getSB(); await sb.from("leads").update(patch).eq("id", lead.id); }
   }
+  // Reject a lead + record WHY in the datacenter so Hermes can learn from it.
+  async function rejectLead(lead, reason) {
+    setLeads(prev => prev.map(l => l.id === lead.id ? { ...l, status: "Rejected", draft_status: "rejected" } : l));
+    setRejecting(null);
+    if (isLive) {
+      const sb = await getSB();
+      await sb.from("leads").update({ status: "Rejected", draft_status: "rejected" }).eq("id", lead.id);
+      if (lead.external_key && lead.source) {
+        await sb.from("lead_candidates").update({ outcome: "user_rejected", reject_reason: reason })
+          .eq("source", lead.source).eq("external_key", lead.external_key);
+      }
+    }
+  }
   async function signOut() { const sb = await getSB(); await sb.auth.signOut(); setSession(null); }
 
   if (!ready) return <div className="min-h-screen flex items-center justify-center text-muted text-sm">Loading…</div>;
@@ -1450,6 +1517,12 @@ function App() {
           <ShowroomListsView agents={showroomAgents} leads={showroomLeads} setView={setView}
             onToggle={toggleAgent} onStatus={setStatus} onDraft={updateDraft} onAdd={openAdd} />}
 
+        {view.name === "hot" &&
+          <TierLeadsView tier="hot" leads={hotLeads} onStatus={setStatus} onDraft={updateDraft} onReject={setRejecting} />}
+
+        {view.name === "warm" &&
+          <TierLeadsView tier="warm" leads={warmLeads} onStatus={setStatus} onDraft={updateDraft} onReject={setRejecting} />}
+
         {view.name === "connected" &&
           <ConnectedView leads={connectedLeads} onStatus={setStatus} onDraft={updateDraft} />}
 
@@ -1470,6 +1543,9 @@ function App() {
 
       {adding && <AddAgent initialType={typeof adding === "string" ? adding : "job_watcher"}
         onClose={() => setAdding(false)} onCreate={addAgent} />}
+
+      {rejecting && <RejectModal lead={rejecting} onCancel={() => setRejecting(null)}
+        onConfirm={(r) => rejectLead(rejecting, r)} />}
 
       <HermesChat />
     </div>
