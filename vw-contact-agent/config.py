@@ -47,6 +47,10 @@ SENDER_NAME = os.getenv("SENDER_NAME", "Dhairya")
 SEND_DAILY_CAP = int(os.getenv("SEND_DAILY_CAP", "30"))        # max approved emails sent per day
 SEND_PER_RUN = int(os.getenv("SEND_PER_RUN", "6"))            # max per workflow run (hourly)
 SEND_MIN_GAP_SECONDS = int(os.getenv("SEND_MIN_GAP_SECONDS", "45"))   # min gap between sends (jittered up to 2x)
+# Compliance footer appended to every outreach email (UK B2B opt-out / deliverability).
+SEND_FOOTER = os.getenv("SEND_FOOTER",
+    "\n\n—\n{studio} · Sourced you as a UK KBB business. "
+    "Not interested? Reply \"unsubscribe\" and we won't contact you again.")
 
 # --- Fallback settings, used when the dashboard row carries none. The dashboard edits a
 #     copy of this shape stored in the agents table. ---

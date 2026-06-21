@@ -82,8 +82,13 @@ def run() -> None:
     try:
         for i, lead in enumerate(queue):
             to = lead.get("contact_email")
+            # Suppression: never email someone who opted out (safe pre-v9: key absent -> falsy).
+            if lead.get("unsubscribed"):
+                supabase_io.update_lead(lead["id"], {"draft_status": "suppressed"})
+                log.info("Skipped %s - unsubscribed.", to)
+                continue
             subject = lead.get("draft_subject") or "Hello"
-            body = lead.get("draft_body") or ""
+            body = (lead.get("draft_body") or "") + config.SEND_FOOTER.replace("{studio}", config.STUDIO_NAME)
             try:
                 msg = MIMEText(body, "plain", "utf-8")
                 msg["Subject"] = subject

@@ -104,7 +104,7 @@ def leads_to_send(limit: int = 25) -> list[dict]:
     """Leads you've approved in the dashboard that haven't been sent yet."""
     try:
         r = requests.get(f"{_base()}/leads", headers=_headers(), params={
-            "select": "id,contact_name,contact_email,draft_subject,draft_body,draft_status",
+            "select": "*",
             "draft_status": "eq.approved",
             "contact_email": "not.is.null",
             "limit": str(limit),
