@@ -17,6 +17,7 @@
     "jooble:-4081602527097180206",
     "jooble:-4265372227825809849",
     "jooble:-4430921635475003378",
+    "jooble:-5903402076923429277",
     "jooble:-6167138594490114408",
     "jooble:-6619120759262434467",
     "jooble:-6858202802408723724",
@@ -24,6 +25,7 @@
     "jooble:-7911721690351132079",
     "jooble:-7914943930625183830",
     "jooble:-7949806845461475743",
+    "jooble:-9061636504051778153",
     "jooble:132234913619931209",
     "jooble:1402352430949664012",
     "jooble:2105724005074906102",
@@ -397,6 +399,22 @@
       "company": "Assembly Systems",
       "tier": "WATCH - generic CAD",
       "url": "https://jooble.org/jdp/-4075540604698216538"
+    },
+    {
+      "found_at": "2026-06-22T22:26:31.950450+00:00",
+      "key": "jooble:-9061636504051778153",
+      "title": "High-End Kitchen & Bath Designer — CAD & Sales",
+      "company": "NKBA",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://jooble.org/jdp/-9061636504051778153"
+    },
+    {
+      "found_at": "2026-06-22T22:26:31.950450+00:00",
+      "key": "jooble:-5903402076923429277",
+      "title": "Innenausbau CAD-Designer (Revit/AutoCAD)",
+      "company": "Brumann Innenraumkonzepte GmbH",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://jooble.org/jdp/-5903402076923429277"
     }
   ]
 }
