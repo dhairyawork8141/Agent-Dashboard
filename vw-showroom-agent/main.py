@@ -20,6 +20,7 @@ import store
 import brain
 import hotness
 import hermes
+import dispatch
 import supabase_io
 
 logging.basicConfig(level=logging.INFO,
@@ -118,6 +119,9 @@ def run() -> None:
 
     if kept:
         supabase_io.upsert_leads(config.AGENT_ID, kept)
+        # Chain: new HOT leads -> enrich them immediately (don't wait for the contact cron).
+        if any((l.get("tier") or "").upper().startswith("HOT") for l in kept):
+            dispatch.fire("contact-agent.yml")
     supabase_io.finish_run("ok", len(kept))
 
     # Remember ALL fetched-new companies (even rejects) so we don't re-judge them.

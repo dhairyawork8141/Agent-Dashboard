@@ -1493,9 +1493,21 @@ function App() {
     if (isLive) { const sb = await getSB(); await sb.from("leads").update({ status }).eq("id", lead.id); }
   }
   // Draft approval: save edits + flip draft_status. The sender mails 'approved' ones.
+  // Fire a worker now (instead of waiting for cron) — e.g. draft a clicked lead immediately.
+  async function kickWorker(workflow) {
+    if (!isLive) return;
+    try {
+      const sb = await getSB();
+      const { data } = await sb.auth.getSession();
+      await fetch("/api/dispatch", { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ workflow, access_token: data.session && data.session.access_token }) });
+    } catch (_) {}
+  }
   async function updateDraft(lead, patch) {
     setLeads(prev => prev.map(l => l.id === lead.id ? { ...l, ...patch } : l));
     if (isLive) { const sb = await getSB(); await sb.from("leads").update(patch).eq("id", lead.id); }
+    // Manual "Draft email" click -> kick the drafter right away (don't wait ~20 min for cron).
+    if (patch.draft_status === "requested") kickWorker("draft");
   }
   // Reject a lead + record WHY in the datacenter so Hermes can learn from it.
   async function rejectLead(lead, reason) {

@@ -14,6 +14,7 @@ import scorer
 import brain
 import notify
 import hermes
+import dispatch
 import supabase_io
 from settings_loader import load_settings
 
@@ -90,6 +91,9 @@ def run() -> None:
     if supabase_io.configured():
         supabase_io.upsert_leads(config.AGENT_ID, new)
         supabase_io.finish_run(config.AGENT_ID, "ok", len(new))
+        # Chain: new HOT leads -> enrich them immediately (don't wait for the contact cron).
+        if any((j.get("tier") or "").upper().startswith("HOT") for j in new):
+            dispatch.fire("contact-agent.yml")
 
     store.commit(new)
     log.info("Done - %d lead(s) delivered.", len(new))

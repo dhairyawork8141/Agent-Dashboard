@@ -16,6 +16,7 @@ import config
 import apollo
 import draft
 import hermes
+import dispatch
 import supabase_io
 import web_search_enrich
 
@@ -215,6 +216,7 @@ def run() -> None:
             supabase_io.update_lead(lead["id"], {"draft_status": "requested"})
         if hot_undrafted:
             log.info("Auto-queued %d hot lead(s) for immediate drafting.", len(hot_undrafted))
+            dispatch.fire("draft-requested.yml")   # draft them now, don't wait for cron
 
     supabase_io.finish_run("ok", done)
     log.info("Done - %d contact(s) written to the dashboard.", done)
