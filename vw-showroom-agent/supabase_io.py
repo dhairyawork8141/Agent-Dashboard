@@ -72,6 +72,8 @@ def upsert_leads(agent_id: str, leads: list[dict]) -> None:
         "matched_on": l.get("matched_on"),
         "is_recruiter": False,
         "opening_line": l.get("reason"),
+        "contact_name": l.get("contact_name"),
+        "contact_title": l.get("contact_title"),
     } for l in leads]
     try:
         r = requests.post(f"{_base()}/leads",

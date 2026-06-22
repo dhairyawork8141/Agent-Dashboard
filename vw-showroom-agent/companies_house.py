@@ -80,6 +80,35 @@ def _to_lead(item: dict) -> dict | None:
     }
 
 
+def _format_officer_name(nm: str) -> str:
+    """Companies House gives 'SURNAME, Forename' — turn it into 'Forename Surname'."""
+    if "," in nm:
+        last, first = nm.split(",", 1)
+        return f"{first.strip().title()} {last.strip().title()}"
+    return nm.title()
+
+
+def fetch_director(number: str):
+    """Real-director-names skill: the top active director of a company (free CH officers API).
+    Returns (name, role) or (None, None). So drafts open with a real person, not a guess."""
+    if not number:
+        return None, None
+    try:
+        r = requests.get(f"{_BASE}/company/{number}/officers",
+                         params={"items_per_page": 35}, auth=_auth(), timeout=TIMEOUT)
+        r.raise_for_status()
+        for o in r.json().get("items", []):
+            if o.get("resigned_on"):
+                continue
+            role = (o.get("officer_role") or "").lower()
+            if "director" in role or "member" in role:
+                return (_format_officer_name(o.get("name", "")),
+                        (o.get("officer_role") or "Director").replace("-", " ").title())
+    except Exception as e:
+        log.debug("officers fetch failed for %s: %s", number, e)
+    return None, None
+
+
 def _search_keywords(settings: dict, incorporated_from: str | None) -> list[dict]:
     keywords = settings.get("name_keywords") or config.DEFAULT_SETTINGS["name_keywords"]
     status = settings.get("company_status", "active")

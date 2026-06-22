@@ -136,6 +136,12 @@ def run() -> None:
             log.info("No contact or website found for '%s'.", name)
             continue
 
+        # Software-usage skill: a showroom running KBB design software is a strong buyer -> HOT.
+        if contact.get("tech_software") and _pfx(lead.get("tier")) != "HOT":
+            base = (lead.get("tier") or "lead").split(" - ", 1)
+            contact["tier"] = "HOT - " + (base[1] if len(base) > 1 else "lead")
+            log.info("'%s' uses %s -> boosting to HOT", name, contact.get("tech_software"))
+
         # --- Finalise contact record ---
         email = contact.get("contact_email")
         contact["enriched_at"] = datetime.now(timezone.utc).isoformat()
@@ -154,6 +160,7 @@ def run() -> None:
                     "draft_body": d["body"],
                     "draft_status": "pending",
                     "drafted_at": datetime.now(timezone.utc).isoformat(),
+                    "template": d.get("template"),
                 })
 
         if supabase_io.update_lead(lead["id"], contact):
@@ -190,7 +197,7 @@ def run() -> None:
             patch.update({"draft_subject": d["subject"], "draft_body": d["body"],
                           "draft_status": "pending",
                           "drafted_at": datetime.now(timezone.utc).isoformat(),
-                          "status": "Contact found"})
+                          "template": d.get("template"), "status": "Contact found"})
         else:
             patch["draft_status"] = "none"     # couldn't draft (no email) - clear the request
         supabase_io.update_lead(lead["id"], patch)

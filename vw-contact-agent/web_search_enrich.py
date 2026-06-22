@@ -461,6 +461,24 @@ def _guess_name_from_email(addr: str) -> str | None:
 _TITLE_TAG_RE = re.compile(r"<title[^>]*>(.*?)</title>", re.I | re.S)
 
 
+# KBB design software a showroom mentions = strong buying signal (they already do CAD design).
+_SOFTWARE = {
+    "Virtual Worlds": ("virtual worlds", "vw 4d", "4d theatre", "4d theater"),
+    "Winner": ("winner design", "winner flex", "winner cad"),
+    "Compusoft": ("compusoft",),
+    "Cyncly": ("cyncly",),
+    "2020 Design": ("2020 design", "2020 fusion", "20-20 design"),
+    "ArtiCAD": ("articad",),
+    "ProKitchen": ("prokitchen",),
+}
+
+
+def _detect_software(text: str) -> str | None:
+    tl = (text or "").lower()
+    found = [name for name, kws in _SOFTWARE.items() if any(k in tl for k in kws)]
+    return ", ".join(found) or None
+
+
 def _site_is_company(text: str, html: str, name: str) -> bool:
     """Confirm a fetched site actually belongs to THIS company before we trust any
     email off it. Domain-guessing happily returns a *different* business that owns the
@@ -568,6 +586,11 @@ def enrich_from_web(company_name: str, location: str | None,
             title_match = _TITLE_RE.search(text)
             if title_match:
                 result["contact_title"] = title_match.group(0).strip().title()
+
+            # Software-usage skill: detect KBB design software on the site (a buying signal).
+            sw = _detect_software(text)
+            if sw:
+                result["tech_software"] = sw
 
             # Phase 2: let the 8B brain pick the best decision-maker from the page,
             # overriding the regex first-match. Anti-hallucination: only accept an email

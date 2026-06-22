@@ -2,6 +2,7 @@
 key, so this must only ever run server-side (GitHub Actions / your VPS) - never in the
 browser dashboard."""
 import logging
+import re
 from datetime import datetime, timezone, timedelta
 import requests
 import config
@@ -117,15 +118,28 @@ def leads_to_send(limit: int = 25) -> list[dict]:
 
 
 def update_lead(lead_id: str, fields: dict) -> bool:
-    try:
-        r = requests.patch(f"{_base()}/leads",
-                           headers=_headers({"Prefer": "return=minimal"}),
-                           params={"id": f"eq.{lead_id}"}, json=fields, timeout=TIMEOUT)
-        r.raise_for_status()
-        return True
-    except Exception as e:
-        log.warning("update_lead %s failed: %s", lead_id, e)
-        return False
+    """Patch a lead. Resilient to not-yet-migrated columns: if the DB rejects an unknown
+    column (e.g. tech_software/template before v10 is run), that key is dropped and the rest
+    still saves — so new skills never block enrichment writes."""
+    f = {k: v for k, v in (fields or {}).items()}
+    for _ in range(4):
+        try:
+            r = requests.patch(f"{_base()}/leads",
+                               headers=_headers({"Prefer": "return=minimal"}),
+                               params={"id": f"eq.{lead_id}"}, json=f, timeout=TIMEOUT)
+            if r.status_code < 300:
+                return True
+            m = re.search(r"'([a-z_]+)' column", r.text) or \
+                re.search(r"column \"?([a-z_]+)\"?", r.text)
+            if m and m.group(1) in f:               # unknown column -> drop it and retry
+                f.pop(m.group(1), None)
+                continue
+            log.warning("update_lead %s failed: %s", lead_id, r.text[:160])
+            return False
+        except Exception as e:
+            log.warning("update_lead %s error: %s", lead_id, e)
+            return False
+    return False
 
 
 def leads_hot_needing_draft(limit: int = 50) -> list[dict]:

@@ -108,6 +108,14 @@ def run() -> None:
     # Datacenter: record ALL judged candidates (kept AND rejected) before anything else.
     supabase_io.record_candidates(candidates)
 
+    # Real-director-names skill: for new Companies House leads, fetch the actual director
+    # so outreach opens with a real person instead of a guess.
+    for lead in kept:
+        if lead.get("source") == "Companies House" and not lead.get("contact_name"):
+            nm, role = companies_house.fetch_director((lead.get("key") or "").split(":")[-1])
+            if nm:
+                lead["contact_name"], lead["contact_title"] = nm, role or "Director"
+
     if kept:
         supabase_io.upsert_leads(config.AGENT_ID, kept)
     supabase_io.finish_run("ok", len(kept))
