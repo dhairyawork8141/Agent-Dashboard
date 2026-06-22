@@ -1,22 +1,32 @@
 {
   "seen_keys": [
     "adzuna:5768004846",
+    "adzuna:5772158052",
     "jooble:-1637813788789373642",
+    "jooble:-1811045587169690708",
     "jooble:-1874248887394372716",
     "jooble:-1981717554949932891",
     "jooble:-2111189677430362801",
     "jooble:-2628326685075748827",
     "jooble:-3128559562541643373",
+    "jooble:-3182292412152053399",
     "jooble:-3732986075590363851",
     "jooble:-384439673724345633",
     "jooble:-3878675626607392506",
+    "jooble:-4075540604698216538",
     "jooble:-4081602527097180206",
+    "jooble:-4265372227825809849",
     "jooble:-4430921635475003378",
     "jooble:-6167138594490114408",
+    "jooble:-6619120759262434467",
     "jooble:-6858202802408723724",
     "jooble:-7902092451433650557",
+    "jooble:-7911721690351132079",
     "jooble:-7914943930625183830",
     "jooble:-7949806845461475743",
+    "jooble:132234913619931209",
+    "jooble:1402352430949664012",
+    "jooble:2105724005074906102",
     "jooble:2157351894422652445",
     "jooble:2341861005571848650",
     "jooble:2480077444184334532",
@@ -307,6 +317,86 @@
       "company": "Aqua Kitchen",
       "tier": "WARM - Winner/Cyncly",
       "url": "https://jooble.org/jdp/2341861005571848650"
+    },
+    {
+      "found_at": "2026-06-22T15:59:38.738125+00:00",
+      "key": "jooble:-6619120759262434467",
+      "title": "Kitchen Designer - Hybrid, Ashland, MA",
+      "company": "The Corner Cabinet",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://jooble.org/jdp/-6619120759262434467"
+    },
+    {
+      "found_at": "2026-06-22T15:59:38.738125+00:00",
+      "key": "jooble:-1811045587169690708",
+      "title": "Contract Kitchen Designer",
+      "company": "Jdr---Just-Dynamic-Recruitment-1",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://jooble.org/jdp/-1811045587169690708"
+    },
+    {
+      "found_at": "2026-06-22T15:59:38.738125+00:00",
+      "key": "jooble:-3182292412152053399",
+      "title": "Residential CAD Designer for High-End Homes",
+      "company": "We Search People",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://jooble.org/jdp/-3182292412152053399"
+    },
+    {
+      "found_at": "2026-06-22T15:59:38.738125+00:00",
+      "key": "jooble:1402352430949664012",
+      "title": "CAD Designer Sterling Heights, Michigan, US",
+      "company": "KPS Global LLC",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://jooble.org/jdp/1402352430949664012"
+    },
+    {
+      "found_at": "2026-06-22T15:59:38.738125+00:00",
+      "key": "adzuna:5772158052",
+      "title": "Kitchen Surveyor / Kitchen Designer",
+      "company": "WHQS",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://www.adzuna.co.uk/jobs/land/ad/5772158052?se=nEhlTFNu8RGLrccMWCcOdA&utm_medium=api&utm_source=119695ba&v=FDBA593889388733BEAF3F065F1CFBF069FBA938"
+    },
+    {
+      "found_at": "2026-06-22T15:59:38.738125+00:00",
+      "key": "jooble:2105724005074906102",
+      "title": "Kitchen Sales Designer",
+      "company": "Howdens-95ed4e89",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://jooble.org/jdp/2105724005074906102"
+    },
+    {
+      "found_at": "2026-06-22T15:59:38.738125+00:00",
+      "key": "jooble:-7911721690351132079",
+      "title": "Shower Door 3D CAD Designer & Drafter | SolidWorks Pro",
+      "company": "Payfuture Technologies",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://jooble.org/jdp/-7911721690351132079"
+    },
+    {
+      "found_at": "2026-06-22T15:59:38.738125+00:00",
+      "key": "jooble:132234913619931209",
+      "title": "CAD Designer I: SolidWorks Design & Drafting",
+      "company": "Nabors Corporate Services Inc",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/132234913619931209"
+    },
+    {
+      "found_at": "2026-06-22T15:59:38.738125+00:00",
+      "key": "jooble:-4265372227825809849",
+      "title": "CAD Designer II Precision Drafting & GD&T",
+      "company": "RBC - Sargent Aerospace & Defense",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/-4265372227825809849"
+    },
+    {
+      "found_at": "2026-06-22T15:59:38.738125+00:00",
+      "key": "jooble:-4075540604698216538",
+      "title": "CAD Designer (SolidWorks) for Heavy Truck Systems",
+      "company": "Assembly Systems",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/-4075540604698216538"
     }
   ]
 }
