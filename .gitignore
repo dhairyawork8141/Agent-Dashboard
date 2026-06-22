@@ -8,3 +8,9 @@ vw-job-agent/deleted_leads_backup_*.json
 # Python
 __pycache__/
 *.pyc
+
+# Wrangler (deploy is git-connected Cloudflare Pages now)
+.wrangler/
+
+# Logs
+*.log
