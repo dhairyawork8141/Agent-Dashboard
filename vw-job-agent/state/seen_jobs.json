@@ -4,18 +4,21 @@
     "jooble:-1637813788789373642",
     "jooble:-1874248887394372716",
     "jooble:-1981717554949932891",
+    "jooble:-2111189677430362801",
     "jooble:-2628326685075748827",
     "jooble:-3128559562541643373",
     "jooble:-3732986075590363851",
     "jooble:-384439673724345633",
     "jooble:-3878675626607392506",
     "jooble:-4081602527097180206",
+    "jooble:-4430921635475003378",
     "jooble:-6167138594490114408",
     "jooble:-6858202802408723724",
     "jooble:-7902092451433650557",
     "jooble:-7914943930625183830",
     "jooble:-7949806845461475743",
     "jooble:2157351894422652445",
+    "jooble:2341861005571848650",
     "jooble:2480077444184334532",
     "jooble:3062164961892848303",
     "jooble:3241459521366692755",
@@ -280,6 +283,30 @@
       "company": "NKBA",
       "tier": "WARM - Winner/Cyncly",
       "url": "https://jooble.org/jdp/-3128559562541643373"
+    },
+    {
+      "found_at": "2026-06-22T07:24:13.527316+00:00",
+      "key": "jooble:-4430921635475003378",
+      "title": "Kitchen and Bath Designer",
+      "company": "West Haven Lumber",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://jooble.org/jdp/-4430921635475003378"
+    },
+    {
+      "found_at": "2026-06-22T07:24:13.527316+00:00",
+      "key": "jooble:-2111189677430362801",
+      "title": "Kitchen and Bath Designer",
+      "company": "Sunique Cabinets",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://jooble.org/jdp/-2111189677430362801"
+    },
+    {
+      "found_at": "2026-06-22T07:24:13.527316+00:00",
+      "key": "jooble:2341861005571848650",
+      "title": "Kitchen and Bath Designer",
+      "company": "Aqua Kitchen",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://jooble.org/jdp/2341861005571848650"
     }
   ]
 }
