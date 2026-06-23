@@ -1411,32 +1411,34 @@ function RejectModal({ lead, onCancel, onConfirm }) {
 }
 
 /* ----------------------------- Lead Database ----------------------------------- */
-function LeadDatabaseView({ allLeads }) {
+function LeadDatabaseView({ data, loading }) {
   const [q, setQ] = useState("");
   const [cat, setCat] = useState("");
   const [src, setSrc] = useState("");
   const [pg, setPg] = useState(1);
   const PER = 50;
 
-  const cats = useMemo(() => [...new Set(allLeads.map(r => r.category).filter(Boolean))].sort(), [allLeads]);
-  const sources = useMemo(() => [...new Set(allLeads.map(r => r.source).filter(Boolean))].sort(), [allLeads]);
+  const cats = useMemo(() => [...new Set((data||[]).map(r => r.category).filter(Boolean))].sort(), [data]);
+  const sources = useMemo(() => [...new Set((data||[]).map(r => (r.source||"").split("|")[0].trim()).filter(Boolean))].sort(), [data]);
 
   const filtered = useMemo(() => {
-    let d = allLeads;
-    if (q) { const lq = q.toLowerCase(); d = d.filter(r => (r.showroom_name||r.company||r.title||"").toLowerCase().includes(lq) || (r.contact_email||"").toLowerCase().includes(lq) || (r.city||"").toLowerCase().includes(lq)); }
+    let d = data||[];
+    if (q) { const lq = q.toLowerCase(); d = d.filter(r => (r.showroom_name||"").toLowerCase().includes(lq) || (r.contact_email||"").toLowerCase().includes(lq) || (r.city||"").toLowerCase().includes(lq) || (r.country||"").toLowerCase().includes(lq)); }
     if (cat) d = d.filter(r => (r.category||"").toLowerCase() === cat.toLowerCase());
-    if (src) d = d.filter(r => r.source === src);
+    if (src) d = d.filter(r => (r.source||"").startsWith(src));
     return d;
-  }, [allLeads, q, cat, src]);
+  }, [data, q, cat, src]);
 
   const pages = Math.ceil(filtered.length / PER);
   const rows = filtered.slice((pg-1)*PER, pg*PER);
 
+  if (loading) return <div className="p-10 text-muted text-sm flex items-center gap-3"><i className="fa-solid fa-spinner fa-spin"></i> Loading 11,000+ leads from Excel data…</div>;
+
   return (
     <div className="p-6 md:p-10 max-w-7xl mx-auto space-y-6">
-      <SectionHeader icon="fa-table-list" eyebrow="All sources — live from database" title="Lead Database" count={filtered.length} />
+      <SectionHeader icon="fa-table-list" eyebrow="Historical Excel + agent-sourced" title="Lead Database" count={filtered.length} />
       <div className="flex flex-wrap gap-3">
-        <input value={q} onChange={e=>{setQ(e.target.value);setPg(1)}} placeholder="Search company, city, email…"
+        <input value={q} onChange={e=>{setQ(e.target.value);setPg(1)}} placeholder="Search company, city, email, country…"
           className="flex-1 min-w-40 rounded-xl border border-line bg-paper px-4 py-2 text-sm focus:outline-none focus:border-brass" />
         <select value={cat} onChange={e=>{setCat(e.target.value);setPg(1)}} className="rounded-xl border border-line bg-bone px-3 py-2 text-sm">
           <option value="">All categories</option>
@@ -1450,21 +1452,21 @@ function LeadDatabaseView({ allLeads }) {
       <div className="overflow-x-auto rounded-2xl border border-line">
         <table className="w-full text-sm">
           <thead><tr className="border-b border-line bg-paper">
-            {["Company","Category","Tier","City","Phone","Email","Website","Source"].map(h=>
+            {["Company","Owner","Category","City","Country","Phone","Email","Website"].map(h=>
               <th key={h} className="text-left px-4 py-3 text-xs text-muted font-semibold tracking-wide whitespace-nowrap">{h}</th>
             )}
           </tr></thead>
           <tbody>
             {rows.map((r,i)=>(
-              <tr key={r.id||i} className="border-b border-line/50 hover:bg-paper/60 transition-colors">
-                <td className="px-4 py-2.5 font-medium text-ink max-w-48 truncate" title={r.showroom_name||r.company||r.title}>{r.showroom_name||r.company||r.title||"—"}</td>
+              <tr key={i} className="border-b border-line/50 hover:bg-paper/60 transition-colors">
+                <td className="px-4 py-2.5 font-medium text-ink max-w-48 truncate" title={r.showroom_name}>{r.showroom_name||"—"}</td>
+                <td className="px-4 py-2.5 text-muted text-xs max-w-32 truncate">{r.contact_name||"—"}</td>
                 <td className="px-4 py-2.5"><span className="text-xs bg-brass/10 text-brass rounded-full px-2 py-0.5">{r.category||"—"}</span></td>
-                <td className="px-4 py-2.5"><span className={"text-xs font-semibold " + (tierKey(r.tier)==="hot"?"text-hot":tierKey(r.tier)==="warm"?"text-warm":"text-muted")}>{r.tier||"—"}</span></td>
                 <td className="px-4 py-2.5 text-muted">{r.city||"—"}</td>
-                <td className="px-4 py-2.5 text-muted max-w-36 truncate">{r.contact_phone||<span className="opacity-30">—</span>}</td>
-                <td className="px-4 py-2.5 text-muted max-w-48 truncate">{r.contact_email||<span className="opacity-30">—</span>}</td>
-                <td className="px-4 py-2.5 max-w-40 truncate">{r.website?<a href={r.website} target="_blank" rel="noreferrer" className="text-brass hover:underline text-xs">{r.website.replace(/https?:\/\//,"")}</a>:<span className="opacity-30 text-muted">—</span>}</td>
-                <td className="px-4 py-2.5 text-xs text-muted">{r.source||"—"}</td>
+                <td className="px-4 py-2.5 text-muted text-xs">{r.country||"—"}</td>
+                <td className="px-4 py-2.5 text-muted max-w-36 truncate text-xs">{r.contact_phone||<span className="opacity-30">—</span>}</td>
+                <td className="px-4 py-2.5 text-muted max-w-48 truncate text-xs">{r.contact_email||<span className="opacity-30">—</span>}</td>
+                <td className="px-4 py-2.5 max-w-40 truncate">{r.website?<a href={r.website.startsWith("http")?r.website:"https://"+r.website} target="_blank" rel="noreferrer" className="text-brass hover:underline text-xs">{r.website.replace(/https?:\/\//,"")}</a>:<span className="opacity-30 text-muted text-xs">—</span>}</td>
               </tr>
             ))}
           </tbody>
@@ -1483,21 +1485,24 @@ function LeadDatabaseView({ allLeads }) {
 }
 
 /* ----------------------------- Missing Data ------------------------------------ */
-function MissingDataView({ allLeads }) {
-  const missing = useMemo(()=>allLeads.filter(r=>!r.contact_email&&!r.contact_phone&&!r.website), [allLeads]);
-  const done = allLeads.length - missing.length;
-  const pct = allLeads.length ? Math.round(done/allLeads.length*100) : 0;
+function MissingDataView({ data, loading }) {
+  const missing = useMemo(()=>(data||[]).filter(r=>!r.contact_email&&!r.contact_phone&&!r.website), [data]);
+  const total = (data||[]).length;
+  const done = total - missing.length;
+  const pct = total ? Math.round(done/total*100) : 0;
   const [pg, setPg] = useState(1);
   const PER = 50;
   const rows = missing.slice((pg-1)*PER, pg*PER);
   const pages = Math.ceil(missing.length/PER);
+
+  if (loading) return <div className="p-10 text-muted text-sm flex items-center gap-3"><i className="fa-solid fa-spinner fa-spin"></i> Loading…</div>;
 
   return (
     <div className="p-6 md:p-10 max-w-5xl mx-auto space-y-6">
       <SectionHeader icon="fa-circle-exclamation" eyebrow="No email · phone · website" title="Missing Data" count={missing.length} />
       <div className="rounded-2xl border border-line bg-paper p-5 space-y-3">
         <div className="flex justify-between text-sm">
-          <span className="text-muted">Contacts found: <strong className="text-ink">{done.toLocaleString()}</strong> of <strong className="text-ink">{allLeads.length.toLocaleString()}</strong></span>
+          <span className="text-muted">Contacts found: <strong className="text-ink">{done.toLocaleString()}</strong> of <strong className="text-ink">{total.toLocaleString()}</strong></span>
           <span className="font-semibold text-brass">{pct}% complete</span>
         </div>
         <div className="h-2.5 rounded-full bg-line overflow-hidden">
@@ -1542,11 +1547,13 @@ function MissingDataView({ allLeads }) {
 }
 
 /* ----------------------------- Golden Leads ------------------------------------ */
-function GoldenLeadsView({ allLeads }) {
+function GoldenLeadsView({ data, loading }) {
   const golden = useMemo(()=>
-    allLeads.filter(r=>tierKey(r.tier)==="hot"&&r.contact_email)
+    (data||[]).filter(r=>r.score>=80&&r.contact_email)
       .sort((a,b)=>(b.score||0)-(a.score||0))
-  , [allLeads]);
+  , [data]);
+
+  if (loading) return <div className="p-10 text-muted text-sm flex items-center gap-3"><i className="fa-solid fa-spinner fa-spin"></i> Loading…</div>;
 
   return (
     <div className="p-6 md:p-10 max-w-7xl mx-auto space-y-6">
@@ -1576,27 +1583,30 @@ function GoldenLeadsView({ allLeads }) {
 }
 
 /* ----------------------------- Analytics --------------------------------------- */
-function AnalyticsView({ allLeads }) {
-  const catRef  = useRef(null);
-  const tierRef = useRef(null);
-  const srcRef  = useRef(null);
-  const draftRef= useRef(null);
+function AnalyticsView({ data, loading }) {
+  const catRef   = useRef(null);
+  const scoreRef = useRef(null);
+  const srcRef   = useRef(null);
+  const statusRef= useRef(null);
 
   const stats = useMemo(()=>{
-    const cats={}, tiers={}, srcs={}, drafts={};
+    const cats={}, scores={}, srcs={}, statuses={};
     let withEmail=0, withPhone=0, withWebsite=0, withSocial=0;
-    allLeads.forEach(r=>{
+    (data||[]).forEach(r=>{
       const c=r.category||"Unknown"; cats[c]=(cats[c]||0)+1;
-      const t=tierKey(r.tier)||"unknown"; tiers[t]=(tiers[t]||0)+1;
-      const s=r.source||"unknown"; srcs[s]=(srcs[s]||0)+1;
-      const d=r.draft_status||"none"; drafts[d]=(drafts[d]||0)+1;
+      const sc=r.score>=80?"Score 80-100":r.score>=50?"Score 50-79":r.score>0?"Score 1-49":"Unscored";
+      scores[sc]=(scores[sc]||0)+1;
+      const s=(r.source||"unknown").split("|")[0].trim(); srcs[s]=(srcs[s]||0)+1;
+      const st=r.outreach_status||"not_contacted"; statuses[st]=(statuses[st]||0)+1;
       if(r.contact_email) withEmail++;
       if(r.contact_phone) withPhone++;
       if(r.website) withWebsite++;
       if(r.social_linkedin_owner||r.social_instagram||r.social_facebook) withSocial++;
     });
-    return { cats, tiers, srcs, drafts, withEmail, withPhone, withWebsite, withSocial, total: allLeads.length };
-  }, [allLeads]);
+    return { cats, scores, srcs, statuses, withEmail, withPhone, withWebsite, withSocial, total:(data||[]).length };
+  }, [data]);
+
+  if (loading) return <div className="p-10 text-muted text-sm flex items-center gap-3"><i className="fa-solid fa-spinner fa-spin"></i> Loading analytics…</div>;
 
   useEffect(()=>{
     if(!stats.total || typeof Chart==="undefined") return;
@@ -1615,15 +1625,15 @@ function AnalyticsView({ allLeads }) {
       });
     };
 
-    const catL=Object.keys(stats.cats).sort((a,b)=>stats.cats[b]-stats.cats[a]).slice(0,8);
-    const tierL=["hot","warm","watch","unknown"];
-    const srcL=Object.keys(stats.srcs).sort((a,b)=>stats.srcs[b]-stats.srcs[a]).slice(0,6);
-    const draftL=Object.keys(stats.drafts).filter(k=>k!=="null");
+    const catL=Object.keys(stats.cats).sort((a,b)=>stats.cats[b]-stats.cats[a]).slice(0,10);
+    const scoreL=["Score 80-100","Score 50-79","Score 1-49","Unscored"];
+    const srcL=Object.keys(stats.srcs).sort((a,b)=>stats.srcs[b]-stats.srcs[a]).slice(0,8);
+    const stL=Object.keys(stats.statuses);
 
     const c1=mk(catRef,"bar",catL,catL.map(l=>stats.cats[l]),"Leads by Category");
-    const c2=mk(tierRef,"doughnut",tierL,tierL.map(l=>stats.tiers[l]||0),"By Tier");
-    const c3=mk(srcRef,"doughnut",srcL,srcL.map(l=>stats.srcs[l]||0),"By Source");
-    const c4=mk(draftRef,"bar",draftL,draftL.map(l=>stats.drafts[l]||0),"Email Pipeline");
+    const c2=mk(scoreRef,"doughnut",scoreL,scoreL.map(l=>stats.scores[l]||0),"Score Distribution");
+    const c3=mk(srcRef,"bar",srcL,srcL.map(l=>stats.srcs[l]||0),"By Source File");
+    const c4=mk(statusRef,"doughnut",stL,stL.map(l=>stats.statuses[l]||0),"Outreach Status");
     return()=>{ [c1,c2,c3,c4].forEach(c=>c&&c.destroy()); };
   },[stats]);
 
@@ -1646,13 +1656,13 @@ function AnalyticsView({ allLeads }) {
           <div style={{height:280}}><canvas ref={catRef}></canvas></div>
         </div>
         <div className="rounded-2xl border border-line bg-paper p-5">
-          <div style={{height:280}}><canvas ref={draftRef}></canvas></div>
+          <div style={{height:280}}><canvas ref={srcRef}></canvas></div>
         </div>
         <div className="rounded-2xl border border-line bg-paper p-5">
-          <div style={{height:220}}><canvas ref={tierRef}></canvas></div>
+          <div style={{height:220}}><canvas ref={scoreRef}></canvas></div>
         </div>
         <div className="rounded-2xl border border-line bg-paper p-5">
-          <div style={{height:220}}><canvas ref={srcRef}></canvas></div>
+          <div style={{height:220}}><canvas ref={statusRef}></canvas></div>
         </div>
       </div>
     </div>
@@ -1668,6 +1678,9 @@ function App() {
   const [view, setView] = useState({ name: "overview" });
   const [adding, setAdding] = useState(false);
   const [rejecting, setRejecting] = useState(null);   // lead pending rejection (opens RejectModal)
+  const [dashData, setDashData] = useState(null);
+  const [dashLoading, setDashLoading] = useState(false);
+  const dashFetched = useRef(false);
   const [isDark, setIsDark] = useState(() => {
     return localStorage.getItem("theme") === "dark" || 
       (!localStorage.getItem("theme") && window.matchMedia("(prefers-color-scheme: dark)").matches);
@@ -1699,6 +1712,38 @@ function App() {
     setAgents(a || []); setLeads(l || []);
   }
   useEffect(() => { if (isLive && session) loadData(); }, [session]);
+
+  // Lazy-load Excel/historical data when user navigates to a Data Intelligence panel
+  useEffect(() => {
+    const DATA_VIEWS = ["leadsdb","missing_data","golden_leads","analytics"];
+    if (!DATA_VIEWS.includes(view.name) || dashFetched.current) return;
+    dashFetched.current = true;
+    setDashLoading(true);
+    fetch('/Data%20Analist/dashboard_data.json')
+      .then(r => r.json())
+      .then(j => {
+        const rows = (j.leads || []).map(r => ({
+          showroom_name:  r.company_name,
+          contact_name:   r.owner_name,
+          city:           r.city,
+          postcode:       r.postcode,
+          country:        r.country,
+          contact_phone:  r.phone,
+          contact_email:  r.email,
+          website:        r.website,
+          category:       r.category,
+          score:          r.score,
+          source:         r.source_file,
+          outreach_status:r.outreach_status,
+          social_linkedin_owner: r.linkedin_owner,
+          social_instagram:      r.instagram,
+          social_facebook:       r.facebook,
+        }));
+        setDashData(rows);
+      })
+      .catch(() => setDashData([]))
+      .finally(() => setDashLoading(false));
+  }, [view.name]);
 
   const leadsByAgent = useMemo(() => {
     const m = {}; agents.forEach(a => m[a.id] = []);
@@ -1821,10 +1866,10 @@ function App() {
 
         {view.name === "datacenter" && <DatacenterView />}
 
-        {view.name === "leadsdb"      && <LeadDatabaseView allLeads={leads} />}
-        {view.name === "missing_data" && <MissingDataView  allLeads={leads} />}
-        {view.name === "golden_leads" && <GoldenLeadsView  allLeads={leads} />}
-        {view.name === "analytics"    && <AnalyticsView    allLeads={leads} />}
+        {view.name === "leadsdb"      && <LeadDatabaseView data={dashData} loading={dashLoading} />}
+        {view.name === "missing_data" && <MissingDataView  data={dashData} loading={dashLoading} />}
+        {view.name === "golden_leads" && <GoldenLeadsView  data={dashData} loading={dashLoading} />}
+        {view.name === "analytics"    && <AnalyticsView    data={dashData} loading={dashLoading} />}
 
         {view.name === "account" && <Account email={email} />}
 
