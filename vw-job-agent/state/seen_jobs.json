@@ -2,6 +2,11 @@
   "seen_keys": [
     "adzuna:5768004846",
     "adzuna:5772158052",
+    "adzuna:5773388652",
+    "adzuna:5773389687",
+    "adzuna:5773389693",
+    "adzuna:5773546693",
+    "adzuna:5773547211",
     "jooble:-1637813788789373642",
     "jooble:-1811045587169690708",
     "jooble:-1874248887394372716",
@@ -19,25 +24,42 @@
     "jooble:-4430921635475003378",
     "jooble:-5903402076923429277",
     "jooble:-6167138594490114408",
+    "jooble:-6328953354135364755",
+    "jooble:-6599254448609123880",
     "jooble:-6619120759262434467",
     "jooble:-6858202802408723724",
     "jooble:-7902092451433650557",
     "jooble:-7911721690351132079",
     "jooble:-7914943930625183830",
     "jooble:-7949806845461475743",
+    "jooble:-8005282599137711111",
+    "jooble:-825959194620270043",
+    "jooble:-8470211536973466020",
     "jooble:-9061636504051778153",
+    "jooble:1003624036477273878",
     "jooble:132234913619931209",
     "jooble:1402352430949664012",
     "jooble:2105724005074906102",
     "jooble:2157351894422652445",
+    "jooble:2265293990521364605",
     "jooble:2341861005571848650",
     "jooble:2480077444184334532",
     "jooble:3062164961892848303",
     "jooble:3241459521366692755",
+    "jooble:3465402143433879556",
+    "jooble:3774666403823618846",
+    "jooble:441163505920899873",
+    "jooble:4474055545938824074",
+    "jooble:4638179025437672169",
+    "jooble:4842675656065294317",
+    "jooble:4946988086774409366",
     "jooble:5057090966055305622",
+    "jooble:5402485584379052678",
+    "jooble:5520262495645851348",
     "jooble:6137768448713515923",
     "jooble:7234248933805019627",
     "jooble:8168364863955627474",
+    "jooble:8642994020413331722",
     "jooble:8890869474542288211",
     "reed:56903504",
     "reed:56970475",
@@ -415,6 +437,182 @@
       "company": "Brumann Innenraumkonzepte GmbH",
       "tier": "WARM - Winner/Cyncly",
       "url": "https://jooble.org/jdp/-5903402076923429277"
+    },
+    {
+      "found_at": "2026-06-23T16:11:23.054651+00:00",
+      "key": "jooble:2265293990521364605",
+      "title": "Kitchen Designer",
+      "company": "Ateliers Jacob Cuisine & Espace",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://jooble.org/jdp/2265293990521364605"
+    },
+    {
+      "found_at": "2026-06-23T16:11:23.054651+00:00",
+      "key": "jooble:3774666403823618846",
+      "title": "Kitchen Designer-European Products Specialist",
+      "company": "Nobilia North America Inc.",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://jooble.org/jdp/3774666403823618846"
+    },
+    {
+      "found_at": "2026-06-23T16:11:23.054651+00:00",
+      "key": "adzuna:5773389693",
+      "title": "Kitchen Designer",
+      "company": "DESIGNER RECRUITMENT LTD",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://www.adzuna.co.uk/jobs/land/ad/5773389693?se=AhZuFx5v8RGnWKOvUc-68A&utm_medium=api&utm_source=119695ba&v=D7A376C93ECC418AF9BE48D0804EF3A1FBE58478"
+    },
+    {
+      "found_at": "2026-06-23T16:11:23.054651+00:00",
+      "key": "adzuna:5773547211",
+      "title": "Kitchen Designer",
+      "company": "DESIGNER RECRUITMENT LTD",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://www.adzuna.co.uk/jobs/details/5773547211?utm_medium=api&utm_source=119695ba"
+    },
+    {
+      "found_at": "2026-06-23T16:11:23.054651+00:00",
+      "key": "jooble:-8005282599137711111",
+      "title": "CAD Designer",
+      "company": "Kps-Global,-LL",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://jooble.org/jdp/-8005282599137711111"
+    },
+    {
+      "found_at": "2026-06-23T16:11:23.054651+00:00",
+      "key": "jooble:1003624036477273878",
+      "title": "Millwork CAD Designer for Custom Interiors",
+      "company": "Energy Jobline ZR",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://jooble.org/jdp/1003624036477273878"
+    },
+    {
+      "found_at": "2026-06-23T16:11:23.054651+00:00",
+      "key": "adzuna:5773388652",
+      "title": "Kitchen Designer",
+      "company": "DESIGNER RECRUITMENT LTD",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://www.adzuna.co.uk/jobs/land/ad/5773388652?se=BlkvGR5v8RG6VbN9WE0NzQ&utm_medium=api&utm_source=119695ba&v=3F41FB504F16C86D0360716D5555FA8F6098C0B7"
+    },
+    {
+      "found_at": "2026-06-23T16:11:23.054651+00:00",
+      "key": "adzuna:5773389687",
+      "title": "Kitchen Designer",
+      "company": "DESIGNER RECRUITMENT LTD",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://www.adzuna.co.uk/jobs/land/ad/5773389687?se=BlkvGR5v8RG6VbN9WE0NzQ&utm_medium=api&utm_source=119695ba&v=ED89686D6DB21E6BFE41841F5BF129FE9FDB0841"
+    },
+    {
+      "found_at": "2026-06-23T16:11:23.054651+00:00",
+      "key": "adzuna:5773546693",
+      "title": "Kitchen Designer",
+      "company": "DESIGNER RECRUITMENT LTD",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://www.adzuna.co.uk/jobs/details/5773546693?utm_medium=api&utm_source=119695ba"
+    },
+    {
+      "found_at": "2026-06-23T16:11:23.054651+00:00",
+      "key": "jooble:4842675656065294317",
+      "title": "CAD Designer: 2D/3D Modeling & Prototyping",
+      "company": "Andersen",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://jooble.org/jdp/4842675656065294317"
+    },
+    {
+      "found_at": "2026-06-23T16:11:23.054651+00:00",
+      "key": "jooble:4474055545938824074",
+      "title": "CAD Designer I/II Design & Drafting Support",
+      "company": "SOCCo",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/4474055545938824074"
+    },
+    {
+      "found_at": "2026-06-23T16:11:23.054651+00:00",
+      "key": "jooble:4638179025437672169",
+      "title": "CAD Designer: Production Docs & BOMs",
+      "company": "swipejobs",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/4638179025437672169"
+    },
+    {
+      "found_at": "2026-06-23T16:11:23.054651+00:00",
+      "key": "jooble:5402485584379052678",
+      "title": "Hydrographic CAD Technician & Survey Designer",
+      "company": "Prudent Engineering",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/5402485584379052678"
+    },
+    {
+      "found_at": "2026-06-23T16:11:23.054651+00:00",
+      "key": "jooble:-825959194620270043",
+      "title": "CAD Designer - Engine Components (Siemens NX)",
+      "company": "Rehlko Uninterruptible Power Ltd.",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/-825959194620270043"
+    },
+    {
+      "found_at": "2026-06-23T16:11:23.054651+00:00",
+      "key": "jooble:8642994020413331722",
+      "title": "Engineering CAD Designer for Rail Solutions",
+      "company": "voestalpine Railway Systems Nortrak",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/8642994020413331722"
+    },
+    {
+      "found_at": "2026-06-23T16:11:23.054651+00:00",
+      "key": "jooble:4946988086774409366",
+      "title": "Senior CAD Designer - Aviation Life Support Systems",
+      "company": "Safran companies",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/4946988086774409366"
+    },
+    {
+      "found_at": "2026-06-23T16:11:23.054651+00:00",
+      "key": "jooble:-6599254448609123880",
+      "title": "CAD Designer I: Erection Drawings & Drafting Support",
+      "company": "EFCO Forming & Shoring Solutions",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/-6599254448609123880"
+    },
+    {
+      "found_at": "2026-06-23T16:11:23.054651+00:00",
+      "key": "jooble:-6328953354135364755",
+      "title": "CAD Designer, Custom Upholstery & Furniture",
+      "company": "RH-USA Inc",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/-6328953354135364755"
+    },
+    {
+      "found_at": "2026-06-23T16:11:23.054651+00:00",
+      "key": "jooble:441163505920899873",
+      "title": "Civil 3D CAD Designer - Grading & Land Development",
+      "company": "Geosyntec Consultants",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/441163505920899873"
+    },
+    {
+      "found_at": "2026-06-23T16:11:23.054651+00:00",
+      "key": "jooble:-8470211536973466020",
+      "title": "Parametric 3D CAD Designer",
+      "company": "TECO-Westinghouse",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/-8470211536973466020"
+    },
+    {
+      "found_at": "2026-06-23T16:11:23.054651+00:00",
+      "key": "jooble:5520262495645851348",
+      "title": "EPLAN CAD Designer for Electrical Systems & Controls",
+      "company": "ibb Konstruktionsdienstleistungs",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/5520262495645851348"
+    },
+    {
+      "found_at": "2026-06-23T16:11:23.054651+00:00",
+      "key": "jooble:3465402143433879556",
+      "title": "Land Development CAD Designer - Site & Grading",
+      "company": "EmergencyMD",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/3465402143433879556"
     }
   ]
 }
