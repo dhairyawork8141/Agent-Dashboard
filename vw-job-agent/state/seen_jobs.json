@@ -11,6 +11,7 @@
     "adzuna:5773816823",
     "adzuna:5773816897",
     "jooble:-1637813788789373642",
+    "jooble:-1681862217440582952",
     "jooble:-1742265395306195573",
     "jooble:-1811045587169690708",
     "jooble:-1874248887394372716",
@@ -20,6 +21,7 @@
     "jooble:-2628326685075748827",
     "jooble:-3128559562541643373",
     "jooble:-3182292412152053399",
+    "jooble:-3662000645413085497",
     "jooble:-3732986075590363851",
     "jooble:-384439673724345633",
     "jooble:-3878675626607392506",
@@ -27,6 +29,7 @@
     "jooble:-4081602527097180206",
     "jooble:-4265372227825809849",
     "jooble:-4430921635475003378",
+    "jooble:-4779331121671389487",
     "jooble:-5903402076923429277",
     "jooble:-6167138594490114408",
     "jooble:-6328953354135364755",
@@ -39,10 +42,15 @@
     "jooble:-7914943930625183830",
     "jooble:-7949806845461475743",
     "jooble:-8005282599137711111",
+    "jooble:-820886724038012098",
     "jooble:-825959194620270043",
+    "jooble:-8349090325554811109",
     "jooble:-8470211536973466020",
+    "jooble:-8556074428452018514",
+    "jooble:-9040970637887286570",
     "jooble:-9061636504051778153",
     "jooble:1003624036477273878",
+    "jooble:1035360462276703548",
     "jooble:132234913619931209",
     "jooble:1402352430949664012",
     "jooble:2105724005074906102",
@@ -63,9 +71,12 @@
     "jooble:5057090966055305622",
     "jooble:5402485584379052678",
     "jooble:5520262495645851348",
+    "jooble:5970380250226725693",
+    "jooble:6093452284353169247",
     "jooble:6137768448713515923",
     "jooble:7234248933805019627",
     "jooble:8168364863955627474",
+    "jooble:8566799609653496922",
     "jooble:8642994020413331722",
     "jooble:8890869474542288211",
     "reed:56903504",
@@ -676,6 +687,94 @@
       "company": "Blue Origin",
       "tier": "WATCH - generic CAD",
       "url": "https://jooble.org/jdp/-6960531453316769785"
+    },
+    {
+      "found_at": "2026-06-24T21:14:32.183028+00:00",
+      "key": "jooble:8566799609653496922",
+      "title": "Designer",
+      "company": "Office Revolution",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://jooble.org/jdp/8566799609653496922"
+    },
+    {
+      "found_at": "2026-06-24T21:14:32.183028+00:00",
+      "key": "jooble:-1681862217440582952",
+      "title": "Senior CAD Designer Land Development & Growth",
+      "company": "Dynamic Engineering Consultants",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/-1681862217440582952"
+    },
+    {
+      "found_at": "2026-06-24T21:14:32.183028+00:00",
+      "key": "jooble:-9040970637887286570",
+      "title": "Submarine CAD Designer - On-Call (3D/2D Models)",
+      "company": "Noblis",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/-9040970637887286570"
+    },
+    {
+      "found_at": "2026-06-24T21:14:32.183028+00:00",
+      "key": "jooble:-4779331121671389487",
+      "title": "Senior Transmission Line CAD Designer (Hybrid)",
+      "company": "Sargent Lundy",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/-4779331121671389487"
+    },
+    {
+      "found_at": "2026-06-24T21:14:32.183028+00:00",
+      "key": "jooble:-8349090325554811109",
+      "title": "Junior Electric Distribution CAD Designer",
+      "company": "Halff Associates",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/-8349090325554811109"
+    },
+    {
+      "found_at": "2026-06-24T21:14:32.183028+00:00",
+      "key": "jooble:1035360462276703548",
+      "title": "Junior Electric Distribution CAD Designer",
+      "company": "Halff Associates",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/1035360462276703548"
+    },
+    {
+      "found_at": "2026-06-24T21:14:32.183028+00:00",
+      "key": "jooble:6093452284353169247",
+      "title": "3D CAD Designer & Detail Drafter (Solid Edge)",
+      "company": "Evapco",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/6093452284353169247"
+    },
+    {
+      "found_at": "2026-06-24T21:14:32.183028+00:00",
+      "key": "jooble:-820886724038012098",
+      "title": "Senior CAD Designer (Civil 3D) - Fridays, 401k Match",
+      "company": "BGE",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/-820886724038012098"
+    },
+    {
+      "found_at": "2026-06-24T21:14:32.183028+00:00",
+      "key": "jooble:-8556074428452018514",
+      "title": "Water/Wastewater CAD Designer - Hybrid & Impactful Projects",
+      "company": "HMB Professional Engineers",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/-8556074428452018514"
+    },
+    {
+      "found_at": "2026-06-24T21:14:32.183028+00:00",
+      "key": "jooble:-3662000645413085497",
+      "title": "Remote Revit/CAD Security Designer I",
+      "company": "ZBeta Consulting, Inc.",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/-3662000645413085497"
+    },
+    {
+      "found_at": "2026-06-24T21:14:32.183028+00:00",
+      "key": "jooble:5970380250226725693",
+      "title": "Junior CAD Designer",
+      "company": "Job Juncture",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/5970380250226725693"
     }
   ]
 }
