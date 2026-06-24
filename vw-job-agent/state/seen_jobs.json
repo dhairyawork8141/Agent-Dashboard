@@ -6,7 +6,10 @@
     "adzuna:5773389687",
     "adzuna:5773389693",
     "adzuna:5773546693",
+    "adzuna:5773547210",
     "adzuna:5773547211",
+    "adzuna:5773816823",
+    "adzuna:5773816897",
     "jooble:-1637813788789373642",
     "jooble:-1811045587169690708",
     "jooble:-1874248887394372716",
@@ -613,6 +616,30 @@
       "company": "EmergencyMD",
       "tier": "WATCH - generic CAD",
       "url": "https://jooble.org/jdp/3465402143433879556"
+    },
+    {
+      "found_at": "2026-06-24T00:13:49.308638+00:00",
+      "key": "adzuna:5773816897",
+      "title": "Senior Kitchen Design Consultant",
+      "company": "Oval Deene",
+      "tier": "HOT - Virtual Worlds",
+      "url": "https://www.adzuna.co.uk/jobs/land/ad/5773816897?se=RDdahGFv8RGwyekA_8S7zg&utm_medium=api&utm_source=119695ba&v=BA38726D7B835E7CC3B3CDA99C135FB7E1D69696"
+    },
+    {
+      "found_at": "2026-06-24T00:13:49.308638+00:00",
+      "key": "adzuna:5773547210",
+      "title": "Kitchen Designer",
+      "company": "DESIGNER RECRUITMENT LTD",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://www.adzuna.co.uk/jobs/details/5773547210?utm_medium=api&utm_source=119695ba"
+    },
+    {
+      "found_at": "2026-06-24T00:13:49.308638+00:00",
+      "key": "adzuna:5773816823",
+      "title": "Senior Kitchen Design Consultant",
+      "company": "Oval Deene",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://www.adzuna.co.uk/jobs/land/ad/5773816823?se=RDdahGFv8RGwyekA_8S7zg&utm_medium=api&utm_source=119695ba&v=D1BC3BB1E7576746C721BCC84A5C41A15584EBE5"
     }
   ]
 }
