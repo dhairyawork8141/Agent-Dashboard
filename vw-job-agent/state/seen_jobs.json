@@ -18,10 +18,14 @@
     "adzuna:5773816823",
     "adzuna:5773816897",
     "adzuna:5774272359",
+    "adzuna:5774806471",
     "adzuna:5776054763",
     "adzuna:5776241692",
+    "adzuna:5776433882",
+    "adzuna:5776756250",
     "jooble:-1155434470222448120",
     "jooble:-1247138183286132611",
+    "jooble:-1329427323608221336",
     "jooble:-1387132607859037453",
     "jooble:-1570382734778924401",
     "jooble:-1637813788789373642",
@@ -2089,6 +2093,38 @@
       "company": "NKBA",
       "tier": "WATCH - generic CAD",
       "url": "https://jooble.org/jdp/2045921306629659175"
+    },
+    {
+      "found_at": "2026-06-25T21:19:49.597341+00:00",
+      "key": "adzuna:5776756250",
+      "title": "Kitchen Sales Designer",
+      "company": "Axon Moore",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://www.adzuna.co.uk/jobs/land/ad/5776756250?se=1oAPkdtw8RGYA5triQA_Pw&utm_medium=api&utm_source=119695ba&v=1C578808647915942B776AAC9642DA65773ED316"
+    },
+    {
+      "found_at": "2026-06-25T21:19:49.597341+00:00",
+      "key": "adzuna:5774806471",
+      "title": "Kitchen Designer",
+      "company": "DESIGNER RECRUITMENT LTD",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://www.adzuna.co.uk/jobs/land/ad/5774806471?se=Rg_okdtw8RGCzc6DdVFMOA&utm_medium=api&utm_source=119695ba&v=B60FD69EF098C1E2BB389C8A7858BFAC2FDF74DA"
+    },
+    {
+      "found_at": "2026-06-25T21:19:49.597341+00:00",
+      "key": "adzuna:5776433882",
+      "title": "Kitchen Sales Designer",
+      "company": "Simon Acres Group",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://www.adzuna.co.uk/jobs/land/ad/5776433882?se=Rg_okdtw8RGCzc6DdVFMOA&utm_medium=api&utm_source=119695ba&v=B009FE3CD2D126974E8111AB0D381D648043140C"
+    },
+    {
+      "found_at": "2026-06-25T21:19:49.597341+00:00",
+      "key": "jooble:-1329427323608221336",
+      "title": "Senior CAD Designer - Custom Log Home Drafting",
+      "company": "Gastineau Log Homes",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://jooble.org/jdp/-1329427323608221336"
     }
   ]
 }
