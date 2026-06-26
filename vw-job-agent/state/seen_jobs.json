@@ -24,6 +24,8 @@
     "adzuna:5776433882",
     "adzuna:5776756250",
     "adzuna:5776887495",
+    "adzuna:5777897530",
+    "adzuna:5777969394",
     "jooble:-1155434470222448120",
     "jooble:-1247138183286132611",
     "jooble:-1329427323608221336",
@@ -179,6 +181,7 @@
     "jooble:5402485584379052678",
     "jooble:5520262495645851348",
     "jooble:5650564725101086139",
+    "jooble:5668681725892386842",
     "jooble:5948663818903921001",
     "jooble:5970380250226725693",
     "jooble:6093452284353169247",
@@ -2134,6 +2137,30 @@
       "company": "Axon Moore Group Ltd",
       "tier": "WARM - Winner/Cyncly",
       "url": "https://www.adzuna.co.uk/jobs/details/5776887495?utm_medium=api&utm_source=119695ba"
+    },
+    {
+      "found_at": "2026-06-26T21:09:54.672142+00:00",
+      "key": "jooble:5668681725892386842",
+      "title": "Kitchen Designer / Project Manager",
+      "company": "Z Ventures Ny Corp DBA Doca NYC",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://jooble.org/jdp/5668681725892386842"
+    },
+    {
+      "found_at": "2026-06-26T21:09:54.672142+00:00",
+      "key": "adzuna:5777969394",
+      "title": "Kitchen Surveyor / Kitchen Designer",
+      "company": "WHQS",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://www.adzuna.co.uk/jobs/land/ad/5777969394?se=YoCwWqNx8RGiVqWJe_bADg&utm_medium=api&utm_source=119695ba&v=CF0D02E7D15F9795634DC370E831A537FE7B7184"
+    },
+    {
+      "found_at": "2026-06-26T21:09:54.672142+00:00",
+      "key": "adzuna:5777897530",
+      "title": "Kitchen Surveyor / Kitchen Designer",
+      "company": "WHQS",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://www.adzuna.co.uk/jobs/land/ad/5777897530?se=YoCwWqNx8RGiVqWJe_bADg&utm_medium=api&utm_source=119695ba&v=2893DD1599B4A1C416A81B81328E412E8F051318"
     }
   ]
 }
