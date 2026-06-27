@@ -26,6 +26,8 @@
     "adzuna:5776887495",
     "adzuna:5777897530",
     "adzuna:5777969394",
+    "adzuna:5778060477",
+    "adzuna:5779015441",
     "jooble:-1155434470222448120",
     "jooble:-1247138183286132611",
     "jooble:-1329427323608221336",
@@ -2161,6 +2163,22 @@
       "company": "WHQS",
       "tier": "WARM - Winner/Cyncly",
       "url": "https://www.adzuna.co.uk/jobs/land/ad/5777897530?se=YoCwWqNx8RGiVqWJe_bADg&utm_medium=api&utm_source=119695ba&v=2893DD1599B4A1C416A81B81328E412E8F051318"
+    },
+    {
+      "found_at": "2026-06-27T11:16:22.299788+00:00",
+      "key": "adzuna:5779015441",
+      "title": "Kitchen Designer",
+      "company": "DESIGNER RECRUITMENT LTD",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://www.adzuna.co.uk/jobs/land/ad/5779015441?se=bBDEmhly8RGiVqWJe_bADg&utm_medium=api&utm_source=119695ba&v=9EB27F577ECBC79E17B5AE1F25D980A2D9347151"
+    },
+    {
+      "found_at": "2026-06-27T11:16:22.299788+00:00",
+      "key": "adzuna:5778060477",
+      "title": "Kitchen Surveyor / Kitchen Designer",
+      "company": "WHQS",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://www.adzuna.co.uk/jobs/details/5778060477?utm_medium=api&utm_source=119695ba"
     }
   ]
 }
