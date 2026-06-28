@@ -29,6 +29,7 @@
     "adzuna:5778060477",
     "adzuna:5778942457",
     "adzuna:5779015441",
+    "adzuna:5779653575",
     "jooble:-1155434470222448120",
     "jooble:-1247138183286132611",
     "jooble:-1329427323608221336",
@@ -192,6 +193,7 @@
     "jooble:6284510035785410667",
     "jooble:6369170397606990946",
     "jooble:640582418575306036",
+    "jooble:6513883094275057808",
     "jooble:6653931245074034359",
     "jooble:668779466100241063",
     "jooble:6895828826041620734",
@@ -2188,6 +2190,22 @@
       "company": "DESIGNER RECRUITMENT LTD",
       "tier": "WARM - Winner/Cyncly",
       "url": "https://www.adzuna.co.uk/jobs/land/ad/5778942457?se=IDQ0J2Ny8RGe4ZwL0wNS6w&utm_medium=api&utm_source=119695ba&v=075CB1331C2FDC34335C7AADF633A1019C510066"
+    },
+    {
+      "found_at": "2026-06-28T08:34:54.813445+00:00",
+      "key": "adzuna:5779653575",
+      "title": "Kitchen Surveyor / Kitchen Designer",
+      "company": "WHQS",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://www.adzuna.co.uk/jobs/land/ad/5779653575?se=dtkFMsxy8RGe4ZwL0wNS6w&utm_medium=api&utm_source=119695ba&v=3192897A0F401C1020DD6442D6B57DA87B9A9F49"
+    },
+    {
+      "found_at": "2026-06-28T08:34:54.813445+00:00",
+      "key": "jooble:6513883094275057808",
+      "title": "CAD Designer",
+      "company": "Insight Global",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/6513883094275057808"
     }
   ]
 }
