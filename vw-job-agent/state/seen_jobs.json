@@ -56,6 +56,7 @@
     "jooble:-2111189677430362801",
     "jooble:-2149437418717606651",
     "jooble:-2151598546802026361",
+    "jooble:-2236466370887964360",
     "jooble:-2310487900259023305",
     "jooble:-2328083043382004038",
     "jooble:-2363141622550498040",
@@ -78,11 +79,13 @@
     "jooble:-3138890520074135641",
     "jooble:-3182292412152053399",
     "jooble:-3216275515337848497",
+    "jooble:-3227798202169218767",
     "jooble:-3275642005516449043",
     "jooble:-3461596082039294906",
     "jooble:-3471191332911207823",
     "jooble:-3504388471032358983",
     "jooble:-3662000645413085497",
+    "jooble:-3671474860648476821",
     "jooble:-3717215513116984203",
     "jooble:-3732986075590363851",
     "jooble:-3826823312938918774",
@@ -95,6 +98,7 @@
     "jooble:-4265372227825809849",
     "jooble:-4383675786932750021",
     "jooble:-4430921635475003378",
+    "jooble:-4504232354503722590",
     "jooble:-4515002994035325179",
     "jooble:-458357154073557550",
     "jooble:-4643870276324035294",
@@ -115,9 +119,11 @@
     "jooble:-5672045711475697555",
     "jooble:-5688367089043246579",
     "jooble:-5716428938922806872",
+    "jooble:-5722232906109453809",
     "jooble:-5815302244396776331",
     "jooble:-5903402076923429277",
     "jooble:-6054877447135463754",
+    "jooble:-6101404273546719105",
     "jooble:-6149549827380446894",
     "jooble:-6167138594490114408",
     "jooble:-6170154719152502217",
@@ -128,6 +134,7 @@
     "jooble:-6382370663425700308",
     "jooble:-6599254448609123880",
     "jooble:-6619120759262434467",
+    "jooble:-6653987843546999421",
     "jooble:-6674323683369089231",
     "jooble:-6736147521521465773",
     "jooble:-6748872940585318601",
@@ -190,6 +197,8 @@
     "jooble:1867540503717064160",
     "jooble:1876710167237879100",
     "jooble:1977615119324974354",
+    "jooble:1979171309760056146",
+    "jooble:1982660625153576198",
     "jooble:1987902423385882776",
     "jooble:2003053728828269363",
     "jooble:2045921306629659175",
@@ -229,6 +238,7 @@
     "jooble:3465402143433879556",
     "jooble:3541281777215717490",
     "jooble:3657894104186786105",
+    "jooble:3693174314012394580",
     "jooble:3707284048165315361",
     "jooble:3774666403823618846",
     "jooble:3834055719757550055",
@@ -241,6 +251,7 @@
     "jooble:4162271262309509052",
     "jooble:4321743119451950698",
     "jooble:4346832537767802434",
+    "jooble:4397984091881253200",
     "jooble:441163505920899873",
     "jooble:4411728435717770091",
     "jooble:4474055545938824074",
@@ -267,6 +278,7 @@
     "jooble:5594788435500708330",
     "jooble:5650564725101086139",
     "jooble:5668681725892386842",
+    "jooble:5707319775931759986",
     "jooble:5922382287002245266",
     "jooble:5948663818903921001",
     "jooble:5970380250226725693",
@@ -3070,6 +3082,102 @@
       "company": "The Judge Group",
       "tier": "WATCH - generic CAD",
       "url": "https://jooble.org/jdp/1867540503717064160"
+    },
+    {
+      "found_at": "2026-06-29T12:49:58.516049+00:00",
+      "key": "jooble:1979171309760056146",
+      "title": "Physician Family Practice-Without OB - Competitive Salary",
+      "company": "The Medicus Firm",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/1979171309760056146"
+    },
+    {
+      "found_at": "2026-06-29T12:49:58.516049+00:00",
+      "key": "jooble:1982660625153576198",
+      "title": "Physician Internal Medicine - Competitive Salary",
+      "company": "Enterprise Medical Recruiting",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/1982660625153576198"
+    },
+    {
+      "found_at": "2026-06-29T12:49:58.516049+00:00",
+      "key": "jooble:5707319775931759986",
+      "title": "Physician Family Practice-Without OB - Competitive Salary",
+      "company": "Source Medical, LLC.",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/5707319775931759986"
+    },
+    {
+      "found_at": "2026-06-29T12:49:58.516049+00:00",
+      "key": "jooble:-2236466370887964360",
+      "title": "Physician Hematology/Oncology - Competitive Salary",
+      "company": "Med Career Center, Inc",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/-2236466370887964360"
+    },
+    {
+      "found_at": "2026-06-29T12:49:58.516049+00:00",
+      "key": "jooble:-6101404273546719105",
+      "title": "Physician Obstetrics & Gynecology - Competitive Salary",
+      "company": "Archway Physician Recruitment",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/-6101404273546719105"
+    },
+    {
+      "found_at": "2026-06-29T12:49:58.516049+00:00",
+      "key": "jooble:-3227798202169218767",
+      "title": "Physician Family Practice-Without OB - Competitive Salary",
+      "company": "BAS Healthcare",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/-3227798202169218767"
+    },
+    {
+      "found_at": "2026-06-29T12:49:58.516049+00:00",
+      "key": "jooble:4397984091881253200",
+      "title": "Physician Neurology - Competitive Salary",
+      "company": "Source Medical, LLC.",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/4397984091881253200"
+    },
+    {
+      "found_at": "2026-06-29T12:49:58.516049+00:00",
+      "key": "jooble:-6653987843546999421",
+      "title": "Plumber",
+      "company": "Haltex Plumbing",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/-6653987843546999421"
+    },
+    {
+      "found_at": "2026-06-29T12:49:58.516049+00:00",
+      "key": "jooble:-4504232354503722590",
+      "title": "Project Architect",
+      "company": "Northern Impact",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/-4504232354503722590"
+    },
+    {
+      "found_at": "2026-06-29T12:49:58.516049+00:00",
+      "key": "jooble:-3671474860648476821",
+      "title": "Plumbing Designer",
+      "company": "LPA",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/-3671474860648476821"
+    },
+    {
+      "found_at": "2026-06-29T12:49:58.516049+00:00",
+      "key": "jooble:-5722232906109453809",
+      "title": "CAD Designer",
+      "company": "Cogent Talent Solutions",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/-5722232906109453809"
+    },
+    {
+      "found_at": "2026-06-29T12:49:58.516049+00:00",
+      "key": "jooble:3693174314012394580",
+      "title": "Road & Highway CAD Designer | MicroStation Pro | ESOP",
+      "company": "Parsons Corporation",
+      "tier": "WATCH - generic CAD",
+      "url": "https://jooble.org/jdp/3693174314012394580"
     }
   ]
 }
