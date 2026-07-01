@@ -36,10 +36,15 @@
     "adzuna:5781151343",
     "adzuna:5782099556",
     "adzuna:5783169529",
+    "adzuna:5783854519",
+    "adzuna:5783887795",
+    "adzuna:5784006183",
+    "adzuna:5784180143",
     "jooble:-1034995086862594570",
     "jooble:-105984271815853168",
     "jooble:-1065627357779231814",
     "jooble:-1155434470222448120",
+    "jooble:-1236324692634094153",
     "jooble:-1247138183286132611",
     "jooble:-1329427323608221336",
     "jooble:-1387132607859037453",
@@ -137,6 +142,7 @@
     "jooble:-5688367089043246579",
     "jooble:-5716428938922806872",
     "jooble:-5722232906109453809",
+    "jooble:-5779118255119527928",
     "jooble:-5815302244396776331",
     "jooble:-5903402076923429277",
     "jooble:-6054877447135463754",
@@ -149,6 +155,7 @@
     "jooble:-6317549177432639408",
     "jooble:-6328953354135364755",
     "jooble:-6382370663425700308",
+    "jooble:-6383971566851458480",
     "jooble:-6599254448609123880",
     "jooble:-6619120759262434467",
     "jooble:-6653987843546999421",
@@ -298,6 +305,7 @@
     "jooble:4960361062593185679",
     "jooble:5044800248827297507",
     "jooble:5057090966055305622",
+    "jooble:5098131431115825860",
     "jooble:5105886997603926637",
     "jooble:522653188898985131",
     "jooble:5326161498711839553",
@@ -3538,6 +3546,70 @@
       "company": "The Home Depot",
       "tier": "WARM - Winner/Cyncly",
       "url": "https://jooble.org/jdp/-105984271815853168"
+    },
+    {
+      "found_at": "2026-07-01T21:13:40.396359+00:00",
+      "key": "adzuna:5784006183",
+      "title": "Kitchen & Bathroom Sales Designer",
+      "company": "Oval Deene",
+      "tier": "HOT - Virtual Worlds",
+      "url": "https://www.adzuna.co.uk/jobs/land/ad/5784006183?se=mj5grpF18RGOeNvhEByHAg&utm_medium=api&utm_source=119695ba&v=D5158125F47B3527EF57176A95EF3013F2E7B9C9"
+    },
+    {
+      "found_at": "2026-07-01T21:13:40.396359+00:00",
+      "key": "jooble:-5779118255119527928",
+      "title": "Kitchen and Bath Designer",
+      "company": "NKBA",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://jooble.org/jdp/-5779118255119527928"
+    },
+    {
+      "found_at": "2026-07-01T21:13:40.396359+00:00",
+      "key": "jooble:-6383971566851458480",
+      "title": "Kitchen and Bath Designer",
+      "company": "Aqua Kitchen",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://jooble.org/jdp/-6383971566851458480"
+    },
+    {
+      "found_at": "2026-07-01T21:13:40.396359+00:00",
+      "key": "jooble:5098131431115825860",
+      "title": "Kitchen & Bath Designer",
+      "company": "NKBA",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://jooble.org/jdp/5098131431115825860"
+    },
+    {
+      "found_at": "2026-07-01T21:13:40.396359+00:00",
+      "key": "adzuna:5783854519",
+      "title": "Kitchen Designer",
+      "company": "DESIGNER RECRUITMENT LTD",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://www.adzuna.co.uk/jobs/land/ad/5783854519?se=jL9XrZF18RGwMvuqxXHvVQ&utm_medium=api&utm_source=119695ba&v=58ED963BC5BF7B00CEAE41EED5DBD56852C5B2F6"
+    },
+    {
+      "found_at": "2026-07-01T21:13:40.396359+00:00",
+      "key": "adzuna:5784180143",
+      "title": "Kitchen Designer",
+      "company": "DESIGNER RECRUITMENT LTD",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://www.adzuna.co.uk/jobs/details/5784180143?utm_medium=api&utm_source=119695ba"
+    },
+    {
+      "found_at": "2026-07-01T21:13:40.396359+00:00",
+      "key": "adzuna:5783887795",
+      "title": "Technical Designer - Luxury Kitchens",
+      "company": "Humres",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://www.adzuna.co.uk/jobs/land/ad/5783887795?se=XF3trpF18RG075onbIWOaw&utm_medium=api&utm_source=119695ba&v=86768A0CEB28860067876238AB92086932637671"
+    },
+    {
+      "found_at": "2026-07-01T21:13:40.396359+00:00",
+      "key": "jooble:-1236324692634094153",
+      "title": "Kitchen Designer",
+      "company": "Ateliers Jacob Cuisine & Espace",
+      "tier": "WARM - Winner/Cyncly",
+      "url": "https://jooble.org/jdp/-1236324692634094153"
     }
   ]
 }
